@@ -30,7 +30,10 @@ dist-ssr
 !.env.example
 .tmp/
 
+# La base locale et les fichiers de travail. Volontairement large — mais cette
+# largeur avait avalé shared/prompt-catalog/data/, d'où la réintégration juste après.
 **/data/
+!shared/prompt-catalog/data/
 data/pglite/
 data/uploads/
 data/settings.json

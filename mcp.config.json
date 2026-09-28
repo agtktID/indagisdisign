@@ -1,0 +1,17 @@
+{
+  "$schema": "https://agent-native.com/schema/mcp.config.json",
+  "servers": {
+    "hyperframes": {
+      "command": "node",
+      "args": [
+        "tools/hyperframes-bridge/server.mjs"
+      ]
+    },
+    "remotion": {
+      "command": "node",
+      "args": [
+        "tools/remotion-bridge/server.mjs"
+      ]
+    }
+  }
+}

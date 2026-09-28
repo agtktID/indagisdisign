@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Une nouvelle poussée annule la vérification précédente de la même branche.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: Portes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # La version de pnpm vient du champ packageManager du package.json.
+      - uses: pnpm/action-setup@v4
+
+      # 22.22 est le plancher déclaré dans engines : on vérifie le plancher,
+      # pas la version confortable de la machine du développeur.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22.22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      # doctor sort en code 0 même avec des constats : on échoue explicitement
+      # si la sortie n'est pas « Clean ».
+      - name: Doctor
+        run: |
+          pnpm agent-native:doctor | tee doctor.log
+          grep -q "Clean — no findings." doctor.log || {
+            echo "::error::doctor a relevé des constats — voir la sortie ci-dessus."
+            exit 1
+          }
+
+      # Le catalogue est généré : personne ne doit l'éditer à la main sans
+      # repasser par le script. On vérifie au moins qu'il reste cohérent.
+      - name: Le catalogue se charge
+        run: |
+          node --experimental-strip-types -e "
+            import('./shared/prompt-catalog/index.ts').then(m => {
+              const n = m.CATALOG_PROMPTS.length;
+              if (n !== m.CATALOG_COUNTS.total) {
+                throw new Error(\`\${n} prompts chargés pour \${m.CATALOG_COUNTS.total} annoncés\`);
+              }
+              const keys = new Set(m.CATALOG_PROMPTS.map(p => p.key));
+              if (keys.size !== n) throw new Error('clés de prompt en double');
+              console.log(\`catalogue : \${n} prompts, clés uniques\`);
+            });
+          "

@@ -1,0 +1,53 @@
+.react-router/
+.generated/
+
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+node_modules
+build/
+dist
+dist-ssr
+.output/
+.netlify/
+.deploy-tmp/
+*.local
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.env
+.env.*
+!.env.example
+.tmp/
+
+**/data/
+data/pglite/
+data/uploads/
+data/settings.json
+data/.sessions.json
+
+learnings.md
+
+.vercel/
+.agent-native/
+data/*.lock
+
+# Compositions et vidéos rendues : des sorties, pas des sources.
+video/
+
+# Outillage de workflow, installé par machine — pas le projet.
+# Spec Kit et BMAD servent à produire le code, pas à le faire tourner ; les
+# publier redistribuerait en plus le travail d'autrui sans sa licence.
+.claude/skills/
+.specify/
+_bmad/

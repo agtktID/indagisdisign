@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-native.com/schema/mcp.config.json",
+
+  "//": "Exemple non chargé. Renommer en mcp.config.json pour l'activer.",
+  "//1": "Les outils d'un serveur arrivent dans le registre de l'agent sous",
+  "//2": "mcp__<id-du-serveur>__<outil>, et sont trouvables par tool-search.",
+  "//3": "NE JAMAIS committer de jeton ici : en production, passer la même forme",
+  "//4": "par la variable d'environnement MCP_SERVERS, ou par l'écran de réglages.",
+
+  "servers": {
+    "hyperframes": {
+      "type": "http",
+      "url": "REMPLACER_PAR_L_URL_MCP_HYPERFRAMES",
+      "headers": {
+        "Authorization": "Bearer REMPLACER_PAR_LE_JETON"
+      }
+    }
+  }
+}

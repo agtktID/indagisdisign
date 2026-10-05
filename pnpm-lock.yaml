@@ -57,13 +57,13 @@ importers:
   .:
     dependencies:
       '@agent-native/agentkit':
-        specifier: latest
+        specifier: 0.200.0
         version: 0.200.0
       '@agent-native/core':
-        specifier: latest
+        specifier: 0.200.0
         version: 0.200.0(65e617ca4f55ea9b6f2db90bcb3eb253)
       '@agent-native/toolkit':
-        specifier: latest
+        specifier: 0.200.0
         version: 0.200.0(9215e4bba6c634b458ec469a9005845c)
       '@ai-sdk/anthropic':
         specifier: ^3.0.71

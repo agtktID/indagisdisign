@@ -23,6 +23,12 @@ export interface CurvePoint {
  *
  * La courbe de référence de la méthode est affichée en pointillé : pic à l'étape 8,
  * respiration à la 9, relance à la 11. C'est une indication, jamais une cible imposée.
+ *
+ * **Les couleurs passent par `className`, jamais par `stroke="var(--…)"`.** Recharts
+ * pose `stroke` en *attribut de présentation* SVG, et un attribut ne résout pas
+ * `var()` — seule une propriété CSS le fait. La courbe sortait donc sans trait, avec
+ * des points blancs invisibles sur fond clair. `currentColor` dans l'attribut plus une
+ * classe qui pose `color` donne un trait qui suit le thème.
  */
 export function EmotionCurve({
   curve,
@@ -66,12 +72,13 @@ export function EmotionCurve({
             ]}
           />
           {/* Le climax : le repère qui structure toute la courbe. */}
-          <ReferenceLine x={8} stroke="var(--border)" strokeDasharray="4 4" />
+          <ReferenceLine x={8} className="stroke-border" strokeDasharray="4 4" />
           {showReference ? (
             <Line
               type="monotone"
               dataKey="referenceIntensity"
-              stroke="var(--muted-foreground)"
+              stroke="currentColor"
+              className="text-muted-foreground"
               strokeDasharray="4 4"
               strokeWidth={1}
               dot={false}
@@ -81,10 +88,11 @@ export function EmotionCurve({
           <Line
             type="monotone"
             dataKey="intensity"
-            stroke="var(--primary)"
+            stroke="currentColor"
+            className="text-primary"
             strokeWidth={2}
             connectNulls
-            dot={{ r: 3 }}
+            dot={{ r: 3, fill: "currentColor", strokeWidth: 0 }}
             isAnimationActive={false}
           />
         </LineChart>

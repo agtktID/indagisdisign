@@ -2,14 +2,14 @@
 /**
  * Régénère les captures d'écran du README.
  *
- *   node tools/captures/shoot.mjs <binaire-chromium> [url] [dossier-de-sortie]
+ *   node tools/captures/shoot.mjs <binaire-chromium> [url] [dossier] [id-video-demo]
  *
  * Exemple, avec le Chromium que Playwright installe :
  *
  *   pnpm dev   # dans un autre terminal, puis laisser Vite finir de pré-bundler
  *   node tools/captures/shoot.mjs \
  *     ~/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome \
- *     http://localhost:8080 docs/captures
+ *     http://localhost:8080 docs/captures <id-d-une-video-a-la-carte-complete>
  *
  * Aucune dépendance ajoutée au projet : le script parle au navigateur par le protocole
  * DevTools, sur le WebSocket natif de Node.
@@ -26,22 +26,25 @@
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 
-const [chrome, base = "http://localhost:8080", outDir = "docs/captures"] = process.argv.slice(2);
+const [chrome, base = "http://localhost:8080", outDir = "docs/captures", demoVideo] =
+  process.argv.slice(2);
 
 if (!chrome) {
-  console.error("Usage : node tools/captures/shoot.mjs <binaire-chromium> [url] [dossier]");
+  console.error(
+    "Usage : node tools/captures/shoot.mjs <binaire-chromium> [url] [dossier] [id-video-demo]",
+  );
   process.exit(1);
 }
 
 /**
  * Les écrans qui méritent une image.
  *
- * `DEMO_VIDEO_ID` doit pointer sur une vidéo dont la carte est complète, sinon la
- * capture de la carte narrative montre un écran vide. Le passer en variable
- * d'environnement plutôt que de le coder en dur : chaque base locale a ses propres
- * identifiants.
+ * Le quatrième argument doit pointer sur une vidéo dont la carte est complète, sinon la
+ * capture de la carte narrative montre un écran vide. Il est passé en argument plutôt
+ * que codé en dur — chaque base locale a ses propres identifiants — et non par
+ * variable d'environnement, que le garde-fou `no-env-credentials` interdit à juste
+ * titre dans ce dépôt.
  */
-const demoVideo = process.env.DEMO_VIDEO_ID;
 const SHOTS = [
   ...(demoVideo
     ? [
@@ -56,8 +59,8 @@ const SHOTS = [
 
 if (!demoVideo) {
   console.warn(
-    "  DEMO_VIDEO_ID absent : les écrans de fiche vidéo sont ignorés.\n" +
-      "  Exemple : DEMO_VIDEO_ID=<uuid> node tools/captures/shoot.mjs …",
+    "  Identifiant de vidéo absent : les écrans de fiche vidéo sont ignorés.\n" +
+      "  Exemple : node tools/captures/shoot.mjs <chromium> <url> <dossier> <uuid>",
   );
 }
 

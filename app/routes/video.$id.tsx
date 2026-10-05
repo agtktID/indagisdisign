@@ -1,7 +1,8 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
-import { IconArrowLeft } from "@tabler/icons-react";
-import { Link, useParams, useSearchParams } from "react-router";
+import { IconArchive, IconArrowLeft } from "@tabler/icons-react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { useEffect, useState } from "react";
 
 import { ExperimentsTab } from "@/components/studio/ExperimentsTab";
 import { MarkersTab } from "@/components/studio/MarkersTab";
@@ -101,9 +102,11 @@ export default function VideoRoute() {
       </div>
 
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">
-          {isLoading ? "Chargement…" : (detail?.video.title ?? "Vidéo")}
-        </h1>
+        {isLoading || !detail ? (
+          <h1 className="text-xl font-semibold">Chargement…</h1>
+        ) : (
+          <TitleField videoId={videoId} title={detail.video.title} />
+        )}
         <div className="flex flex-wrap items-center gap-2">
           {detail ? (
             <>
@@ -117,6 +120,7 @@ export default function VideoRoute() {
                 <Badge tone="warn">Bloquée depuis {detail.daysSinceStageChange} j</Badge>
               ) : null}
               <DueDateField videoId={videoId} dueAt={detail.video.dueAt} />
+              <ArchiveButton videoId={videoId} title={detail.video.title} />
             </>
           ) : null}
         </div>
@@ -153,6 +157,100 @@ export default function VideoRoute() {
         </>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Le titre, modifiable sur place.
+ *
+ * FR-001 exige de pouvoir créer, **renommer** et archiver une vidéo. `update-video`
+ * acceptait déjà un titre, mais aucune surface ne l'appelait : seul l'agent pouvait
+ * renommer. Une fonctionnalité qui n'existe que pour l'agent n'est pas finie.
+ *
+ * Édition sur place plutôt qu'un écran de réglages — le Principe V limite l'interface,
+ * et un titre se corrige là où on le lit.
+ */
+function TitleField({ videoId, title }: { videoId: string; title: string }) {
+  const update = useActionMutation("update-video");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(title);
+
+  useEffect(() => {
+    setDraft(title);
+  }, [title]);
+
+  // Un titre vide n'a pas de sens, et l'action le refuserait : on revient au précédent.
+  const commit = () => {
+    const next = draft.trim();
+    setEditing(false);
+    if (!next || next === title) {
+      setDraft(title);
+      return;
+    }
+    update.mutate({ videoId, title: next });
+  };
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        title="Renommer"
+        className="hover:bg-muted/60 -mx-2 rounded-md px-2 py-0.5 text-left text-xl font-semibold transition"
+      >
+        {title}
+      </button>
+    );
+  }
+
+  return (
+    <input
+      autoFocus
+      value={draft}
+      onChange={(event) => setDraft(event.target.value)}
+      onBlur={commit}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") commit();
+        if (event.key === "Escape") {
+          setDraft(title);
+          setEditing(false);
+        }
+      }}
+      aria-label="Titre de la vidéo"
+      className="border-input bg-background -mx-2 rounded-md border px-2 py-0.5 text-xl font-semibold"
+    />
+  );
+}
+
+/**
+ * L'archivage, réversible, depuis l'en-tête.
+ *
+ * `archive-video` existait sans aucune surface. L'archivage est logique et se défait
+ * — d'où une confirmation simple plutôt qu'un dialogue lourd : ce n'est pas une
+ * suppression, et le dire est plus utile que de faire peur.
+ */
+function ArchiveButton({ videoId, title }: { videoId: string; title: string }) {
+  const archive = useActionMutation("archive-video");
+  const navigate = useNavigate();
+
+  return (
+    <button
+      type="button"
+      disabled={archive.isPending}
+      onClick={() => {
+        const confirmed = window.confirm(
+          `Archiver « ${title} » ?\n\nElle disparaît de la liste mais n'est pas supprimée : ` +
+            `l'agent peut la ressortir avec archive-video --archived false.`,
+        );
+        if (!confirmed) return;
+        archive.mutate({ videoId }, { onSuccess: () => navigate("/videos") });
+      }}
+      title="Archiver cette vidéo"
+      aria-label="Archiver cette vidéo"
+      className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition disabled:opacity-50"
+    >
+      <IconArchive size={15} />
+    </button>
   );
 }
 

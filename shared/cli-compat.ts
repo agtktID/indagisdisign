@@ -11,6 +11,27 @@
 
 import { z } from "zod";
 
+/**
+ * Un entier optionnel qui accepte aussi d'être explicitement vidé.
+ *
+ * Le framework convertit tout seul les chaînes en nombres pour un `z.number()` nu, mais
+ * **plus dès qu'on y ajoute `.nullable()`** : `--endMs 11800` arrive alors comme la
+ * chaîne « 11800 » et l'action refuse l'appel. Même piège que pour `nullableId`, sur
+ * l'autre type.
+ */
+export function nullableInteger(description: string) {
+  return z
+    .preprocess((value) => {
+      if (value === "" || value === "null" || value === null) return null;
+      if (typeof value === "string") {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : value;
+      }
+      return value;
+    }, z.number().int().min(0).nullable())
+    .describe(description);
+}
+
 /** Un identifiant optionnel qui accepte aussi d'être explicitement vidé. */
 export function nullableId(description: string) {
   return z

@@ -3,6 +3,8 @@ import { eq } from "@agent-native/core/db/schema";
 import { desc } from "drizzle-orm";
 import { z } from "zod";
 
+import { nullableInteger } from "../shared/cli-compat.ts";
+
 import { getDb, newId, nowIso, schema } from "../server/db/index.ts";
 import { assertStep, loadVideoForWrite, msToTimecode, ownerStamp } from "../server/studio.ts";
 
@@ -15,12 +17,13 @@ export default defineAction({
     label: z.string().min(1).describe("Intitulé du passage"),
     rushName: z.string().optional().describe("Fichier ou prise d'origine"),
     startMs: z.number().int().min(0).describe("Début, en millisecondes"),
-    endMs: z
-      .number()
-      .int()
-      .min(0)
-      .optional()
-      .describe("Fin, en millisecondes ; absent = le marqueur est un point"),
+    // `null` efface la fin, `undefined` la laisse telle quelle — même convention que
+    // `step` plus bas. Sans cette distinction, l'interface ne pouvait pas transformer
+    // un intervalle en point. `nullableInteger` parce que `.nullable()` désactive la
+    // conversion automatique des arguments de ligne de commande.
+    endMs: nullableInteger(
+      "Fin, en millisecondes ; absent = inchangé, null = le marqueur devient un point",
+    ).optional(),
     // La CLI passe les arguments en chaînes ; la conversion automatique du framework
     // ne s'applique pas aux champs `nullable`. On la fait explicitement pour que
     // l'action réponde sur toutes ses surfaces, CLI comprise.
@@ -46,7 +49,7 @@ export default defineAction({
     await loadVideoForWrite(videoId);
     if (step !== undefined && step !== null) assertStep(step);
 
-    if (endMs !== undefined && endMs < startMs) {
+    if (endMs !== undefined && endMs !== null && endMs < startMs) {
       throw new Error(
         `Fin (${msToTimecode(endMs)}) antérieure au début (${msToTimecode(startMs)}) : vérifiez les timecodes.`,
       );

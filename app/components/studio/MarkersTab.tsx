@@ -1,9 +1,10 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
 import { IconArrowDown, IconArrowUp, IconDownload, IconPlus, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 import { Badge, EmptyState, Textarea } from "./primitives";
 
@@ -38,6 +39,78 @@ function parseTimecode(value: string): number | null {
   return Math.round(((hours * 60 + minutes) * 60 + seconds) * 1000);
 }
 
+/**
+ * Une cellule du carnet, modifiable sur place.
+ *
+ * `upsert-marker` acceptait déjà un `markerId` ; aucune surface ne l'utilisait, donc
+ * corriger une faute de frappe ou un timecode imposait de supprimer la ligne et de
+ * tout resaisir. Sur un carnet de cinquante marqueurs, c'est rédhibitoire.
+ *
+ * On n'enregistre qu'au changement réel : revenir sur une cellule sans rien modifier
+ * ne doit pas écrire en base.
+ */
+function EditableCell({
+  value,
+  placeholder,
+  align,
+  onCommit,
+}: {
+  value: string;
+  placeholder: string;
+  align?: "tabular";
+  onCommit: (next: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  const commit = () => {
+    setEditing(false);
+    if (draft.trim() === value.trim()) return;
+    onCommit(draft.trim());
+  };
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        title="Modifier"
+        className={cn(
+          "hover:bg-muted/60 -mx-1 w-full rounded px-1 py-0.5 text-left transition",
+          align === "tabular" && "tabular-nums",
+          !value && "text-muted-foreground",
+        )}
+      >
+        {value || placeholder}
+      </button>
+    );
+  }
+
+  return (
+    <input
+      autoFocus
+      value={draft}
+      onChange={(event) => setDraft(event.target.value)}
+      onBlur={commit}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") commit();
+        if (event.key === "Escape") {
+          setDraft(value);
+          setEditing(false);
+        }
+      }}
+      className={cn(
+        "border-input bg-background -mx-1 w-full rounded border px-1 py-0.5 text-xs",
+        align === "tabular" && "tabular-nums",
+      )}
+    />
+  );
+}
+
 export function MarkersTab({ videoId }: { videoId: string }) {
   const [order, setOrder] = useState<"narrative" | "timecode">("narrative");
   const { data } = useActionQuery("list-markers", { videoId, order });
@@ -47,6 +120,32 @@ export function MarkersTab({ videoId }: { videoId: string }) {
   const upsert = useActionMutation("upsert-marker");
   const remove = useActionMutation("delete-marker");
   const assign = useActionMutation("assign-marker-step");
+
+  /**
+   * Modifie un champ d'un marqueur existant.
+   *
+   * `upsert-marker` exige `label` et `startMs` à chaque appel : on les renvoie depuis
+   * le marqueur courant, pour qu'une modification d'une seule colonne n'efface pas
+   * les autres.
+   */
+  const edit = (
+    marker: Marker,
+    patch: Partial<{
+      label: string;
+      rushName: string;
+      startMs: number;
+      endMs: number | null;
+      intendedFeeling: string;
+      editAttempt: string;
+    }>,
+  ) =>
+    upsert.mutate({
+      videoId,
+      markerId: marker.id,
+      label: marker.label,
+      startMs: marker.startMs,
+      ...patch,
+    });
   const reorder = useActionMutation("reorder-markers");
   // `export-markers` est aussi une lecture : même traitement que diagnose-structure.
   const exportCsv = useActionQuery(
@@ -211,10 +310,39 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                       <span className="text-muted-foreground text-xs tabular-nums">{index + 1}</span>
                     )}
                   </td>
-                  <td className="py-1.5 pr-3 font-medium">{marker.label}</td>
-                  <td className="text-muted-foreground py-1.5 pr-3 text-xs">{marker.rushName ?? "—"}</td>
-                  <td className="py-1.5 pr-3 text-xs tabular-nums">{marker.startTimecode}</td>
-                  <td className="py-1.5 pr-3 text-xs tabular-nums">{marker.endTimecode || "—"}</td>
+                  <td className="py-1.5 pr-3 font-medium">
+                    <EditableCell
+                      value={marker.label}
+                      placeholder="Sans intitulé"
+                      onCommit={(next) => next && edit(marker, { label: next })}
+                    />
+                  </td>
+                  <td className="text-muted-foreground py-1.5 pr-3 text-xs">
+                    <EditableCell
+                      value={marker.rushName ?? ""}
+                      placeholder="—"
+                      onCommit={(next) => edit(marker, { rushName: next })}
+                    />
+                  </td>
+                  <td className="py-1.5 pr-3 text-xs">
+                    <EditableCell
+                      value={marker.startTimecode}
+                      placeholder="—"
+                      align="tabular"
+                      onCommit={(next) => {
+                        const parsed = parseTimecode(next);
+                        if (parsed !== null) edit(marker, { startMs: parsed });
+                      }}
+                    />
+                  </td>
+                  <td className="py-1.5 pr-3 text-xs">
+                    <EditableCell
+                      value={marker.endTimecode || ""}
+                      placeholder="—"
+                      align="tabular"
+                      onCommit={(next) => edit(marker, { endMs: parseTimecode(next) })}
+                    />
+                  </td>
                   <td className="py-1.5 pr-3">
                     <select
                       value={marker.step ?? ""}
@@ -235,10 +363,18 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                     </select>
                   </td>
                   <td className="text-muted-foreground py-1.5 pr-3 text-xs">
-                    {marker.intendedFeeling ?? "—"}
+                    <EditableCell
+                      value={marker.intendedFeeling ?? ""}
+                      placeholder="—"
+                      onCommit={(next) => edit(marker, { intendedFeeling: next })}
+                    />
                   </td>
                   <td className="text-muted-foreground py-1.5 pr-3 text-xs">
-                    {marker.editAttempt ?? "—"}
+                    <EditableCell
+                      value={marker.editAttempt ?? ""}
+                      placeholder="—"
+                      onCommit={(next) => edit(marker, { editAttempt: next })}
+                    />
                   </td>
                   <td className="py-1.5">
                     <button

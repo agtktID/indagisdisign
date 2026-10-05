@@ -1,4 +1,4 @@
-import { markAgentChatHomeHandoff } from "@agent-native/core/client/agentkit-chat/rail";
+import { markAgentChatHomeHandoff } from "@agent-native/toolkit/app/chat/agentkit-chat/rail";
 import { appPath } from "@agent-native/core/client/api-path";
 import { useEffect, useRef, useState } from "react";
 

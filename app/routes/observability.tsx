@@ -1,5 +1,5 @@
 import { useT } from "@agent-native/core/client/i18n";
-import { ObservabilityDashboard } from "@agent-native/core/client/observability";
+import { ObservabilityDashboard } from "@agent-native/toolkit/app/observability";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
 
 import enUS from "@/i18n/en-US";

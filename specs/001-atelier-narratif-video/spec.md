@@ -194,8 +194,18 @@ qu'aucune fonctionnalité narrative ne soit nécessaire pour cela.
 - **FR-005**: Le système DOIT calculer et afficher, par acte, le nombre d'étapes
   couvertes sur le nombre total d'étapes de cet acte.
 - **FR-006**: Une étape narrative NE DOIT être considérée couverte que si elle porte une
-  note ou au moins un marqueur qui lui est assigné ; une intensité seule ne doit pas
-  suffire.
+  **note non vide** ; ni une intensité seule, ni des marqueurs rattachés ne suffisent.
+
+  *Décision révisée à l'implémentation.* La rédaction d'origine acceptait « une note **ou**
+  au moins un marqueur ». Des rushes rattachés disent ce qu'on a filmé, pas ce que l'étape
+  fait dans l'histoire — or c'est l'intention narrative que la méthode demande de nommer,
+  et c'est elle que le diagnostic exploite. Compter le matériel comme de la couverture
+  rendrait la barre de couverture flatteuse et le diagnostic muet.
+
+  Pour ne pas être injuste envers qui a déjà fait le travail de dérushage, le diagnostic
+  distingue explicitement ce cas : la règle `matiere-sans-intention` signale les étapes
+  qui portent des marqueurs sans note, et invite à écrire la phrase qui manque. Elles ne
+  sont donc pas traitées comme vides, seulement comme inachevées.
 - **FR-007**: Les utilisateurs DOIVENT pouvoir créer des marqueurs avec un intitulé, un
   nom de rush optionnel, des timecodes de début et de fin optionnels, une étape
   narrative optionnelle, une sensation visée et un essai de montage envisagé.

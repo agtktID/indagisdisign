@@ -296,7 +296,12 @@ points de relecture finale vivent dans `shared/hero-journey.ts`. C'est du conten
 transcrit de la méthode source. Les tables ne stockent que ce que l'utilisateur en fait.
 
 `shared/coverage.ts` porte la règle de couverture, en un seul endroit : **une étape n'est
-couverte que si sa note est non vide après trim.** Une intensité seule ne suffit pas.
+couverte que si sa note est non vide après trim.** Ni une intensité seule, ni des
+marqueurs rattachés ne suffisent — voir FR-006 dans la spec pour le pourquoi.
+
+Une étape qui porte des marqueurs sans note n'est pas pour autant traitée comme vide :
+le diagnostic la signale par la règle `matiere-sans-intention`, qui dit à l'utilisateur
+qu'il a le matériel et qu'il lui reste à nommer l'intention.
 
 ## Git
 

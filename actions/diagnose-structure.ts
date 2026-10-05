@@ -124,6 +124,27 @@ export default defineAction({
       }
     }
 
+    // De la matière rattachée, mais pas d'intention écrite.
+    //
+    // Une étape n'est couverte que par sa note : des rushes rattachés disent ce qu'on a
+    // filmé, pas ce que l'étape fait dans le récit. Mais traiter une telle étape comme
+    // vide serait injuste — l'utilisateur a fait la moitié du travail, et la plus
+    // fastidieuse. On la nomme pour ce qu'elle est.
+    const withMaterialOnly = [...new Set(markers.map((marker) => marker.step))]
+      .filter((step): step is number => step !== null && !covered.has(step))
+      .sort((a, b) => a - b);
+
+    if (withMaterialOnly.length > 0) {
+      findings.push({
+        rule: "matiere-sans-intention",
+        severity: "info",
+        message: `${withMaterialOnly.length} étape(s) ont des marqueurs rattachés mais aucune note : ${withMaterialOnly
+          .map((step) => `${step} (${stepByNumber(step).title})`)
+          .join(", ")}. Vous avez le matériel ; il reste à nommer ce que l'étape fait dans l'histoire. Une phrase suffit.`,
+        steps: withMaterialOnly,
+      });
+    }
+
     // Marqueurs orphelins en nombre.
     const orphans = markers.filter((marker) => marker.step === null);
     if (markers.length >= 5 && orphans.length * 2 > markers.length) {

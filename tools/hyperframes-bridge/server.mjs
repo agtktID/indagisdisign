@@ -76,6 +76,23 @@ function projectDir(project) {
 }
 
 /**
+ * La version de HyperFrames que ce pont exécute.
+ *
+ * Épinglée, et non `@latest` : le pont se targue d'une liste blanche de sous-commandes
+ * et de l'absence de shell — laisser npm télécharger et exécuter n'importe quelle
+ * version future viderait cette rigueur de son sens. Relever ce numéro est un geste
+ * délibéré, visible dans l'historique.
+ *
+ * Surchargeable par `--hyperframes-version=x.y.z` au lancement du pont, pour tester
+ * une version sans modifier le dépôt.
+ */
+const HYPERFRAMES_VERSION =
+  process.argv.find((arg) => arg.startsWith("--hyperframes-version="))?.split("=")[1] ??
+  "0.8.134";
+
+const HYPERFRAMES_PACKAGE = `hyperframes@${HYPERFRAMES_VERSION}`;
+
+/**
  * Lance `npx hyperframes <commande> [...args]`.
  * Jamais de shell : les arguments passent en tableau.
  */
@@ -89,7 +106,7 @@ function runHyperframes(command, args, cwd, timeoutMs = DEFAULT_TIMEOUT_MS) {
   }
 
   return new Promise((resolve) => {
-    const child = spawn("npx", ["--yes", "hyperframes@latest", command, ...args], {
+    const child = spawn("npx", ["--yes", HYPERFRAMES_PACKAGE, command, ...args], {
       cwd,
       shell: false,
       env: { ...process.env, CI: "1" },
@@ -404,7 +421,7 @@ server.registerTool(
     const result = await startServer(
       `aperçu ${project}`,
       "npx",
-      ["--yes", "hyperframes@latest", "preview"],
+      ["--yes", HYPERFRAMES_PACKAGE, "preview"],
       dir,
     );
     return { content: [{ type: "text", text: result.text }], isError: !result.ok };

@@ -201,7 +201,11 @@ sept outils disponibles à l'agent :
 | `mcp__hyperframes__server_stop` | arrêter cet aperçu |
 
 Aucun compte, aucun jeton : HyperFrames rend en local. Le pont est volontairement étroit
-— liste blanche de sous-commandes, jamais de shell, chemins confinés sous `video/`.
+— liste blanche de sous-commandes, jamais de shell, chemins confinés sous `video/`, et
+**version épinglée** : `hyperframes@0.8.134`, jamais `@latest`. Les trois premières
+garanties ne valent rien si npm peut télécharger et exécuter n'importe quelle version
+future. Relever le numéro est un geste délibéré ; `--hyperframes-version=x.y.z` permet
+d'essayer sans modifier le dépôt.
 
 Si le pont n'est pas démarré, ces outils sont absents du registre : le vérifier avec
 `tool-search` et le dire, plutôt que de promettre un rendu.
@@ -214,6 +218,9 @@ Même principe, `tools/remotion-bridge/server.mjs`, huit outils sous `mcp__remot
 
 `studio_start` ouvre Remotion Studio et renvoie son adresse : c'est là que l'utilisateur
 voit sa composition en direct avant de rendre.
+
+Même épinglage que pour HyperFrames : `remotion@4.0.533`, et `create-video` suit la même
+version puisque les deux évoluent ensemble. Surcharge par `--remotion-version=x.y.z`.
 
 **Remotion n'est pas open source** : gratuit pour les particuliers, les organisations à
 but non lucratif et les entreprises de trois salariés au plus ; licence d'entreprise

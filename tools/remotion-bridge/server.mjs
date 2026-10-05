@@ -123,6 +123,26 @@ function run(command, args, cwd, timeoutMs) {
   });
 }
 
+/**
+ * La version de Remotion que ce pont exécute.
+ *
+ * Épinglée, et non flottante : le pont se targue d'une liste blanche de sous-commandes
+ * et de l'absence de shell — laisser npm télécharger et exécuter n'importe quelle
+ * version future viderait cette rigueur de son sens. Relever ce numéro est un geste
+ * délibéré, visible dans l'historique.
+ *
+ * `create-video` suit la même version : c'est le scaffolder officiel de Remotion, et
+ * les deux évoluent ensemble.
+ *
+ * Surchargeable par `--remotion-version=x.y.z` au lancement du pont.
+ */
+const REMOTION_VERSION =
+  process.argv.find((arg) => arg.startsWith("--remotion-version="))?.split("=")[1] ??
+  "4.0.533";
+
+const REMOTION_PACKAGE = `remotion@${REMOTION_VERSION}`;
+const CREATE_VIDEO_PACKAGE = `create-video@${REMOTION_VERSION}`;
+
 function runRemotion(command, args, cwd, timeoutMs = DEFAULT_TIMEOUT_MS) {
   if (!ALLOWED_COMMANDS.has(command)) {
     return Promise.reject(
@@ -131,7 +151,7 @@ function runRemotion(command, args, cwd, timeoutMs = DEFAULT_TIMEOUT_MS) {
       ),
     );
   }
-  return run("npx", ["--yes", "remotion", command, ...args], cwd, timeoutMs);
+  return run("npx", ["--yes", REMOTION_PACKAGE, command, ...args], cwd, timeoutMs);
 }
 
 function asToolResult(label, result) {
@@ -326,7 +346,7 @@ server.registerTool(
 
     const scaffold = await run(
       "npx",
-      ["--yes", "create-video@latest", "--yes", "--blank", "--no-tailwind", project],
+      ["--yes", CREATE_VIDEO_PACKAGE, "--yes", "--blank", "--no-tailwind", project],
       WORKSPACE,
       INSTALL_TIMEOUT_MS,
     );
@@ -488,7 +508,7 @@ server.registerTool(
     const result = await startServer(
       `studio ${project}`,
       "npx",
-      ["--yes", "remotion", "studio"],
+      ["--yes", REMOTION_PACKAGE, "studio"],
       dir,
     );
     return { content: [{ type: "text", text: result.text }], isError: !result.ok };

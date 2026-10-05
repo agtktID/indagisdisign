@@ -1,9 +1,7 @@
-import { markAgentChatHomeHandoff } from "@agent-native/toolkit/app/chat/agentkit-chat/rail";
 import { appPath } from "@agent-native/core/client/api-path";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { APP_TITLE } from "@/lib/app-config";
-import { getChatHomeThreadId } from "@/lib/chat-home-thread";
 
 const SEO_TITLE = `${APP_TITLE} — structurer le récit d'un montage vidéo`;
 const SEO_DESCRIPTION =
@@ -25,21 +23,31 @@ export function meta() {
   ];
 }
 
+/**
+ * L'accueil mène aux vidéos, pas au chat.
+ *
+ * Le gabarit Agent-Native ouvre sur une conversation vide. Pour cette application,
+ * c'était le mauvais premier écran : un monteur qui découvre Studio tombait sur un
+ * champ de saisie réclamant une clé d'API, et ne voyait jamais la carte narrative —
+ * c'est-à-dire le produit. L'agent reste à un clic, dans la barre latérale et par le
+ * bouton d'ouverture du panneau.
+ *
+ * Changement volontairement réversible : remettre `/chat/${threadId}` ci-dessous suffit
+ * à revenir au comportement du gabarit.
+ */
 export default function ChatRoute() {
-  const [threadId] = useState(getChatHomeThreadId);
-  const handoffStartedRef = useRef(false);
+  const redirectedRef = useRef(false);
 
   useEffect(() => {
-    if (handoffStartedRef.current) return;
-    handoffStartedRef.current = true;
-    markAgentChatHomeHandoff("chat");
+    if (redirectedRef.current) return;
+    redirectedRef.current = true;
     try {
-      window.location.replace(appPath(`/chat/${encodeURIComponent(threadId)}`));
+      window.location.replace(appPath("/videos"));
     } catch (error) {
-      handoffStartedRef.current = false;
+      redirectedRef.current = false;
       throw error;
     }
-  }, [threadId]);
+  }, []);
 
   return null;
 }

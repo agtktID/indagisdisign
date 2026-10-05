@@ -107,7 +107,7 @@ données) :
 
 ## Les actions
 
-Trente-neuf actions métier, plus les deux standard. Toutes définies une seule fois avec
+Quarante et une actions métier, plus les deux standard. Toutes définies une seule fois avec
 `defineAction()` : outil d'agent, hook React, route HTTP, commande CLI et outil MCP/A2A
 d'un même geste. **Aucune route `/api/*` ne double une action**, export CSV compris.
 
@@ -226,8 +226,8 @@ préférence.
 
 ## La bibliothèque de ressources
 
-Quatrième écran, `/library`, avec cinq sections dans **une seule route** : Créer,
-Bibliothèque, Modèles, Kits de marque, Journal. Le Principe V limite l'interface à trois
+Quatrième écran, `/library`, avec sept sections dans **une seule route** : Créer,
+Bibliothèque, Prompts, Modèles, Ressources de départ, Kits de marque, Journal. Le Principe V limite l'interface à trois
 routes et exige une justification explicite au-delà : celle-ci est la demande de
 l'utilisateur d'un espace où ranger son matériel de création.
 

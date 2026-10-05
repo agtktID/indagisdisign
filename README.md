@@ -1,6 +1,6 @@
 # Indagis Studio
 
-[![CI](https://github.com/agtktID/indagis-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/agtktID/indagis-studio/actions/workflows/ci.yml)
+[![CI](https://github.com/agtktID/indagisdisign/actions/workflows/ci.yml/badge.svg)](https://github.com/agtktID/indagisdisign/actions/workflows/ci.yml)
 [![Licence MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 
 Un atelier de **structuration narrative pour le montage vidéo**, fondé sur la méthode du
@@ -8,6 +8,8 @@ voyage du héros. Vous posez vos rushes, l'application vous aide à en faire un 
 
 Ce n'est pas un logiciel de montage, et ce n'est pas un Trello de plus. C'est l'outil qui
 manque entre les deux : celui qui vous dit **ce qui manque à votre histoire**.
+
+![La carte narrative : les 12 étapes en 3 actes, et la courbe émotionnelle du montage](docs/captures/carte-narrative.png)
 
 ## Ce que ça fait
 
@@ -80,12 +82,23 @@ Les ponts exécutent des commandes sur votre machine. Ils sont volontairement é
 liste blanche de sous-commandes, jamais de shell, écritures confinées au dossier `video/`.
 Si vous n'en voulez pas, supprimez `mcp.config.json` : l'application fonctionne sans.
 
+## À quoi ça ressemble
+
+| | |
+| --- | --- |
+| **Le carnet de marqueurs** — chaque moment repéré dans les rushes, avec son timecode, rattaché à une étape du récit. Triable en ordre narratif, qui n'est pas l'ordre chronologique. | ![Le carnet de marqueurs](docs/captures/marqueurs.png) |
+| **Le catalogue de prompts** — 550 prompts livrés, triables par catégorie, style et scène. | ![Le catalogue de prompts](docs/captures/catalogue-prompts.png) |
+| **La bibliothèque de ressources** — vos visuels rangés par type, catégorie et format. | ![La bibliothèque](docs/captures/bibliotheque.png) |
+| **Vos vidéos** — chaque carte montre où en est le récit, pas seulement où en est la fabrication. | ![La liste des vidéos](docs/captures/liste-videos.png) |
+
+Les captures se régénèrent avec `tools/captures/shoot.mjs`.
+
 ## Comment c'est construit
 
 Sur [Agent-Native](https://www.agent-native.com) (MIT), en application autonome.
 
 ```
-actions/              39 actions métier — chacune est à la fois outil d'agent,
+actions/              41 actions métier — chacune est à la fois outil d'agent,
                       hook React, route HTTP et commande en ligne
 server/db/            13 tables PostgreSQL (PGlite en local)
 shared/               la méthode : 12 étapes, 3 actes, 5 questions, 5 symptômes

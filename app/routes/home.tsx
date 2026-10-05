@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { APP_TITLE } from "@/lib/app-config";
 import { getChatHomeThreadId } from "@/lib/chat-home-thread";
 
-const SEO_TITLE = `${APP_TITLE} - Open Source AI app starter with actions`;
+const SEO_TITLE = `${APP_TITLE} — structurer le récit d'un montage vidéo`;
 const SEO_DESCRIPTION =
-  "Open Source starter for agent-native apps with durable chat, shared actions, UI state, tools, and a backend your agent can extend.";
+  "Le voyage du héros appliqué au montage : 12 étapes, 3 actes, courbe émotionnelle, " +
+  "carnet de marqueurs et diagnostic de structure. Open source, tourne sur votre machine.";
 
 export function meta() {
   return [

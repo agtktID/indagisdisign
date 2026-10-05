@@ -1,7 +1,7 @@
 {
-  "name": "Indagis Studio Scaffold",
-  "short_name": "Indagis Studio Scaffold",
-  "description": "Workspace app for Indagis Studio Scaffold.",
+  "name": "Indagis Studio",
+  "short_name": "Indagis Studio",
+  "description": "Atelier de structuration narrative pour le montage vidéo — voyage du héros, 12 étapes, courbe émotionnelle.",
   "start_url": "./home",
   "background_color": "#111111",
   "theme_color": "#18181B",

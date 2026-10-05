@@ -3,6 +3,7 @@ import { IconAlertTriangle, IconStethoscope } from "@tabler/icons-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { DIAGNOSTIC_SYMPTOMS } from "@shared/hero-journey";
 
 import { Badge, EmptyState, Textarea } from "./primitives";
 
@@ -34,13 +35,6 @@ interface Finding {
   steps: number[];
 }
 
-const SYMPTOMS = [
-  { key: "debut-repete", label: "Le début répète le problème" },
-  { key: "milieu-repetitif", label: "Le milieu semble répétitif" },
-  { key: "climax-faible", label: "Le climax semble faible" },
-  { key: "fin-deconnectee", label: "La fin paraît déconnectée" },
-  { key: "passage-confus", label: "Un passage paraît confus" },
-];
 
 const STATUS_LABELS: Record<string, string> = {
   todo: "À tester",
@@ -109,7 +103,7 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
             <ul className="flex flex-col gap-2">
               {findings.map((finding) => (
                 <li
-                  key={finding.rule}
+                  key={`${finding.rule}:${finding.steps.join(",")}`}
                   className="bg-muted/40 flex flex-col gap-2 rounded-md p-3 text-sm"
                 >
                   <div className="flex items-start gap-2">
@@ -148,21 +142,22 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
       <section className="border-border rounded-lg border p-4">
         <h3 className="mb-2 text-sm font-semibold">Partir d&apos;un symptôme</h3>
         <div className="flex flex-wrap gap-2">
-          {SYMPTOMS.map((symptom) => (
+          {DIAGNOSTIC_SYMPTOMS.map((symptom) => (
             <Button
               key={symptom.key}
               size="sm"
               variant="outline"
+                title={symptom.suggestion}
               onClick={() =>
                 create.mutate({
                   videoId,
                   source: "diagnostic",
                   symptomKey: symptom.key,
-                  observation: symptom.label,
+                  observation: symptom.observation,
                 })
               }
             >
-              {symptom.label}
+              {symptom.observation}
             </Button>
           ))}
         </div>

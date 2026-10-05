@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { FINAL_REVIEW } from "@shared/hero-journey";
 
 import { EmotionCurve } from "./EmotionCurve";
 import { actColor, Badge, CoverageBar, Textarea } from "./primitives";
@@ -43,24 +44,6 @@ interface StoryMapData {
   unassignedMarkers: number;
 }
 
-const FINAL_REVIEW = [
-  {
-    label: "Le début",
-    checks: ["Le problème est clair.", "La promesse donne envie de rester."],
-  },
-  {
-    label: "Le milieu",
-    checks: ["Chaque bloc apporte du nouveau.", "On sent le passage à l'action."],
-  },
-  {
-    label: "Le moment décisif",
-    checks: ["L'enjeu prépare le résultat.", "On a le temps de le recevoir."],
-  },
-  {
-    label: "La fin",
-    checks: ["Le changement se voit.", "Le spectateur sait ce qu'il emporte."],
-  },
-];
 
 export function StoryMap({
   videoId,
@@ -188,7 +171,7 @@ export function StoryMap({
         <h3 className="mb-3 text-sm font-semibold">Avant de fermer le projet</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {FINAL_REVIEW.map((block) => (
-            <div key={block.label} className="bg-muted/40 rounded-md p-3">
+            <div key={block.key} className="bg-muted/40 rounded-md p-3">
               <p className="mb-1.5 text-xs font-semibold">{block.label}</p>
               <ul className="text-muted-foreground flex flex-col gap-1 text-xs">
                 {block.checks.map((check) => (

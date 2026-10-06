@@ -107,7 +107,7 @@ données) :
 
 ## Les actions
 
-Quarante et une actions métier, plus les deux standard. Toutes définies une seule fois avec
+Quarante-deux actions métier, plus les deux standard. Toutes définies une seule fois avec
 `defineAction()` : outil d'agent, hook React, route HTTP, commande CLI et outil MCP/A2A
 d'un même geste. **Aucune route `/api/*` ne double une action**, export CSV compris.
 
@@ -135,6 +135,7 @@ d'un même geste. **Aucune route `/api/*` ne double une action**, export CSV com
 | `create-experiment` | Ouvre un essai (diagnostic / roasting / self) |
 | `resolve-experiment` | Fait avancer ; **exige un verdict** pour clore |
 | `diagnose-structure` · lecture | Les règles de la méthode appliquées à la carte |
+| `get-narrative-brief` · lecture | La carte en brief de composition — tout le récit, un acte, ou une étape |
 | `upsert-publication` | Cible de diffusion, plateforme en texte libre |
 | `list-publications` · lecture | Les cibles de diffusion, avec leurs relevés |
 | `record-metrics` | Relevé manuel, un par jour et par publication |

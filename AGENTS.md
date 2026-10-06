@@ -128,7 +128,7 @@ d'un même geste. **Aucune route `/api/*` ne double une action**, export CSV com
 | `delete-marker` | Suppression définitive |
 | `assign-marker-step` | Rattache/détache une étape sans toucher au reste |
 | `reorder-markers` | L'ordre narratif ; refuse une liste partielle |
-| `export-markers` · lecture | CSV **inline**, sans stockage externe |
+| `export-markers` · lecture | CSV, EDL d'assemblage, chapitres YouTube — **inline**, sans stockage externe |
 | `get-prep-sheet` · lecture | Les 5 questions et leurs réponses |
 | `answer-prep-question` | Répond ; refuse une clé inconnue |
 | `list-experiments` · lecture | Les essais, avec avertissement si plusieurs en cours |

@@ -4,6 +4,10 @@ allowBuilds:
   esbuild: true
 
 overrides:
+  # GHSA-68fv-2mgg-jv7q — déni de service sur la boucle d'événements. postcss
+  # demande "^1.2.1" et 1.2.2 est dans la plage : aucun risque de rupture.
+  # Chemin de build uniquement, jamais livré au navigateur (absent de .output).
+  source-map-js: "1.2.2"
   "@tiptap/starter-kit": "3.28.0"
   "@tiptap/react": "3.28.0"
   "@tiptap/pm": "3.28.0"

@@ -19,9 +19,66 @@ export interface DiagnosableBeat {
   intensity: number | null;
 }
 
-/** Ce qu'une règle a besoin de savoir d'un marqueur : son étape, ou son absence. */
+/**
+ * Ce qu'une règle a besoin de savoir d'un marqueur.
+ *
+ * **`startMs` et `endMs` sont relatifs à leur rush, jamais à un montage.** Un marqueur à
+ * 4 s dans `rush-01` et un autre à 4 s dans `rush-07` ne désignent pas le même instant.
+ * Aucune règle ne peut donc parler de position dans la timeline finale — seulement de
+ * durées de matière, et de recouvrements à l'intérieur d'un même rush.
+ */
 export interface DiagnosableMarker {
   step: number | null;
+  startMs: number;
+  /** Nul = le marqueur est un point, pas un passage : il ne pèse aucune durée. */
+  endMs: number | null;
+  rushName: string | null;
+}
+
+/** Ce que les marqueurs disent du matériel repéré, en millisecondes. */
+export interface MaterialSummary {
+  totalMs: number;
+  byAct: Record<string, number>;
+  byStep: Record<number, number>;
+}
+
+/**
+ * En deçà d'une minute de matière, le carnet est trop jeune pour qu'un déséquilibre
+ * veuille dire quoi que ce soit. Même esprit que les trois intensités minimum avant de
+ * juger la courbe : se taire vaut mieux qu'un constat fondé sur trois marqueurs.
+ */
+const MIN_MATERIAL_MS = 60_000;
+
+/** Un point ne pèse aucune durée : il marque un instant, pas un passage. */
+function durationOf(marker: DiagnosableMarker): number {
+  if (marker.endMs === null || marker.endMs === undefined) return 0;
+  return Math.max(0, marker.endMs - marker.startMs);
+}
+
+function summariseMaterial(markers: readonly DiagnosableMarker[]): MaterialSummary {
+  const byStep: Record<number, number> = {};
+  const byAct: Record<string, number> = {};
+  let totalMs = 0;
+
+  for (const marker of markers) {
+    const duration = durationOf(marker);
+    totalMs += duration;
+    if (marker.step === null) continue;
+    byStep[marker.step] = (byStep[marker.step] ?? 0) + duration;
+    const act = ACTS.find((candidate) => candidate.steps.includes(marker.step as number));
+    if (act) byAct[act.id] = (byAct[act.id] ?? 0) + duration;
+  }
+
+  return { totalMs, byAct, byStep };
+}
+
+/** Rendu lisible d'une durée, pour les messages. */
+function humanDuration(ms: number): string {
+  const totalSeconds = Math.round(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes === 0) return `${seconds} s`;
+  return seconds === 0 ? `${minutes} min` : `${minutes} min ${seconds} s`;
 }
 
 export interface Finding {
@@ -34,6 +91,8 @@ export interface Finding {
 
 export interface Diagnosis {
   coverage: ReturnType<typeof computeCoverage>;
+  /** Les durées que les marqueurs totalisent, par acte et par étape. */
+  material: MaterialSummary;
   findings: Finding[];
   /** La règle de méthode qui encadre toute lecture du diagnostic. */
   rule: string;
@@ -71,6 +130,7 @@ export function diagnoseStructure(
   if (coverage.covered === 0) {
     return {
       coverage,
+      material: summariseMaterial(markers),
       findings: [EMPTY_MAP],
       rule: ONE_CHANGE_AT_A_TIME,
       next: describeNext(1),
@@ -188,7 +248,81 @@ export function diagnoseStructure(
     });
   }
 
-  return { coverage, findings, rule: ONE_CHANGE_AT_A_TIME, next: describeNext(findings.length) };
+  /* --- Ce que disent les timecodes ---------------------------------------- */
+
+  const material = summariseMaterial(markers);
+
+  // Marqueurs superposés dans un même rush.
+  //
+  // Aucun jugement là-dedans : deux passages du même rush qui se recouvrent, c'est du
+  // matériel sélectionné deux fois. Comparable uniquement à l'intérieur d'un rush — des
+  // timecodes de rushes différents ne se comparent pas.
+  const overlaps: string[] = [];
+  const byRush = new Map<string, DiagnosableMarker[]>();
+  for (const marker of markers) {
+    if (!marker.rushName || marker.endMs === null || marker.endMs === undefined) continue;
+    const list = byRush.get(marker.rushName) ?? [];
+    list.push(marker);
+    byRush.set(marker.rushName, list);
+  }
+  for (const [rush, list] of byRush) {
+    const sorted = [...list].sort((a, b) => a.startMs - b.startMs);
+    for (let index = 1; index < sorted.length; index += 1) {
+      const previous = sorted[index - 1]!;
+      const current = sorted[index]!;
+      if (current.startMs < (previous.endMs as number)) overlaps.push(rush);
+    }
+  }
+  if (overlaps.length > 0) {
+    const rushes = [...new Set(overlaps)].sort();
+    findings.push({
+      rule: "marqueurs-superposes",
+      severity: "info",
+      message: `Des marqueurs se recouvrent dans ${rushes.length === 1 ? "le rush" : "les rushes"} ${rushes.join(", ")}. Le même passage est sélectionné deux fois — soit c'est voulu parce qu'il remplit deux fonctions, soit c'est un doublon à fusionner.`,
+      steps: [],
+    });
+  }
+
+  // Les deux règles suivantes comparent des durées : en deçà d'une minute de matière,
+  // le carnet est trop jeune pour qu'un écart veuille dire quelque chose.
+  if (material.totalMs >= MIN_MATERIAL_MS) {
+    // L'acte II sous-doté en matière.
+    //
+    // La méthode l'affirme : « c'est la partie la plus longue ». Si l'acte I ou l'acte
+    // III pèse plus lourd en rushes repérés, le montage héritera de ce déséquilibre.
+    const initiation = material.byAct.initiation ?? 0;
+    const heavier = ACTS.filter(
+      (act) => act.id !== "initiation" && (material.byAct[act.id] ?? 0) > initiation,
+    );
+    if (heavier.length > 0) {
+      findings.push({
+        rule: "acte-ii-sous-dote",
+        severity: "warn",
+        message: `L'acte II ne porte que ${humanDuration(initiation)} de matière repérée, contre ${heavier
+          .map((act) => `${humanDuration(material.byAct[act.id] ?? 0)} pour l'acte ${act.numeral}`)
+          .join(" et ")}. La méthode en fait la partie la plus longue : à ce rythme, le milieu sera le plus court, et c'est exactement là que le spectateur décroche.`,
+        steps: ACTS.find((act) => act.id === "initiation")!.steps.slice(),
+      });
+    }
+
+    // Le climax couvert, mais sans une seconde de rush.
+    if (covered.has(8) && (material.byStep[8] ?? 0) === 0) {
+      findings.push({
+        rule: "climax-sans-matiere",
+        severity: "warn",
+        message: `Le climax (étape 8) porte une note mais aucune durée de rush : ${humanDuration(material.totalMs)} de matière repérée, et rien dessus. Le moment décisif est écrit, pas encore tourné — ou pas encore retrouvé dans les rushes.`,
+        steps: [8],
+      });
+    }
+  }
+
+  return {
+    coverage,
+    material,
+    findings,
+    rule: ONE_CHANGE_AT_A_TIME,
+    next: describeNext(findings.length),
+  };
 }
 
 function describeNext(findingCount: number): string {

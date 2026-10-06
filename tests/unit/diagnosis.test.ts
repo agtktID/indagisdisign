@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { diagnoseStructure, type DiagnosableBeat } from "../../shared/diagnosis.js";
+import {
+  diagnoseStructure,
+  type DiagnosableBeat,
+  type DiagnosableMarker,
+} from "../../shared/diagnosis.js";
 
 /** Une étape renseignée : une note suffit à la rendre couverte. */
 const beat = (step: number, intensity: number | null = null): DiagnosableBeat => ({
@@ -32,6 +36,30 @@ const COMPLETE: DiagnosableBeat[] = [
   beat(12, 35),
 ];
 
+/**
+ * Un marqueur sans durée : il ne pèse rien, et ne déclenche aucune règle de matière.
+ * C'est la forme qu'avaient tous les marqueurs des tests avant l'arrivée des timecodes.
+ */
+const point = (step: number | null): DiagnosableMarker => ({
+  step,
+  startMs: 0,
+  endMs: null,
+  rushName: null,
+});
+
+/** Un passage de `seconds` secondes dans un rush nommé. */
+const passage = (
+  step: number | null,
+  seconds: number,
+  rushName = "rush-01",
+  startMs = 0,
+): DiagnosableMarker => ({
+  step,
+  startMs,
+  endMs: startMs + seconds * 1000,
+  rushName,
+});
+
 const rules = (result: ReturnType<typeof diagnoseStructure>) =>
   result.findings.map((finding) => finding.rule);
 
@@ -59,7 +87,7 @@ describe("diagnoseStructure", () => {
     // reprocher ses déséquilibres à une carte vide n'apprendrait rien.
     const result = diagnoseStructure(
       [],
-      [{ step: null }, { step: null }, { step: null }, { step: null }, { step: null }],
+      [point(null), point(null), point(null), point(null), point(null)],
     );
     expect(rules(result)).toEqual(["carte-vide"]);
   });
@@ -146,7 +174,7 @@ describe("diagnoseStructure", () => {
 
   describe("matière sans intention", () => {
     it("signale une étape qui porte des marqueurs mais pas de note", () => {
-      const result = diagnoseStructure(COMPLETE.slice(0, 4), [{ step: 7 }, { step: 7 }]);
+      const result = diagnoseStructure(COMPLETE.slice(0, 4), [point(7), point(7)]);
       const finding = result.findings.find((f) => f.rule === "matiere-sans-intention");
       expect(finding).toBeDefined();
       expect(finding!.steps).toEqual([7]);
@@ -156,21 +184,21 @@ describe("diagnoseStructure", () => {
 
     it("ne compte chaque étape qu'une fois, et les trie", () => {
       const result = diagnoseStructure(COMPLETE.slice(0, 2), [
-        { step: 9 },
-        { step: 5 },
-        { step: 9 },
+        point(9),
+        point(5),
+        point(9),
       ]);
       const finding = result.findings.find((f) => f.rule === "matiere-sans-intention");
       expect(finding!.steps).toEqual([5, 9]);
     });
 
     it("se tait quand l'étape porte déjà une note", () => {
-      const result = diagnoseStructure(COMPLETE, [{ step: 7 }, { step: 8 }]);
+      const result = diagnoseStructure(COMPLETE, [point(7), point(8)]);
       expect(rules(result)).not.toContain("matiere-sans-intention");
     });
 
     it("ignore les marqueurs sans étape", () => {
-      const result = diagnoseStructure(COMPLETE, [{ step: null }, { step: null }]);
+      const result = diagnoseStructure(COMPLETE, [point(null), point(null)]);
       expect(rules(result)).not.toContain("matiere-sans-intention");
     });
   });
@@ -178,35 +206,127 @@ describe("diagnoseStructure", () => {
   describe("marqueurs orphelins", () => {
     it("se tait en deçà de cinq marqueurs", () => {
       // « Une étape peut manquer » est une phrase de la méthode, pas un défaut.
-      const result = diagnoseStructure(COMPLETE, [{ step: null }, { step: null }]);
+      const result = diagnoseStructure(COMPLETE, [point(null), point(null)]);
       expect(rules(result)).not.toContain("marqueurs-orphelins");
     });
 
     it("signale quand plus de la moitié des marqueurs flottent", () => {
       const result = diagnoseStructure(COMPLETE, [
-        { step: null },
-        { step: null },
-        { step: null },
-        { step: 1 },
-        { step: 2 },
+        point(null),
+        point(null),
+        point(null),
+        point(1),
+        point(2),
       ]);
       expect(rules(result)).toContain("marqueurs-orphelins");
     });
 
     it("se tait quand la majorité est rattachée", () => {
       const result = diagnoseStructure(COMPLETE, [
-        { step: null },
-        { step: null },
-        { step: 1 },
-        { step: 2 },
-        { step: 3 },
+        point(null),
+        point(null),
+        point(1),
+        point(2),
+        point(3),
       ]);
       expect(rules(result)).not.toContain("marqueurs-orphelins");
     });
   });
 
+  describe("ce que disent les timecodes", () => {
+    it("totalise la matière par acte et par étape", () => {
+      const result = diagnoseStructure(COMPLETE, [
+        passage(2, 30),
+        passage(6, 45),
+        passage(6, 15),
+        point(11),
+      ]);
+      expect(result.material.totalMs).toBe(90_000);
+      expect(result.material.byStep[6]).toBe(60_000);
+      expect(result.material.byAct.depart).toBe(30_000);
+      // Un point ne pèse aucune durée : il marque un instant, pas un passage.
+      expect(result.material.byAct.retour ?? 0).toBe(0);
+    });
+
+    it("se tait en deçà d'une minute de matière", () => {
+      // Trois marqueurs ne disent rien d'un déséquilibre : le carnet est trop jeune.
+      const result = diagnoseStructure(COMPLETE, [passage(1, 30), passage(12, 20)]);
+      expect(rules(result)).not.toContain("acte-ii-sous-dote");
+    });
+
+    it("signale un acte II plus léger que les autres", () => {
+      const result = diagnoseStructure(COMPLETE, [
+        passage(1, 60),
+        passage(6, 20),
+        passage(12, 50),
+      ]);
+      const finding = result.findings.find((f) => f.rule === "acte-ii-sous-dote");
+      expect(finding).toBeDefined();
+      // Le message chiffre, plutôt que de qualifier.
+      expect(finding!.message).toContain("20 s");
+      expect(finding!.steps).toEqual([5, 6, 7, 8, 9]);
+    });
+
+    it("ne dit rien quand l'acte II est bien le plus lourd", () => {
+      const result = diagnoseStructure(COMPLETE, [
+        passage(1, 20),
+        passage(6, 90),
+        passage(12, 20),
+      ]);
+      expect(rules(result)).not.toContain("acte-ii-sous-dote");
+    });
+
+    it("signale un climax écrit mais sans une seconde de rush", () => {
+      const result = diagnoseStructure(COMPLETE, [passage(1, 60), passage(6, 40)]);
+      const finding = result.findings.find((f) => f.rule === "climax-sans-matiere");
+      expect(finding).toBeDefined();
+      expect(finding!.steps).toEqual([8]);
+    });
+
+    it("ne le signale pas dès que le climax porte de la matière", () => {
+      const result = diagnoseStructure(COMPLETE, [passage(1, 60), passage(8, 40)]);
+      expect(rules(result)).not.toContain("climax-sans-matiere");
+    });
+
+    it("signale deux passages qui se recouvrent dans un même rush", () => {
+      const result = diagnoseStructure(COMPLETE, [
+        passage(3, 10, "rush-02", 0),
+        passage(4, 10, "rush-02", 5_000),
+      ]);
+      const finding = result.findings.find((f) => f.rule === "marqueurs-superposes");
+      expect(finding).toBeDefined();
+      expect(finding!.message).toContain("rush-02");
+    });
+
+    it("ne compare jamais des timecodes de rushes différents", () => {
+      // Deux passages aux mêmes timecodes, mais dans deux rushes : aucun recouvrement.
+      const result = diagnoseStructure(COMPLETE, [
+        passage(3, 10, "rush-02", 0),
+        passage(4, 10, "rush-07", 0),
+      ]);
+      expect(rules(result)).not.toContain("marqueurs-superposes");
+    });
+
+    it("ignore les marqueurs sans nom de rush pour le recouvrement", () => {
+      // Sans rush nommé, on ne sait pas d'où vient le passage : rien à comparer.
+      const result = diagnoseStructure(COMPLETE, [
+        { step: 3, startMs: 0, endMs: 10_000, rushName: null },
+        { step: 4, startMs: 5_000, endMs: 15_000, rushName: null },
+      ]);
+      expect(rules(result)).not.toContain("marqueurs-superposes");
+    });
+
+    it("deux passages jointifs ne se recouvrent pas", () => {
+      const result = diagnoseStructure(COMPLETE, [
+        passage(3, 10, "rush-02", 0),
+        passage(4, 10, "rush-02", 10_000),
+      ]);
+      expect(rules(result)).not.toContain("marqueurs-superposes");
+    });
+  });
+
   it("reste une lecture : aucun constat ne prescrit de correctif", () => {
-    const result = diagnoseStructure([beat(8)], [{ step: null }]);
+    const result = diagnoseStructure([beat(8)], [point(null)]);
     expect(result.rule).toContain("Change une seule chose à la fois");
     expect(result.next).toContain("hypothèses à tester, pas des verdicts");
   });

@@ -8,7 +8,7 @@ import { loadVideo } from "../server/studio.ts";
 
 export default defineAction({
   description:
-    "Diagnostiquer la structure narrative d'une vidéo en appliquant mécaniquement les règles de la méthode : acte sous-couvert, climax sans enjeu lisible en amont, fin déconnectée, courbe plate, matière sans intention, marqueurs orphelins. Renvoie des OBSERVATIONS, jamais un correctif tout fait — l'utilisateur ou l'agent en tire des essais.",
+    "Diagnostiquer la structure narrative d'une vidéo en appliquant mécaniquement les règles de la méthode. Sur la carte : acte sous-couvert, climax sans enjeu lisible en amont, fin déconnectée, courbe plate, matière sans intention, marqueurs orphelins. Sur les timecodes du carnet : acte II sous-doté en matière, climax écrit sans une seconde de rush, passages qui se recouvrent dans un même rush. Renvoie aussi `material`, les durées totalisées par acte et par étape. Des OBSERVATIONS, jamais un correctif tout fait — l'utilisateur ou l'agent en tire des essais.",
   schema: z.object({
     videoId: z.string().describe("Identifiant de la vidéo"),
   }),

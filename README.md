@@ -128,9 +128,21 @@ le catalogue depuis une autre source.
 ## Vérifier
 
 ```bash
+bash scripts/verifier.sh
+```
+
+Vingt-deux critères, chacun avec la commande qui le démontre : les quatre portes, les
+frontières d'architecture, le parcours complet d'un monteur contre une vraie base, et la
+bibliothèque. Le script finit par ce qui reste **non prouvé** — il ne prétend pas que
+tout est vérifié quand ça ne l'est pas.
+
+Les portes seules, si c'est tout ce que vous voulez :
+
+```bash
 pnpm typecheck
 pnpm test
 pnpm agent-native:doctor
+pnpm build
 ```
 
 ## Où en est le projet

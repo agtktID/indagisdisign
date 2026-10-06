@@ -47,6 +47,26 @@ jobs:
             exit 1
           }
 
+      # Le build est la seule porte qui voie ce que typecheck et doctor ne voient
+      # pas : une régression de bundle, un import qui fait basculer du code serveur
+      # vers le navigateur, une dépendance qui ne sait pas se construire.
+      - name: Build de production
+        run: pnpm build
+
+      # La frontière qui protège le navigateur : les 550 prompts du catalogue pèsent
+      # près de 700 Ko de texte et n'ont rien à faire côté client. Seule une action a
+      # le droit de les charger, et un import mal placé dans `app/` suffirait à les y
+      # faire basculer sans qu'aucune autre porte ne bronche.
+      - name: Le catalogue ne part pas au navigateur
+        run: |
+          leaked=$(grep -rl "一张手绘风格的城市美食地图" .output/public 2>/dev/null | wc -l)
+          echo "fichiers client contenant un prompt du catalogue : $leaked"
+          if [ "$leaked" -ne 0 ]; then
+            echo "::error::Le catalogue de prompts a fui dans le bundle client."
+            grep -rl "一张手绘风格的城市美食地图" .output/public
+            exit 1
+          fi
+
       # Le catalogue est généré : personne ne doit l'éditer à la main sans
       # repasser par le script. On vérifie au moins qu'il reste cohérent.
       - name: Le catalogue se charge

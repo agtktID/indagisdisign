@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useFormatters, useT } from "@agent-native/core/client/i18n";
 import { IconChartBar, IconHistory, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -7,12 +8,13 @@ import { Input } from "@/components/ui/input";
 
 import { Badge, EmptyState, Textarea } from "./primitives";
 
-const STAGE_LABELS: Record<string, string> = {
-  idea: "Idée",
-  script: "Écriture",
-  shoot: "Tournage",
-  edit: "Montage",
-  published: "Publiée",
+/** Les étapes viennent de la base ; seuls leurs libellés sont de l'interface. */
+const STAGE_KEYS: Record<string, string> = {
+  idea: "publication.stageIdea",
+  script: "publication.stageScript",
+  shoot: "publication.stageShoot",
+  edit: "publication.stageEdit",
+  published: "publication.stagePublished",
 };
 
 const STAGES = ["idea", "script", "shoot", "edit", "published"] as const;
@@ -45,14 +47,17 @@ interface Publication {
   metrics: Metric[];
 }
 
-function formatDate(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? iso
-    : date.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-}
-
 export function PublicationTab({ videoId }: { videoId: string }) {
+  const t = useT();
+  // La date et l'ancienneté suivent la locale active : « 3 oct. 2026 » et « il y a
+  // 4 jours » étaient codés en français, et l'accord du pluriel était fait à la main.
+  const { formatDate, formatRelativeTime } = useFormatters();
+  const showDate = (iso: string) => {
+    const date = new Date(iso);
+    return Number.isNaN(date.getTime())
+      ? iso
+      : formatDate(date, { day: "numeric", month: "short", year: "numeric" });
+  };
   const { data } = useActionQuery("get-video", { videoId });
   const detail = data as
     | {
@@ -82,30 +87,32 @@ export function PublicationTab({ videoId }: { videoId: string }) {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <h2 className="text-lg font-semibold">Publication</h2>
-        <p className="text-muted-foreground text-sm">
-          Le suivi de fabrication et les cibles de diffusion. Studio ne publie sur rien —
-          il note ce qui est prévu et ce qui a été mesuré.
-        </p>
+        <h2 className="text-lg font-semibold">{t("publication.title")}</h2>
+        <p className="text-muted-foreground text-sm">{t("publication.description")}</p>
       </header>
 
       {/* Étape de production ------------------------------------------------ */}
       <section className="border-border rounded-lg border p-4">
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold">Étape de production</h3>
-          {detail?.isBlocked ? (
-            <Badge tone="warn">Bloquée depuis {detail.daysSinceStageChange} jours</Badge>
-          ) : detail ? (
-            <span className="text-muted-foreground text-xs">
-              Sans mouvement depuis {detail.daysSinceStageChange} jour
-              {detail.daysSinceStageChange > 1 ? "s" : ""}
-            </span>
+          <h3 className="text-sm font-semibold">{t("publication.stageTitle")}</h3>
+          {detail ? (
+            (() => {
+              // `formatRelativeTime` accorde le pluriel dans chaque langue — c'est tout
+              // l'intérêt de passer par Intl plutôt que par un « s » conditionnel.
+              const since = formatRelativeTime(-detail.daysSinceStageChange, "day", {
+                numeric: "auto",
+              });
+              return detail.isBlocked ? (
+                <Badge tone="warn">{t("publication.blocked", { since })}</Badge>
+              ) : (
+                <span className="text-muted-foreground text-xs">
+                  {t("publication.lastMoved", { since })}
+                </span>
+              );
+            })()
           ) : null}
         </div>
-        <p className="text-muted-foreground mb-3 text-xs">
-          Cliquer déplace la vidéo, inscrit le mouvement dans l&apos;historique ci-dessous,
-          et remet à zéro le compteur de blocage du calendrier.
-        </p>
+        <p className="text-muted-foreground mb-3 text-xs">{t("publication.stageHint")}</p>
 
         <ol className="flex flex-wrap items-center gap-1.5">
           {STAGES.map((stage, index) => {
@@ -130,7 +137,7 @@ export function PublicationTab({ videoId }: { videoId: string }) {
                     )
                   }
                 >
-                  {STAGE_LABELS[stage]}
+                  {t(STAGE_KEYS[stage]!)}
                 </Button>
                 {index < STAGES.length - 1 ? (
                   <span className="text-muted-foreground text-xs">›</span>
@@ -140,7 +147,7 @@ export function PublicationTab({ videoId }: { videoId: string }) {
           })}
         </ol>
         <p className="text-muted-foreground mt-2 text-xs">
-          Le retour en arrière est permis : un montage peut renvoyer à l&apos;écriture.
+          {t("publication.backwardsAllowed")}
         </p>
         {error ? <p className="text-destructive mt-2 text-xs">{error}</p> : null}
       </section>
@@ -148,28 +155,34 @@ export function PublicationTab({ videoId }: { videoId: string }) {
       {/* Historique ---------------------------------------------------------- */}
       <section className="border-border rounded-lg border p-4">
         <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold">
-          <IconHistory size={15} /> Historique
+          <IconHistory size={15} /> {t("publication.historyTitle")}
         </h3>
         {events.length === 0 ? (
-          <p className="text-muted-foreground text-sm">Aucun mouvement enregistré.</p>
+          <p className="text-muted-foreground text-sm">
+            {t("publication.historyEmpty")}
+          </p>
         ) : (
           <ol className="flex flex-col gap-2">
             {events.map((event) => (
               <li key={event.id} className="flex flex-wrap items-baseline gap-2 text-sm">
                 <span className="text-muted-foreground w-28 shrink-0 text-xs tabular-nums">
-                  {formatDate(event.occurredAt)}
+                  {showDate(event.occurredAt)}
                 </span>
                 <span>
                   {event.fromStage ? (
                     <>
                       <span className="text-muted-foreground">
-                        {STAGE_LABELS[event.fromStage] ?? event.fromStage}
+                        {STAGE_KEYS[event.fromStage]
+                          ? t(STAGE_KEYS[event.fromStage]!)
+                          : event.fromStage}
                       </span>
                       <span className="text-muted-foreground mx-1.5">→</span>
                     </>
                   ) : null}
                   <span className="font-medium">
-                    {STAGE_LABELS[event.toStage] ?? event.toStage}
+                    {STAGE_KEYS[event.toStage]
+                      ? t(STAGE_KEYS[event.toStage]!)
+                      : event.toStage}
                   </span>
                 </span>
                 {event.note ? (
@@ -183,11 +196,11 @@ export function PublicationTab({ videoId }: { videoId: string }) {
 
       {/* Cibles de diffusion -------------------------------------------------- */}
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Cibles de diffusion</h3>
+        <h3 className="text-sm font-semibold">{t("publication.targetsTitle")}</h3>
         {publications.length === 0 ? (
           <EmptyState
-            title="Aucune cible de diffusion"
-            hint="Ajoutez la plateforme où cette vidéo doit sortir, avec son titre et sa description de référencement."
+            title={t("publication.targetsEmptyTitle")}
+            hint={t("publication.targetsEmptyHint")}
           />
         ) : (
           publications.map((publication) => (
@@ -197,25 +210,27 @@ export function PublicationTab({ videoId }: { videoId: string }) {
       </section>
 
       <section className="border-border rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-semibold">Ajouter une cible de diffusion</h3>
+        <h3 className="mb-3 text-sm font-semibold">
+          {t("publication.addTargetTitle")}
+        </h3>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Plateforme</span>
+            <span className="font-medium">{t("publication.platform")}</span>
             <Input
               value={draft.platform}
               onChange={(event) => setDraft({ ...draft, platform: event.target.value })}
-              placeholder="YouTube, Instagram, site perso…"
+              placeholder={t("publication.platformPlaceholder")}
             />
           </label>
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Titre de référencement</span>
+            <span className="font-medium">{t("publication.seoTitle")}</span>
             <Input
               value={draft.seoTitle}
               onChange={(event) => setDraft({ ...draft, seoTitle: event.target.value })}
             />
           </label>
           <label className="flex flex-col gap-1 text-xs sm:col-span-2">
-            <span className="font-medium">Description</span>
+            <span className="font-medium">{t("publication.seoDescription")}</span>
             <Textarea
               className="min-h-16"
               value={draft.seoDescription}
@@ -225,11 +240,11 @@ export function PublicationTab({ videoId }: { videoId: string }) {
             />
           </label>
           <label className="flex flex-col gap-1 text-xs sm:col-span-2">
-            <span className="font-medium">Mots-clés</span>
+            <span className="font-medium">{t("publication.keywords")}</span>
             <Input
               value={draft.keywords}
               onChange={(event) => setDraft({ ...draft, keywords: event.target.value })}
-              placeholder="montage, voyage du héros, structure"
+              placeholder={t("publication.keywordsPlaceholder")}
             />
           </label>
         </div>
@@ -252,7 +267,7 @@ export function PublicationTab({ videoId }: { videoId: string }) {
             )
           }
         >
-          <IconPlus size={14} /> Ajouter
+          <IconPlus size={14} /> {t("studio.add")}
         </Button>
       </section>
     </div>
@@ -261,6 +276,7 @@ export function PublicationTab({ videoId }: { videoId: string }) {
 
 /** Une cible de diffusion, ses relevés, et le formulaire pour en ajouter un. */
 function PublicationCard({ publication }: { publication: Publication }) {
+  const t = useT();
   const record = useActionMutation("record-metrics");
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState({
@@ -280,7 +296,9 @@ function PublicationCard({ publication }: { publication: Publication }) {
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <h4 className="text-sm font-semibold">{publication.platform}</h4>
         <Badge tone={publication.status === "published" ? "ok" : "muted"}>
-          {publication.status === "published" ? "Publiée" : "Prévue"}
+          {publication.status === "published"
+            ? t("publication.statusPublished")
+            : t("publication.statusPlanned")}
         </Badge>
       </div>
       {publication.seoTitle ? (
@@ -291,35 +309,42 @@ function PublicationCard({ publication }: { publication: Publication }) {
       ) : null}
       {publication.keywords ? (
         <p className="text-muted-foreground mt-1 text-xs">
-          Mots-clés : {publication.keywords}
+          {t("publication.keywordsLine", { keywords: publication.keywords })}
         </p>
       ) : null}
 
       <div className="mt-3">
         <div className="mb-2 flex items-center justify-between gap-2">
           <h5 className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-            <IconChartBar size={14} /> Relevés de performance
+            <IconChartBar size={14} /> {t("publication.metricsTitle")}
           </h5>
           <Button size="sm" variant="ghost" onClick={() => setOpen((value) => !value)}>
-            {open ? "Fermer" : "Saisir un relevé"}
+            {open ? t("studio.close") : t("publication.recordMetric")}
           </Button>
         </div>
 
         {publication.metrics.length === 0 ? (
           <p className="text-muted-foreground text-xs">
-            Aucun relevé. Les chiffres se saisissent à la main : aucun connecteur de
-            plateforme n&apos;est requis.
+            {t("publication.metricsEmpty")}
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-md border-collapse text-xs">
               <thead>
                 <tr className="text-muted-foreground border-b text-left">
-                  <th className="py-1.5 pr-3">Date</th>
-                  <th className="py-1.5 pr-3 text-right">Vues</th>
-                  <th className="py-1.5 pr-3 text-right">J&apos;aime</th>
-                  <th className="py-1.5 pr-3 text-right">Comm.</th>
-                  <th className="py-1.5 text-right">Rétention</th>
+                  <th className="py-1.5 pr-3">{t("publication.colDate")}</th>
+                  <th className="py-1.5 pr-3 text-right">
+                    {t("publication.colViews")}
+                  </th>
+                  <th className="py-1.5 pr-3 text-right">
+                    {t("publication.colLikes")}
+                  </th>
+                  <th className="py-1.5 pr-3 text-right">
+                    {t("publication.colCommentsShort")}
+                  </th>
+                  <th className="py-1.5 text-right">
+                    {t("publication.colRetention")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -349,7 +374,7 @@ function PublicationCard({ publication }: { publication: Publication }) {
           <div className="bg-muted/40 mt-3 rounded-md p-3">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Date</span>
+                <span className="font-medium">{t("publication.colDate")}</span>
                 <input
                   type="date"
                   value={draft.measuredOn}
@@ -360,7 +385,7 @@ function PublicationCard({ publication }: { publication: Publication }) {
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Vues</span>
+                <span className="font-medium">{t("publication.colViews")}</span>
                 <Input
                   inputMode="numeric"
                   value={draft.views}
@@ -368,7 +393,7 @@ function PublicationCard({ publication }: { publication: Publication }) {
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">J&apos;aime</span>
+                <span className="font-medium">{t("publication.colLikes")}</span>
                 <Input
                   inputMode="numeric"
                   value={draft.likes}
@@ -376,7 +401,7 @@ function PublicationCard({ publication }: { publication: Publication }) {
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Commentaires</span>
+                <span className="font-medium">{t("publication.comments")}</span>
                 <Input
                   inputMode="numeric"
                   value={draft.comments}
@@ -386,7 +411,7 @@ function PublicationCard({ publication }: { publication: Publication }) {
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Rétention %</span>
+                <span className="font-medium">{t("publication.retentionPct")}</span>
                 <Input
                   inputMode="numeric"
                   value={draft.retentionPct}
@@ -429,11 +454,10 @@ function PublicationCard({ publication }: { publication: Publication }) {
                   )
                 }
               >
-                Enregistrer le relevé
+                {t("publication.saveMetric")}
               </Button>
               <span className="text-muted-foreground text-xs">
-                Un seul relevé par jour : une seconde saisie à la même date corrige la
-                précédente.
+                {t("publication.oneMetricPerDay")}
               </span>
             </div>
             {error ? <p className="text-destructive mt-2 text-xs">{error}</p> : null}

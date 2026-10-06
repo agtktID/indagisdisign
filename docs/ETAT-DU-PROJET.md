@@ -43,7 +43,8 @@ Tout ce qui ne sert pas ce parcours est secondaire.
 | 4 écrans | `ls app/routes/*.tsx` |
 | 12 règles de diagnostic | `grep -oE 'rule: "[a-z-]+"' shared/diagnosis.ts \| sort -u \| wc -l` → 12 |
 | 550 prompts livrés, hors du bundle client | garde CI « Le catalogue ne part pas au navigateur » |
-| 56 tests | `pnpm test` |
+| 76 tests | `pnpm test` |
+| Export CSV, EDL d'assemblage et chapitres YouTube | `pnpm action export-markers --videoId <id> --format edl` |
 | Typecheck, build et doctor verts | `pnpm typecheck && pnpm build && pnpm agent-native:doctor` |
 
 ### Les cinq règles d'architecture, contrôlées
@@ -58,27 +59,7 @@ Tout ce qui ne sert pas ce parcours est secondaire.
 
 ## Ce qui reste, par valeur décroissante
 
-### 1. L'export vers les logiciels de montage
-
-**Problème** : `export-markers` sort un CSV, et c'est un cul-de-sac. Le monteur retape
-tout dans Resolve ou Premiere. Studio est *à côté* de la timeline, pas branché dessus —
-ce qui contredit la promesse du README, « l'outil qui manque entre les deux ».
-
-**Fait quand** : `pnpm action export-markers --videoId <id> --format edl` produit un EDL
-que Resolve importe, et `--format youtube-chapters` des chapitres collables. Un test par
-format vérifie la forme de sortie sur un carnet connu.
-
-**Crochet déjà en place** : `markers.externalRef`, déclaré réservé dans le schéma.
-
-### 2. `DESIGN.md` parle d'un autre produit
-
-**Problème** : le fichier est le boilerplate du gabarit Agent-Native — « Chat is a quiet,
-full-canvas conversation workbench ». Pas une ligne sur la carte narrative.
-
-**Fait quand** : `grep -i "narratif\|voyage du héros" DESIGN.md` renvoie des lignes, ou
-le fichier n'existe plus.
-
-### 3. L'interface n'est pas traduite
+### 1. L'interface n'est pas traduite
 
 **Problème** : 12 locales dans `app/i18n/`, un sélecteur de langue dans les réglages, et
 **aucun `useT()`** dans les écrans Studio. Passer l'application en anglais donne une
@@ -89,7 +70,7 @@ le plus bas du dépôt, pour un projet destiné à faire connaître son auteur.
 sa première ligne que l'application est en français. Les deux sont des réponses
 honnêtes ; l'ambiguïté actuelle ne l'est pas.
 
-### 4. Les alertes de dépendances
+### 2. Les alertes de dépendances
 
 **Problème** : 9 alertes ouvertes, **toutes transitives** de `@agent-native/core` et
 `@agent-native/agentkit` (`xlsx`, `pdfjs-dist`, `@tiptap/core`, `@anthropic-ai/sdk`,
@@ -98,7 +79,7 @@ honnêtes ; l'ambiguïté actuelle ne l'est pas.
 **Fait quand** : une version du framework les résout, ou le dépôt documente pourquoi
 elles sont acceptables pour une application qui ne tourne qu'en local.
 
-### 5. Brancher l'écran « Créer » sur la carte narrative
+### 3. Brancher l'écran « Créer » sur la carte narrative
 
 **Problème** : `CreateView` assemble modèle + kit de marque + demande, mais **les 12
 étapes, la courbe et les marqueurs n'y entrent jamais**. La bibliothèque est un produit
@@ -107,6 +88,14 @@ posé à côté du produit.
 **Fait quand** : « fais-moi un teaser de l'acte III depuis ma carte » produit un brief
 contenant les vrais beats et timecodes. C'est une phrase qu'aucun autre outil ne peut
 exécuter.
+
+## Traité depuis la première version de ce document
+
+- **L'export vers les logiciels de montage** — `--format edl` produit un assemblage
+  CMX3600, `--format youtube-chapters` des chapitres collables. Limite assumée : ces
+  sorties n'ont pas été ré-importées dans Resolve ou Premiere depuis ce dépôt.
+- **`DESIGN.md`** — réécrit pour décrire la direction réelle de Studio. Il n'est pas
+  supprimable : deux skills du framework exigent qu'une direction y soit nommée.
 
 ## Ce qui a été délibérément écarté
 
@@ -121,3 +110,8 @@ ce qu'on a filmé, pas ce que l'étape fait dans l'histoire. La règle
 
 **Le rendu vidéo depuis le serveur** — `fs` et `child_process` resteront interdits. Le
 rendu passe par les ponts MCP locaux, en processus séparé.
+
+**L'export FCPXML** — contrairement à l'EDL, c'est un XML à DTD versionnée dont une
+erreur subtile passe à l'import sans message. Sans possibilité de ré-importer dans Final
+Cut depuis ce dépôt, le produire serait de la fabrication. À reprendre par qui pourra le
+tester.

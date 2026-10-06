@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconAlertTriangle, IconStethoscope } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -36,14 +37,16 @@ interface Finding {
 }
 
 
-const STATUS_LABELS: Record<string, string> = {
-  todo: "À tester",
-  testing: "En cours",
-  kept: "Conservé",
-  discarded: "Abandonné",
+/** Les statuts viennent de la base ; seuls leurs libellés sont de l'interface. */
+const STATUS_KEYS: Record<string, string> = {
+  todo: "experiments.statusTodo",
+  testing: "experiments.statusTesting",
+  kept: "experiments.statusKept",
+  discarded: "experiments.statusDiscarded",
 };
 
 export function ExperimentsTab({ videoId }: { videoId: string }) {
+  const t = useT();
   const { data } = useActionQuery("list-experiments", { videoId });
   const list = data as
     | { experiments: Experiment[]; openCount: number; testingCount: number; warning?: string }
@@ -72,11 +75,8 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <h2 className="text-lg font-semibold">Essais</h2>
-        <p className="text-muted-foreground text-sm">
-          Chaque symptôme peut avoir plusieurs causes. Changez une seule chose à la fois,
-          puis comparez avant de conclure.
-        </p>
+        <h2 className="text-lg font-semibold">{t("experiments.title")}</h2>
+        <p className="text-muted-foreground text-sm">{t("experiments.description")}</p>
       </header>
 
       {list?.warning ? (
@@ -88,16 +88,16 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
 
       <section className="border-border rounded-lg border p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold">Diagnostic de structure</h3>
+          <h3 className="text-sm font-semibold">{t("experiments.diagnosticTitle")}</h3>
           <Button size="sm" variant="outline" onClick={runDiagnostic} disabled={diagnose.isFetching}>
             <IconStethoscope size={14} />
-            {diagnose.isFetching ? "Analyse…" : "Analyser la carte"}
+            {diagnose.isFetching ? t("experiments.analyzing") : t("experiments.analyze")}
           </Button>
         </div>
         {findings ? (
           findings.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              Aucune règle de structure ne se déclenche sur cette carte.
+              {t("experiments.noFindings")}
             </p>
           ) : (
             <ul className="flex flex-col gap-2">
@@ -125,7 +125,7 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
                       })
                     }
                   >
-                    Ouvrir un essai sur ce constat
+                    {t("experiments.openFromFinding")}
                   </Button>
                 </li>
               ))}
@@ -133,14 +133,15 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
           )
         ) : (
           <p className="text-muted-foreground text-sm">
-            Le diagnostic produit des observations, pas des correctifs : à vous de décider
-            lesquelles vous voulez tester.
+            {t("experiments.diagnosticHint")}
           </p>
         )}
       </section>
 
       <section className="border-border rounded-lg border p-4">
-        <h3 className="mb-2 text-sm font-semibold">Partir d&apos;un symptôme</h3>
+        <h3 className="mb-2 text-sm font-semibold">
+          {t("experiments.fromSymptomTitle")}
+        </h3>
         <div className="flex flex-wrap gap-2">
           {DIAGNOSTIC_SYMPTOMS.map((symptom) => (
             <Button
@@ -164,16 +165,14 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
       </section>
 
       <section className="border-border rounded-lg border p-4">
-        <h3 className="mb-1 text-sm font-semibold">Noter un retour de spectateur</h3>
+        <h3 className="mb-1 text-sm font-semibold">{t("experiments.feedbackTitle")}</h3>
         <p className="text-muted-foreground mb-2 text-xs">
-          Écrivez ce que la personne a dit, mot pour mot. « J&apos;ai décroché ici »
-          localise un vrai problème ; « ajoute une musique » est déjà une solution
-          proposée — à vérifier avant de l&apos;appliquer.
+          {t("experiments.feedbackHint")}
         </p>
         <Textarea
           value={observation}
           onChange={(event) => setObservation(event.target.value)}
-          placeholder="« Je pensais que c'était fini. »"
+          placeholder={t("experiments.feedbackPlaceholder")}
           rows={2}
         />
         <div className="mt-2 flex items-center gap-2">
@@ -193,7 +192,7 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
               )
             }
           >
-            Enregistrer l&apos;observation
+            {t("experiments.saveObservation")}
           </Button>
           {error ? <span className="text-destructive text-xs">{error}</span> : null}
         </div>
@@ -201,8 +200,8 @@ export function ExperimentsTab({ videoId }: { videoId: string }) {
 
       {(list?.experiments.length ?? 0) === 0 ? (
         <EmptyState
-          title="Aucun essai ouvert"
-          hint="Un essai part d'une observation, pas d'une solution. Lancez un diagnostic ou notez un retour de spectateur."
+          title={t("experiments.emptyTitle")}
+          hint={t("experiments.emptyHint")}
         />
       ) : (
         <div className="flex flex-col gap-3">
@@ -226,43 +225,47 @@ function ExperimentCard({
   experiment: Experiment;
   onResolve: (input: ResolveInput) => void;
 }) {
+  const t = useT();
   const [verdict, setVerdict] = useState("");
   const closed = experiment.status === "kept" || experiment.status === "discarded";
+  const statusKey = STATUS_KEYS[experiment.status];
 
   return (
     <section className="border-border rounded-lg border p-4 text-sm">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <Badge tone={experiment.status === "testing" ? "warn" : closed ? "ok" : "muted"}>
-          {STATUS_LABELS[experiment.status] ?? experiment.status}
+          {statusKey ? t(statusKey) : experiment.status}
         </Badge>
         <Badge>{experiment.source}</Badge>
-        {experiment.step ? <Badge>Étape {experiment.step}</Badge> : null}
+        {experiment.step ? (
+          <Badge>{t("studio.stepBadge", { step: experiment.step })}</Badge>
+        ) : null}
       </div>
       <p className="mb-1">
-        <strong className="font-medium">Observation — </strong>
+        <strong className="font-medium">{t("experiments.observationLabel")}</strong>{" "}
         {experiment.observation}
       </p>
       {experiment.symptom ? (
         <p className="text-muted-foreground mb-1 text-xs">
-          <strong className="font-medium">À essayer — </strong>
+          <strong className="font-medium">{t("experiments.suggestionLabel")}</strong>{" "}
           {experiment.symptom.suggestion}
         </p>
       ) : null}
       {experiment.hypothesis ? (
         <p className="mb-1">
-          <strong className="font-medium">Hypothèse — </strong>
+          <strong className="font-medium">{t("experiments.hypothesisLabel")}</strong>{" "}
           {experiment.hypothesis}
         </p>
       ) : null}
       {experiment.attempt ? (
         <p className="mb-1">
-          <strong className="font-medium">Essai — </strong>
+          <strong className="font-medium">{t("experiments.attemptLabel")}</strong>{" "}
           {experiment.attempt}
         </p>
       ) : null}
       {experiment.verdictNote ? (
         <p className="text-muted-foreground mb-1 text-xs">
-          <strong className="font-medium">Verdict — </strong>
+          <strong className="font-medium">{t("experiments.verdictLabel")}</strong>{" "}
           {experiment.verdictNote}
         </p>
       ) : null}
@@ -276,7 +279,7 @@ function ExperimentCard({
               className="self-start"
               onClick={() => onResolve({ experimentId: experiment.id, status: "testing" })}
             >
-              Passer en cours de test
+              {t("experiments.startTesting")}
             </Button>
           ) : (
             <>
@@ -284,7 +287,7 @@ function ExperimentCard({
                 className="min-h-16"
                 value={verdict}
                 onChange={(event) => setVerdict(event.target.value)}
-                placeholder="Ce que la comparaison avant/après a montré…"
+                placeholder={t("experiments.verdictPlaceholder")}
               />
               <div className="flex flex-wrap items-center gap-2">
                 <Button
@@ -298,7 +301,7 @@ function ExperimentCard({
                     })
                   }
                 >
-                  Conserver
+                  {t("experiments.keep")}
                 </Button>
                 <Button
                   size="sm"
@@ -312,11 +315,10 @@ function ExperimentCard({
                     })
                   }
                 >
-                  Abandonner
+                  {t("experiments.discard")}
                 </Button>
                 <span className="text-muted-foreground text-xs">
-                  Un verdict est requis : clore sans dire ce qu&apos;on a appris vide la
-                  boucle de son intérêt.
+                  {t("experiments.verdictRequired")}
                 </span>
               </div>
             </>

@@ -1,3 +1,4 @@
+import { useT } from "@agent-native/core/client/i18n";
 import {
   CartesianGrid,
   Line,
@@ -37,6 +38,7 @@ export function EmotionCurve({
   curve: CurvePoint[];
   showReference?: boolean;
 }) {
+  const t = useT();
   const hasData = curve.some((point) => point.intensity !== null);
 
   return (
@@ -65,10 +67,12 @@ export function EmotionCurve({
               borderRadius: "var(--radius)",
               fontSize: 12,
             }}
-            labelFormatter={(step) => `Étape ${String(step)}`}
+            labelFormatter={(step) => t("studio.stepBadge", { step: String(step) })}
             formatter={(value, name) => [
               String(value ?? ""),
-              name === "intensity" ? "Votre intensité" : "Référence",
+              name === "intensity"
+                ? t("storyMap.curveYours")
+                : t("storyMap.curveReference"),
             ]}
           />
           {/* Le climax : le repère qui structure toute la courbe. */}
@@ -99,7 +103,7 @@ export function EmotionCurve({
       </ResponsiveContainer>
       {!hasData ? (
         <p className="text-muted-foreground -mt-24 text-center text-xs">
-          Aucune intensité saisie. La courbe se trace au fur et à mesure.
+          {t("storyMap.curveEmpty")}
         </p>
       ) : null}
     </div>

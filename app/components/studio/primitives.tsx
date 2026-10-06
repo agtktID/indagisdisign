@@ -1,3 +1,5 @@
+import { useT } from "@agent-native/core/client/i18n";
+
 import { cn } from "@/lib/utils";
 
 /** Couleurs d'acte, résolues depuis le jeton du référentiel. */
@@ -94,10 +96,18 @@ export function CoverageBar({
   total: number;
   color?: string;
 }) {
+  const t = useT();
   const pct = total === 0 ? 0 : Math.round((covered / total) * 100);
   return (
     <div className="flex items-center gap-2">
-      <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+      <div
+        className="bg-muted h-1.5 w-full overflow-hidden rounded-full"
+        role="progressbar"
+        aria-label={t("studio.coverageBar", { covered, total })}
+        aria-valuenow={covered}
+        aria-valuemin={0}
+        aria-valuemax={total}
+      >
         <div
           className={cn("h-full rounded-full transition-all", {
             "bg-teal-500": color === "teal",

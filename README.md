@@ -20,7 +20,7 @@ manque entre les deux : celui qui vous dit **ce qui manque à votre histoire**.
   pouvez réordonner selon la logique du récit et non celle de la chronologie. Exportable
   en CSV.
 - **Une fiche de préparation** — les cinq questions à se poser avant de monter.
-- **Un diagnostic de structure** — huit règles appliquées mécaniquement à votre carte :
+- **Un diagnostic de structure** — douze règles appliquées mécaniquement à votre carte :
   acte sous-couvert, climax sans enjeu lisible, fin déconnectée, courbe plate…
 - **Une boucle d'essais** — observation → hypothèse → tentative → verdict, avec le rappel
   de la règle qui compte : une seule chose à la fois.
@@ -132,6 +132,12 @@ pnpm typecheck
 pnpm test
 pnpm agent-native:doctor
 ```
+
+## Où en est le projet
+
+[`docs/ETAT-DU-PROJET.md`](docs/ETAT-DU-PROJET.md) dit ce qui est fait et ce qui reste,
+avec la commande qui reprouve chaque ligne. C'est le document à lire avant de proposer
+quoi que ce soit.
 
 ## Contribuer
 

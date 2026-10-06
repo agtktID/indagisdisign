@@ -71,6 +71,13 @@ donnée utilisateur : les corriger demande de revenir à la source, pas d'improv
 Un commit par étape logique, en français ou en anglais, au présent. Pas de commit
 fourre-tout en fin de session.
 
+## Avant de proposer quelque chose
+
+[`docs/ETAT-DU-PROJET.md`](docs/ETAT-DU-PROJET.md) liste ce qui reste, par valeur
+décroissante, et dit pour chaque point **à quoi on reconnaîtra que c'est fait**. Il
+documente aussi ce qui a été délibérément écarté, et pourquoi — utile avant de proposer
+une idée qui a déjà été pesée.
+
 ## Signaler un problème
 
 Une issue utile dit ce que vous attendiez, ce qui s'est passé, et comment le

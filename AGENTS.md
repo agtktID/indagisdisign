@@ -310,6 +310,18 @@ Une étape qui porte des marqueurs sans note n'est pas pour autant traitée comm
 le diagnostic la signale par la règle `matiere-sans-intention`, qui dit à l'utilisateur
 qu'il a le matériel et qu'il lui reste à nommer l'intention.
 
+### Les timecodes sont relatifs à leur rush
+
+**`markers.startMs` et `markers.endMs` se comptent depuis le début du rush, jamais depuis
+le début d'un montage.** Un marqueur à 4 s dans `rush-01` et un autre à 4 s dans
+`rush-07` ne désignent pas le même instant.
+
+Conséquence pour toute règle future : on peut parler de **durées de matière** (somme des
+passages, par acte ou par étape) et de **recouvrements à l'intérieur d'un même rush**. On
+ne peut pas parler de position dans la timeline finale — elle n'est pas dérivable. Trois
+règles exploitent aujourd'hui ces durées : `acte-ii-sous-dote`, `climax-sans-matiere` et
+`marqueurs-superposes`. Un marqueur sans `endMs` est un point : il ne pèse aucune durée.
+
 ## Git
 
 - Créer des commits atomiques par étape de spec/plan/tâche, pas un commit global en fin

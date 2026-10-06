@@ -48,6 +48,11 @@ critere "Le catalogue de prompts n'est pas importé par l'interface" \
   bash -c '! grep -rq "prompt-catalog/index" app/'
 critere "Aucune route /api/ ne double une action" \
   bash -c '! find app/routes -name "api.*" 2>/dev/null | grep -q .'
+# La CI installe en --frozen-lockfile. Deux fois déjà, `agent-native upgrade` a
+# ré-épinglé package.json APRÈS la génération du lockfile, et la CI a échoué sur un
+# désaccord invisible en local, où pnpm install s'en accommode.
+critere "Le lockfile est en accord avec package.json" \
+  pnpm install --frozen-lockfile --lockfile-only
 critere "Aucun secret dans les fichiers suivis" \
   bash -c '! git ls-files -z | xargs -0 grep -lIE "(sk-[A-Za-z0-9_-]{16,})|(gh[pousr]_[A-Za-z0-9]{20,})|(AKIA[0-9A-Z]{16})|(-----BEGIN [A-Z ]*PRIVATE KEY)" 2>/dev/null | grep -q .'
 

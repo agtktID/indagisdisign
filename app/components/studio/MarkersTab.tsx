@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconArrowDown, IconArrowUp, IconDownload, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
@@ -60,6 +61,7 @@ function EditableCell({
   align?: "tabular";
   onCommit: (next: string) => void;
 }) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
 
@@ -78,7 +80,7 @@ function EditableCell({
       <button
         type="button"
         onClick={() => setEditing(true)}
-        title="Modifier"
+        title={t("markers.editCell")}
         className={cn(
           "hover:bg-muted/60 -mx-1 w-full rounded px-1 py-0.5 text-left transition",
           align === "tabular" && "tabular-nums",
@@ -112,6 +114,7 @@ function EditableCell({
 }
 
 export function MarkersTab({ videoId }: { videoId: string }) {
+  const t = useT();
   const [order, setOrder] = useState<"narrative" | "timecode">("narrative");
   const { data } = useActionQuery("list-markers", { videoId, order });
   const result = data as { markers: Marker[]; unassignedCount: number } | undefined;
@@ -172,7 +175,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
       | { content: string; filename: string; rowCount: number }
       | undefined;
     if (!payload) {
-      setError("L'export n'a rien renvoyé. Réessayez.");
+      setError(t("markers.exportEmpty"));
       return;
     }
     const blob = new Blob([`﻿${payload.content}`], { type: "text/csv;charset=utf-8" });
@@ -188,20 +191,20 @@ export function MarkersTab({ videoId }: { videoId: string }) {
     setError(null);
     const startMs = parseTimecode(draft.start);
     if (startMs === null) {
-      setError("Début invalide. Formats acceptés : 90000, 1:30, 00:01:30.");
+      setError(t("markers.invalidStart"));
       return;
     }
     let endMs: number | undefined;
     if (draft.end.trim()) {
       const parsed = parseTimecode(draft.end);
       if (parsed === null) {
-        setError("Fin invalide. Formats acceptés : 90000, 1:30, 00:01:30.");
+        setError(t("markers.invalidEnd"));
         return;
       }
       endMs = parsed;
     }
     if (!draft.label.trim()) {
-      setError("Un intitulé est nécessaire pour retrouver le passage.");
+      setError(t("markers.labelRequired"));
       return;
     }
     upsert.mutate(
@@ -225,11 +228,8 @@ export function MarkersTab({ videoId }: { videoId: string }) {
     <div className="flex flex-col gap-5">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Carnet de marqueurs</h2>
-          <p className="text-muted-foreground text-sm">
-            Un même passage peut remplir plusieurs fonctions, et une étape peut très bien
-            manquer — ce n&apos;est pas un défaut.
-          </p>
+          <h2 className="text-lg font-semibold">{t("markers.title")}</h2>
+          <p className="text-muted-foreground text-sm">{t("markers.description")}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-muted flex rounded-md p-0.5 text-xs">
@@ -238,32 +238,32 @@ export function MarkersTab({ videoId }: { videoId: string }) {
               onClick={() => setOrder("narrative")}
               className={`rounded px-2 py-1 ${order === "narrative" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
             >
-              Ordre narratif
+              {t("markers.orderNarrative")}
             </button>
             <button
               type="button"
               onClick={() => setOrder("timecode")}
               className={`rounded px-2 py-1 ${order === "timecode" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
             >
-              Timecode
+              {t("markers.orderTimecode")}
             </button>
           </div>
           <Button size="sm" variant="outline" onClick={download} disabled={markers.length === 0}>
-            <IconDownload size={14} /> Exporter CSV
+            <IconDownload size={14} /> {t("markers.exportCsv")}
           </Button>
         </div>
       </header>
 
       {result && result.unassignedCount > 0 ? (
         <Badge tone="muted" className="self-start">
-          {result.unassignedCount} marqueur{result.unassignedCount > 1 ? "s" : ""} sans étape
+          {t("studio.unassignedMarkers", { count: result.unassignedCount })}
         </Badge>
       ) : null}
 
       {markers.length === 0 ? (
         <EmptyState
-          title="Le carnet est vide"
-          hint="Posez un premier marqueur sur un passage qui vous a marqué au dérushage. Le rattacher à une étape peut attendre."
+          title={t("markers.emptyTitle")}
+          hint={t("markers.emptyHint")}
         />
       ) : (
         <div className="overflow-x-auto">
@@ -271,13 +271,13 @@ export function MarkersTab({ videoId }: { videoId: string }) {
             <thead>
               <tr className="text-muted-foreground border-b text-left text-xs">
                 <th className="w-8 py-2" />
-                <th className="py-2 pr-3">Passage</th>
-                <th className="py-2 pr-3">Rush</th>
-                <th className="py-2 pr-3">Début</th>
-                <th className="py-2 pr-3">Fin</th>
-                <th className="py-2 pr-3">Étape</th>
-                <th className="py-2 pr-3">Sensation visée</th>
-                <th className="py-2 pr-3">Essai de montage</th>
+                <th className="py-2 pr-3">{t("markers.colLabel")}</th>
+                <th className="py-2 pr-3">{t("markers.colRush")}</th>
+                <th className="py-2 pr-3">{t("markers.colStart")}</th>
+                <th className="py-2 pr-3">{t("markers.colEnd")}</th>
+                <th className="py-2 pr-3">{t("markers.colStep")}</th>
+                <th className="py-2 pr-3">{t("markers.colFeeling")}</th>
+                <th className="py-2 pr-3">{t("markers.colAttempt")}</th>
                 <th className="w-8 py-2" />
               </tr>
             </thead>
@@ -289,7 +289,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                       <div className="flex flex-col">
                         <button
                           type="button"
-                          aria-label="Monter"
+                          aria-label={t("markers.moveUp")}
                           disabled={index === 0}
                           onClick={() => move(index, -1)}
                           className="text-muted-foreground hover:text-foreground disabled:opacity-25"
@@ -298,7 +298,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                         </button>
                         <button
                           type="button"
-                          aria-label="Descendre"
+                          aria-label={t("markers.moveDown")}
                           disabled={index === markers.length - 1}
                           onClick={() => move(index, 1)}
                           className="text-muted-foreground hover:text-foreground disabled:opacity-25"
@@ -313,7 +313,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                   <td className="py-1.5 pr-3 font-medium">
                     <EditableCell
                       value={marker.label}
-                      placeholder="Sans intitulé"
+                      placeholder={t("markers.untitled")}
                       onCommit={(next) => next && edit(marker, { label: next })}
                     />
                   </td>
@@ -354,7 +354,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                       }
                       className="border-input bg-background rounded border px-1.5 py-1 text-xs"
                     >
-                      <option value="">— aucune</option>
+                      <option value="">{t("markers.stepNone")}</option>
                       {STEP_OPTIONS.map((step) => (
                         <option key={step} value={step}>
                           {step}
@@ -379,7 +379,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                   <td className="py-1.5">
                     <button
                       type="button"
-                      aria-label="Supprimer"
+                      aria-label={t("markers.delete")}
                       onClick={() => remove.mutate({ markerId: marker.id })}
                       className="text-muted-foreground hover:text-destructive"
                     >
@@ -394,27 +394,27 @@ export function MarkersTab({ videoId }: { videoId: string }) {
       )}
 
       <section className="border-border rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-semibold">Ajouter un marqueur</h3>
+        <h3 className="mb-3 text-sm font-semibold">{t("markers.addTitle")}</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label className="flex flex-col gap-1 text-xs sm:col-span-2">
-            <span className="font-medium">Passage</span>
+            <span className="font-medium">{t("markers.colLabel")}</span>
             <Input
               value={draft.label}
               onChange={(event) => setDraft({ ...draft, label: event.target.value })}
-              placeholder="Luke dans la tranchée"
+              placeholder={t("markers.labelPlaceholder")}
             />
           </label>
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Rush</span>
+            <span className="font-medium">{t("markers.colRush")}</span>
             <Input
               value={draft.rush}
               onChange={(event) => setDraft({ ...draft, rush: event.target.value })}
-              placeholder="A004_C012"
+              placeholder={t("markers.rushPlaceholder")}
             />
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Début</span>
+              <span className="font-medium">{t("markers.colStart")}</span>
               <Input
                 value={draft.start}
                 onChange={(event) => setDraft({ ...draft, start: event.target.value })}
@@ -422,7 +422,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
               />
             </label>
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Fin</span>
+              <span className="font-medium">{t("markers.colEnd")}</span>
               <Input
                 value={draft.end}
                 onChange={(event) => setDraft({ ...draft, end: event.target.value })}
@@ -431,27 +431,27 @@ export function MarkersTab({ videoId }: { videoId: string }) {
             </label>
           </div>
           <label className="flex flex-col gap-1 text-xs sm:col-span-2">
-            <span className="font-medium">Sensation visée</span>
+            <span className="font-medium">{t("markers.colFeeling")}</span>
             <Textarea
               className="min-h-16"
               value={draft.feeling}
               onChange={(event) => setDraft({ ...draft, feeling: event.target.value })}
-              placeholder="Tension puis soulagement"
+              placeholder={t("markers.feelingPlaceholder")}
             />
           </label>
           <label className="flex flex-col gap-1 text-xs sm:col-span-2">
-            <span className="font-medium">Essai de montage</span>
+            <span className="font-medium">{t("markers.colAttempt")}</span>
             <Textarea
               className="min-h-16"
               value={draft.attempt}
               onChange={(event) => setDraft({ ...draft, attempt: event.target.value })}
-              placeholder="Garder le tir lisible"
+              placeholder={t("markers.attemptPlaceholder")}
             />
           </label>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button size="sm" onClick={addMarker} disabled={upsert.isPending}>
-            <IconPlus size={14} /> Ajouter
+            <IconPlus size={14} /> {t("studio.add")}
           </Button>
           {error ? <span className="text-destructive text-xs">{error}</span> : null}
         </div>

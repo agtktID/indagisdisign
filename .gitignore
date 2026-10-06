@@ -54,3 +54,6 @@ video/
 .claude/skills/
 .specify/
 _bmad/
+
+# Les worktrees des agents sont montés dans le projet, et ne sont pas le projet.
+.claude/worktrees/

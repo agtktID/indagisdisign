@@ -17,9 +17,9 @@
     "doctor": "agent-native doctor"
   },
   "dependencies": {
-    "@agent-native/agentkit": "0.200.0",
-    "@agent-native/core": "0.200.0",
-    "@agent-native/toolkit": "0.200.0",
+    "@agent-native/agentkit": "0.201.1",
+    "@agent-native/core": "0.201.1",
+    "@agent-native/toolkit": "0.201.1",
     "@ai-sdk/anthropic": "^3.0.71",
     "@ai-sdk/cohere": "^3.0.39",
     "@ai-sdk/google": "^3.0.64",
@@ -92,7 +92,7 @@
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "next-themes": "^0.4.6",
-    "oxfmt": "0.56.0",
+    "oxfmt": "0.72.0",
     "react-day-picker": "^9.14.0",
     "react-hook-form": "^7.71.2",
     "react-resizable-panels": "^4.10.0",

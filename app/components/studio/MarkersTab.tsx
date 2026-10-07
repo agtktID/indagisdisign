@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+import { MarkerImport } from "./MarkerImport";
 import { Badge, EmptyState, Textarea } from "./primitives";
 
 /**
@@ -152,7 +153,7 @@ function EditableCell({
 export function MarkersTab({ videoId }: { videoId: string }) {
   const t = useT();
   const [order, setOrder] = useState<"narrative" | "timecode">("narrative");
-  const { data } = useActionQuery("list-markers", { videoId, order });
+  const { data, refetch } = useActionQuery("list-markers", { videoId, order });
   const result = data as { markers: Marker[]; unassignedCount: number } | undefined;
   const markers = result?.markers ?? [];
 
@@ -511,6 +512,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
           <Button size="sm" onClick={addMarker} disabled={upsert.isPending}>
             <IconPlus size={14} /> {t("studio.add")}
           </Button>
+          <MarkerImport videoId={videoId} onImported={() => void refetch()} />
           {error ? <span className="text-destructive text-xs">{error}</span> : null}
         </div>
       </section>

@@ -38,16 +38,18 @@ Tout ce qui ne sert pas ce parcours est secondaire.
 
 | | Comment le reprouver |
 | --- | --- |
-| 42 actions métier, plus les 2 standard | `ls actions/*.ts \| wc -l` → 44 |
+| 43 actions métier, plus les 2 standard | `ls actions/*.ts \| wc -l` → 45 |
 | **Aucune action métier sans bouton** | critère du vérificateur, 4 exceptions nommées |
 | 13 tables, toutes à portée par propriétaire | `grep -c "ownableColumns()" server/db/schema.ts` → 13 |
 | 4 écrans Studio, sur 17 routes — les 13 autres viennent du gabarit | `ls app/routes/*.tsx` |
 | 12 règles de diagnostic | `grep -oE 'rule: "[a-z-]+"' shared/diagnosis.ts \| sort -u \| wc -l` → 12 |
 | 550 prompts livrés, hors du bundle client | garde CI « Le catalogue ne part pas au navigateur » |
-| **130 tests** | `pnpm test` |
+| **157 tests** | `pnpm test` |
 | **8 écrans Studio sur 8 passent par `useT()`** | ligne INFO du vérificateur |
 | **11 langues aux clés strictement identiques** | `tests/unit/i18n-catalog.test.ts`, 41 cas |
 | Export CSV, EDL d'assemblage et chapitres YouTube, **les trois depuis l'écran** | onglet Marqueurs, trois boutons |
+| **Import CSV, EDL et lignes collées**, avec lecture à blanc | onglet Marqueurs, bouton « Importer » |
+| **Le diagnostic se lance depuis la carte**, remarques cliquables | en-tête de l'onglet Carte |
 | Typecheck, build et doctor verts | `pnpm typecheck && pnpm build && pnpm agent-native:doctor` |
 | **24 critères du vérificateur au vert** | `bash scripts/verifier.sh` |
 
@@ -110,53 +112,57 @@ Resolve ou Premiere depuis ce dépôt.** Un EDL subtilement faux s'importe sans 
 **Fait quand** : un fichier exporté s'ouvre dans Resolve et montre les bons passages.
 Vérifiable par vous seul, puisqu'il faut le logiciel.
 
-## Recommandations — ce que je ferais ensuite, et pourquoi
+## Les trois recommandations, faites
 
-Trois manques de produit, trouvés en auditant les 44 actions contre l'interface. Aucun
-n'est un bug : ce sont des gestes que le monteur ne peut pas faire.
+Elles avaient été trouvées en auditant les 44 actions contre l'interface. Aucune n'était
+un bug : c'étaient des gestes que le monteur ne pouvait pas faire.
 
-### A. Importer des marqueurs, pas seulement les exporter
+### A. Importer des marqueurs — fait
 
-**Aucune action d'import n'existe** (`ls actions/ | grep import` → vide). L'échange est à
-sens unique : Studio produit un EDL, il n'en lit aucun.
+`import-markers` lit trois formats, reconnus tout seuls : le CSV (le nôtre, et tout autre
+à colonnes nommées), l'EDL CMX3600 de Resolve ou Premiere, et les lignes collées d'un
+dérushage. L'aller-retour export → import est ancré par un test.
 
-Or le monteur pose déjà des marqueurs dans Resolve pendant qu'il dérushe. Les retaper un
-par un dans Studio est le prix d'entrée du produit, et c'est le plus cher. Lire un CSV ou
-un EDL ferait tomber ce prix à zéro, et rendrait l'aller-retour possible : repérer dans
-Resolve, structurer dans Studio, ré-assembler dans Resolve.
+Deux décisions qui engagent, et qu'il faut connaître avant de toucher à ce code :
 
-**C'est à mon avis le plus gros gain disponible**, devant toute nouvelle règle de
-diagnostic.
+- **Les timecodes SOURCE de l'EDL, jamais les record.** Le record dit où le passage tombe
+  dans l'assemblage — une information qui n'existe pas dans le carnet et qui changera dès
+  la première coupe. Un test l'ancre : deux événements commençant à 0 dans leurs rushes
+  respectifs doivent tous deux relire 0.
+- **La cadence est exigée pour un EDL, jamais supposée.** Un EDL ne la porte pas ; la
+  deviner décalerait tous les timecodes en silence. Même règle qu'à l'export.
 
-### B. Coller une liste de timecodes d'un coup
+### B. Coller une liste de timecodes — fait
 
-Le carnet ne saisit qu'un marqueur à la fois (`grep -ci "bulk\|paste" MarkersTab.tsx` →
-0). Un dérushage produit vingt à cinquante repères. Vingt formulaires, c'est un abandon.
+Deux portes, une seule action derrière : coller un bloc, ou choisir un fichier — lu dans
+le navigateur, envoyé à l'action locale, rien ne sort de la machine. Une **lecture à
+blanc** montre ce qui serait créé et ce qui serait refusé, ligne par ligne.
 
-Un champ qui accepte un bloc collé — une ligne par passage, `rush-01.mp4 1:30 1:45
-Ouverture` — tiendrait en une action et un parseur. Moins ambitieux que l'import de
-fichier, et livrable en une fraction du temps.
+Les marqueurs importés s'ajoutent à la suite, **jamais à la place** : un import ne doit
+pas pouvoir effacer un carnet.
 
-### C. Montrer le diagnostic sur la carte
+### C. Montrer le diagnostic sur la carte — fait
 
-Le diagnostic vit dans l'onglet **Essais** ; la carte ne le mentionne jamais
-(`grep -c diagnose StoryMap.tsx` → 0). Or la carte est l'écran où l'on passe son temps,
-et le diagnostic est la réponse à la question qui fonde le produit : *qu'est-ce qui manque
-à mon histoire ?*
+Un bouton dans l'en-tête, un compteur de remarques, et surtout : **chaque remarque est
+cliquable**. `Finding.steps` nomme les étapes concernées ; un clic déplie la bonne. C'est
+ce que l'onglet Essais ne sait pas faire, et c'est la raison d'être de cette surface — on
+constate ici, on agit là-bas.
 
-Un badge « 3 remarques » dans l'en-tête de la carte, qui déplie la liste, mettrait la
-valeur du produit là où le regard est déjà. C'est le changement le moins coûteux des
-trois.
+### Le principe commun
 
-### Deux choses que je ne recommande pas
+**Rejeter plutôt que deviner.** Une ligne incompréhensible est rendue avec son numéro et
+sa raison. Un carnet à moitié faux coûte plus cher qu'un carnet vide, parce qu'on ne sait
+pas quelle moitié.
+
+### Deux choses que je ne recommande toujours pas
 
 **Ajouter des règles de diagnostic.** Douze suffisent tant que personne ne les a vues
 tourner sur un vrai montage. En écrire une treizième avant ce retour, c'est deviner.
 
 **Déployer en ligne.** Le produit tient parce qu'il est local : pas de compte, pas de
 données qui sortent, PGlite sur la machine. Un déploiement exigerait un Postgres
-persistant, un secret d'authentification, et ferait tomber l'argument de confidentialité
-qui est aujourd'hui gratuit.
+persistant et un secret d'authentification, et ferait tomber l'argument de
+confidentialité qui est aujourd'hui gratuit.
 
 ## Traité depuis la première version de ce document
 

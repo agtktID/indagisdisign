@@ -45,8 +45,10 @@ Tout ce qui ne sert pas ce parcours est secondaire.
 | 12 règles de diagnostic | `grep -oE 'rule: "[a-z-]+"' shared/diagnosis.ts \| sort -u \| wc -l` → 12 |
 | 550 prompts livrés, hors du bundle client | garde CI « Le catalogue ne part pas au navigateur » |
 | **157 tests** | `pnpm test` |
-| **8 écrans Studio sur 8 passent par `useT()`** | ligne INFO du vérificateur |
+| **10 écrans Studio sur 10 passent par `useT()`** | ligne INFO du vérificateur |
+| **Les 21 écrans suivent la langue** — 10 Studio, 4 routes, 7 vues de bibliothèque | `pnpm action set-localization-preference --locale ja-JP` |
 | **11 langues aux clés strictement identiques** | `tests/unit/i18n-catalog.test.ts`, 41 cas |
+| **Les captures du README sont reproductibles** — leur contenu est du code, pas une base locale | `node tools/captures/seed-demo.mjs <chromium> <url>` |
 | Export CSV, EDL d'assemblage et chapitres YouTube, **les trois depuis l'écran** | onglet Marqueurs, trois boutons |
 | **Import CSV, EDL et lignes collées**, avec lecture à blanc | onglet Marqueurs, bouton « Importer » |
 | **Le diagnostic se lance depuis la carte**, remarques cliquables | en-tête de l'onglet Carte |
@@ -79,22 +81,55 @@ spending limit`.
 brief. Compter vingt minutes une fois le crédit en place. C'est le seul point bloquant
 qui ne dépend pas du code.
 
-### 2. Les routes et la bibliothèque ne sont pas traduites
+### 2. La page de chat plein écran est cassée
 
-**Problème** : les 8 écrans Studio suivent la langue, mais `app/routes/*.tsx` et
-`app/components/library/*.tsx` — environ 3000 lignes — restent français en dur. En
-anglais, l'interface est donc **mixte** : « Story map » suivi de « Toutes les vidéos » et
-des onglets « Carte / Marqueurs ».
+**Problème** : cliquer « Nouveau chat » mène à `/chat/:threadId`, qui lève
+**« AgentKit hooks require an AgentKitProvider. »** et n'affiche rien d'autre qu'un écran
+d'erreur. Le panneau agent de la barre latérale, lui, fonctionne — c'est le seul chemin
+qui reste vers l'agent.
 
-**Fait quand** : ces fichiers passent par `useT()`. Le test de parité imposera
-mécaniquement les onze langues — c'est la partie facile. Le volume est la difficulté.
+**Reproduit le 7 octobre 2026**, framework 0.202.0, navigateur au profil neuf :
 
-### 3. Douze alertes de dépendances, dont sept hautes
+```
+ROUGE — « AgentKit hooks require an AgentKitProvider »
+page : Something went wrong | AgentKit hooks require an AgentKitProvider.
+```
 
-**Problème** : plus aucune critique — les deux `tinypool` et les deux `@tiptap/core` sont
-traitées. Restent `xlsx`, `pdfjs-dist`, `@anthropic-ai/sdk`, `uuid`, `braces`,
-`sprintf-js`, `postcss-selector-parser`, `@modelcontextprotocol/*`, `@eslint/plugin-kit`.
-**Toutes transitives.**
+**Ce qui est établi** :
+
+- **La régression vient de `8beeae7`**, le codemod de la montée 0.195.0 → 0.200.0,
+  trouvé par `git bisect run` sur une boucle de 20 s.
+- **Le mécanisme** : le codemod a déplacé les hooks et le composant racine vers *deux
+  spécificateurs de sous-chemin différents* du même paquet
+  (`@agent-native/toolkit/app/agentkit` et `…/app/chat/agentkit-chat/index`). Vite en
+  fait deux instances de module, donc deux `createContext(null)` : le composant cherche
+  son contexte dans celui que le fournisseur n'a pas rempli.
+- **Prouvé par bissection fine** : une sonde `<div>` seule rend au vert — le fournisseur
+  monte bien ; `ChatCanvas` seul, puis `ChatLifecycleTracking` seul, rendent au rouge.
+- **L'asymétrie qui désigne le coupable** : le contexte de *locale* du framework se
+  protège par `globalThis.__AGENT_NATIVE_LOCALE_CONTEXT__`. `AgentKitContext`, non.
+- **Cinq correctifs applicatifs réfutés** : `resolve.dedupe`, `pnpm prune`,
+  `optimizeDeps.exclude` (racine du paquet puis sous-chemin profond), et la montée en
+  0.202.0. L'ancien chemin `@agent-native/agentkit/react/context` n'existe plus.
+
+**Fait quand** : le framework protège `AgentKitContext` comme il protège déjà celui de
+locale. Le seul correctif applicatif serait de réimplémenter `CoreAgentKitRoot`, ce que
+l'outil de montée interdit explicitement (« fix app-level code — do not patch
+`@agent-native/*` »). **Une issue en amont reste à ouvrir** : toutes les preuves
+ci-dessus sont réunies.
+
+### 3. Huit alertes de dépendances, dont quatre hautes
+
+**Problème** : plus aucune critique, et quatre de moins qu'au relevé précédent. Restent,
+au 7 octobre 2026 — `gh api repos/agtktID/indagisdisign/dependabot/alerts` :
+
+| Gravité | Paquet |
+| --- | --- |
+| haute | `xlsx` (deux alertes), `pdfjs-dist`, `@modelcontextprotocol/client` |
+| moyenne | `@anthropic-ai/sdk`, `postcss-selector-parser`, `sprintf-js`, `uuid` |
+
+**Toutes transitives** : aucune n'est déclarée dans notre `package.json`, et
+`git grep "xlsx\|pdfjs"` dans `actions/`, `server/`, `shared/` et `app/` ne rend rien.
 
 Une seule est prouvée atteignable côté serveur : **`xlsx`**, deux alertes hautes, et il
 n'existe aucun correctif accessible — SheetJS a quitté npm, les versions saines ne vivent

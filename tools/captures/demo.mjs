@@ -141,6 +141,29 @@ async function hold(seconds) {
   }
 }
 
+/**
+ * Attend que l'écran porte vraiment son contenu, au lieu de parier sur un délai.
+ *
+ * Une attente fixe de 4,5 s suffisait en général et ratait le premier écran après un
+ * démarrage à froid : la première image du GIF montrait « Chargement… », qui est
+ * justement la vignette que le README affiche avant lecture. On sonde donc jusqu'à ce
+ * que le texte attendu soit là — et on le dit si on ne l'a jamais vu, plutôt que de
+ * filmer un écran vide en silence.
+ */
+async function waitForText(pattern, timeoutMs = 15_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const seen = await evaluate(`(() => {
+      const texte = document.body.innerText || "";
+      return ${pattern}.test(texte) && !/Chargement|Loading/.test(texte);
+    })()`);
+    if (seen) return true;
+    await sleep(300);
+  }
+  console.warn(`  attention : ${pattern} jamais apparu — l'image risque d'être vide`);
+  return false;
+}
+
 /** Clique le premier bouton dont le texte correspond, et dit s'il a été trouvé. */
 const clickByText = (pattern) =>
   evaluate(`(() => {
@@ -165,6 +188,7 @@ const steps = [
     label: "la liste des vidéos",
     run: async () => {
       await goto("/videos");
+      await waitForText("/Couverture narrative/");
       await hold(2.2);
     },
   },
@@ -172,6 +196,7 @@ const steps = [
     label: "la carte narrative",
     run: async () => {
       await goto(`/video/${demoVideo}`);
+      await waitForText("/Courbe émotionnelle/");
       await hold(3);
     },
   },

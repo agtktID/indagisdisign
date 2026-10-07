@@ -1,5 +1,6 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
+import { callAction } from "@agent-native/core/client/use-action";
 import { IconArrowDown, IconArrowUp, IconDownload, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
@@ -8,6 +9,41 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 import { Badge, EmptyState, Textarea } from "./primitives";
+
+/**
+ * Les trois formats que `export-markers` sait produire.
+ *
+ * Seul le CSV était atteignable depuis l'écran. L'EDL est pourtant celui qui compte
+ * pour un monteur : c'est lui qui s'importe dans Resolve ou Premiere. Les chapitres
+ * YouTube se collent directement sous une vidéo publiée.
+ *
+ * Le contenu arrive dans la réponse, jamais par un fichier stocké quelque part : aucun
+ * compte à connecter, rien qui sorte de la machine.
+ */
+type ExportFormat = "csv" | "edl" | "youtube-chapters";
+
+const EXPORT_FORMATS: {
+  format: ExportFormat;
+  labelKey: string;
+  titleKey: string;
+}[] = [
+  { format: "csv", labelKey: "markers.exportCsv", titleKey: "markers.exportCsvTitle" },
+  { format: "edl", labelKey: "markers.exportEdl", titleKey: "markers.exportEdlTitle" },
+  {
+    format: "youtube-chapters",
+    labelKey: "markers.exportChapters",
+    titleKey: "markers.exportChaptersTitle",
+  },
+];
+
+const EXPORT_MIME: Record<ExportFormat, string> = {
+  csv: "text/csv",
+  // Resolve et Premiere acceptent un .edl servi en texte brut ; leur donner un type
+  // inventé comme `application/edl` fait seulement refuser le fichier à certains
+  // navigateurs au téléchargement.
+  edl: "text/plain",
+  "youtube-chapters": "text/plain",
+};
 
 interface Marker {
   id: string;
@@ -150,12 +186,10 @@ export function MarkersTab({ videoId }: { videoId: string }) {
       ...patch,
     });
   const reorder = useActionMutation("reorder-markers");
-  // `export-markers` est aussi une lecture : même traitement que diagnose-structure.
-  const exportCsv = useActionQuery(
-    "export-markers",
-    { videoId, order },
-    { enabled: false },
-  );
+  // `export-markers` est une lecture (`http: { method: "GET" }`). On l'appelle
+  // impérativement plutôt qu'avec useActionQuery : le format est choisi au clic, et
+  // monter une requête par format n'aurait servi qu'à les garder en cache pour rien.
+  const [exporting, setExporting] = useState<ExportFormat | null>(null);
 
   const [draft, setDraft] = useState({ label: "", rush: "", start: "", end: "", feeling: "", attempt: "" });
   const [error, setError] = useState<string | null>(null);
@@ -169,22 +203,34 @@ export function MarkersTab({ videoId }: { videoId: string }) {
     reorder.mutate({ videoId, orderedMarkerIds: next.map((marker) => marker.id) });
   }
 
-  async function download() {
-    const { data } = await exportCsv.refetch();
-    const payload = data as
-      | { content: string; filename: string; rowCount: number }
-      | undefined;
-    if (!payload) {
-      setError(t("markers.exportEmpty"));
-      return;
+  async function download(format: ExportFormat) {
+    setError(null);
+    setExporting(format);
+    try {
+      const payload = await callAction<{ content: string; filename: string }>(
+        "export-markers",
+        { videoId, order, format },
+        { method: "GET" },
+      );
+      if (!payload?.content) {
+        setError(t("markers.exportEmpty"));
+        return;
+      }
+      // Le BOM n'est utile qu'au CSV : c'est lui qui évite à Excel de massacrer les
+      // accents. Un EDL en est corrompu — Resolve lit l'en-tête octet par octet.
+      const body = format === "csv" ? `﻿${payload.content}` : payload.content;
+      const blob = new Blob([body], { type: `${EXPORT_MIME[format]};charset=utf-8` });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = payload.filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (cause) {
+      setError((cause as Error)?.message ?? t("markers.exportFailed"));
+    } finally {
+      setExporting(null);
     }
-    const blob = new Blob([`﻿${payload.content}`], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = payload.filename;
-    link.click();
-    URL.revokeObjectURL(url);
   }
 
   function addMarker() {
@@ -248,9 +294,21 @@ export function MarkersTab({ videoId }: { videoId: string }) {
               {t("markers.orderTimecode")}
             </button>
           </div>
-          <Button size="sm" variant="outline" onClick={download} disabled={markers.length === 0}>
-            <IconDownload size={14} /> {t("markers.exportCsv")}
-          </Button>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {EXPORT_FORMATS.map(({ format, labelKey, titleKey }) => (
+              <Button
+                key={format}
+                size="sm"
+                variant="outline"
+                onClick={() => download(format)}
+                disabled={markers.length === 0 || exporting !== null}
+                title={t(titleKey)}
+              >
+                <IconDownload size={14} />{" "}
+                {exporting === format ? t("markers.exporting") : t(labelKey)}
+              </Button>
+            ))}
+          </div>
         </div>
       </header>
 

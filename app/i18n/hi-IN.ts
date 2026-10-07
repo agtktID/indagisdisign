@@ -81,6 +81,16 @@ const messages = {
     unassignedMarkers: "बिना चरण वाले मार्कर: {{count}}",
     coverageBar: "{{total}} में से {{covered}} चरण पूरे",
   },
+  brief: {
+    label: "ब्रीफ़ बनाएँ:",
+    scopeAll: "पूरी कहानी",
+    scopeStep: "चरण {{step}}",
+    composing: "बनाया जा रहा है…",
+    buttonTitle: "{{scope}} को सामग्री के रूप में एजेंट को भेजें",
+    agentRequest: "मेरे कथा मानचित्र से रचें — {{scope}}।",
+    nothingWritten: "इस दायरे में अभी कुछ नहीं लिखा है। पहले किसी चरण पर टिप्पणी जोड़ें।",
+    failed: "ब्रीफ़ नहीं बनाया जा सका।",
+  },
   storyMap: {
     loading: "कथा-मानचित्र लोड हो रहा है…",
     title: "कथा-मानचित्र",

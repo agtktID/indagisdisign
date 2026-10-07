@@ -83,6 +83,16 @@ const messages = {
     unassignedMarkers: "Marker ohne Schritt: {{count}}",
     coverageBar: "{{covered}} von {{total}} Schritten abgedeckt",
   },
+  brief: {
+    label: "Briefing erstellen:",
+    scopeAll: "Ganze Geschichte",
+    scopeStep: "Schritt {{step}}",
+    composing: "Wird erstellt…",
+    buttonTitle: "{{scope}} als Material an den Agenten senden",
+    agentRequest: "Komponiere aus meiner Erzählkarte — {{scope}}.",
+    nothingWritten: "In diesem Bereich steht noch nichts. Notieren Sie zuerst etwas zu einem Schritt.",
+    failed: "Das Briefing konnte nicht erstellt werden.",
+  },
   storyMap: {
     loading: "Karte wird geladen…",
     title: "Erzählkarte",

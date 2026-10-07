@@ -77,6 +77,16 @@ const messages = {
     unassignedMarkers: "未歸入步驟的標記：{{count}}",
     coverageBar: "{{total}} 個步驟中已涵蓋 {{covered}} 個",
   },
+  brief: {
+    label: "產生創作簡報：",
+    scopeAll: "完整故事",
+    scopeStep: "第 {{step}} 步",
+    composing: "產生中…",
+    buttonTitle: "將{{scope}}作為素材傳送給智能體",
+    agentRequest: "根據我的故事地圖創作 — {{scope}}。",
+    nothingWritten: "此範圍內尚無內容。請先為某個步驟新增筆記。",
+    failed: "簡報產生失敗。",
+  },
   storyMap: {
     loading: "正在載入敘事圖…",
     title: "敘事圖",

@@ -82,6 +82,16 @@ const messages = {
     unassignedMarkers: "단계가 없는 마커: {{count}}",
     coverageBar: "{{total}}단계 중 {{covered}}단계 완료",
   },
+  brief: {
+    label: "브리프 작성:",
+    scopeAll: "전체 이야기",
+    scopeStep: "{{step}}단계",
+    composing: "작성 중…",
+    buttonTitle: "{{scope}}을(를) 소재로 에이전트에 보내기",
+    agentRequest: "내 스토리 맵에서 구성해 주세요 — {{scope}}.",
+    nothingWritten: "이 범위에는 아직 작성된 내용이 없습니다. 먼저 단계에 메모를 추가하세요.",
+    failed: "브리프를 작성하지 못했습니다.",
+  },
   storyMap: {
     loading: "이야기 지도를 불러오는 중…",
     title: "이야기 지도",

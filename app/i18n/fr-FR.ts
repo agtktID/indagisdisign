@@ -83,6 +83,16 @@ const messages = {
     unassignedMarkers: "Marqueurs sans étape : {{count}}",
     coverageBar: "{{covered}} étapes couvertes sur {{total}}",
   },
+  brief: {
+    label: "Composer un brief :",
+    scopeAll: "Tout le récit",
+    scopeStep: "Étape {{step}}",
+    composing: "Composition…",
+    buttonTitle: "Envoyer {{scope}} à l'agent comme matière",
+    agentRequest: "Compose à partir de ma carte narrative — {{scope}}.",
+    nothingWritten: "Rien n'est encore écrit dans ce périmètre. Posez d'abord une note sur une étape.",
+    failed: "Le brief n'a pas pu être composé.",
+  },
   storyMap: {
     loading: "Chargement de la carte…",
     title: "Carte narrative",

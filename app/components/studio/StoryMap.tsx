@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FINAL_REVIEW } from "@shared/hero-journey";
 
+import { BriefComposer } from "./BriefComposer";
 import { EmotionCurve } from "./EmotionCurve";
 import { actColor, Badge, CoverageBar, Textarea } from "./primitives";
 
@@ -80,11 +81,14 @@ export function StoryMap({
             })}
           </p>
         </div>
-        {map.unassignedMarkers > 0 ? (
-          <Badge tone="muted">
-            {t("studio.unassignedMarkers", { count: map.unassignedMarkers })}
-          </Badge>
-        ) : null}
+        <div className="flex flex-col items-end gap-2">
+          {map.unassignedMarkers > 0 ? (
+            <Badge tone="muted">
+              {t("studio.unassignedMarkers", { count: map.unassignedMarkers })}
+            </Badge>
+          ) : null}
+          <BriefComposer videoId={videoId} openStep={openStep} />
+        </div>
       </header>
 
       <div className="grid gap-4 md:grid-cols-3">

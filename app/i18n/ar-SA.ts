@@ -79,6 +79,16 @@ const messages = {
     unassignedMarkers: "علامات بلا خطوة: {{count}}",
     coverageBar: "{{covered}} من {{total}} خطوة مغطّاة",
   },
+  brief: {
+    label: "إنشاء موجز:",
+    scopeAll: "الحكاية كاملة",
+    scopeStep: "الخطوة {{step}}",
+    composing: "جارٍ الإنشاء…",
+    buttonTitle: "إرسال {{scope}} إلى الوكيل كمادة",
+    agentRequest: "اصنع انطلاقًا من خريطة السرد — {{scope}}.",
+    nothingWritten: "لا يوجد شيء مكتوب في هذا النطاق بعد. أضف ملاحظة إلى خطوة أولًا.",
+    failed: "تعذّر إنشاء الموجز.",
+  },
   storyMap: {
     loading: "جارٍ تحميل خريطة السرد…",
     title: "خريطة السرد",

@@ -83,6 +83,16 @@ const messages = {
     unassignedMarkers: "Marcadores sin etapa: {{count}}",
     coverageBar: "{{covered}} de {{total}} etapas cubiertas",
   },
+  brief: {
+    label: "Componer un resumen:",
+    scopeAll: "Todo el relato",
+    scopeStep: "Paso {{step}}",
+    composing: "Componiendo…",
+    buttonTitle: "Enviar {{scope}} al agente como material",
+    agentRequest: "Compón a partir de mi mapa narrativo — {{scope}}.",
+    nothingWritten: "Aún no hay nada escrito en este ámbito. Añade primero una nota a un paso.",
+    failed: "No se ha podido componer el resumen.",
+  },
   storyMap: {
     loading: "Cargando el mapa…",
     title: "Mapa narrativo",

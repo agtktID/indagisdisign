@@ -82,6 +82,16 @@ const messages = {
     unassignedMarkers: "ステップ未設定のマーカー: {{count}}",
     coverageBar: "{{total}} ステップ中 {{covered}} をカバー",
   },
+  brief: {
+    label: "ブリーフを作成:",
+    scopeAll: "物語全体",
+    scopeStep: "ステップ {{step}}",
+    composing: "作成中…",
+    buttonTitle: "{{scope}}を素材としてエージェントに送る",
+    agentRequest: "物語マップから構成してください — {{scope}}。",
+    nothingWritten: "この範囲にはまだ何も書かれていません。まずステップにメモを追加してください。",
+    failed: "ブリーフを作成できませんでした。",
+  },
   storyMap: {
     loading: "物語マップを読み込み中…",
     title: "物語マップ",

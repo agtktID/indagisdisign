@@ -82,6 +82,16 @@ const messages = {
     unassignedMarkers: "Markers with no step: {{count}}",
     coverageBar: "{{covered}} of {{total}} steps covered",
   },
+  brief: {
+    label: "Compose a brief:",
+    scopeAll: "Whole story",
+    scopeStep: "Step {{step}}",
+    composing: "Composing…",
+    buttonTitle: "Send {{scope}} to the agent as creative material",
+    agentRequest: "Compose from my story map — {{scope}}.",
+    nothingWritten: "Nothing is written in this scope yet. Add a note to a step first.",
+    failed: "The brief could not be composed.",
+  },
   storyMap: {
     loading: "Loading the map…",
     title: "Story map",

@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useFormatters, useT } from "@agent-native/core/client/i18n";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
 import { IconAlertTriangle, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
@@ -12,12 +13,13 @@ export function meta() {
   return [{ title: "Vidéos — Indagis Studio" }];
 }
 
-const STAGE_LABELS: Record<string, string> = {
-  idea: "Idée",
-  script: "Écriture",
-  shoot: "Tournage",
-  edit: "Montage",
-  published: "Publiée",
+/** Les libellés vivent déjà dans le catalogue : on pointe dessus, on ne les recopie pas. */
+const STAGE_KEYS: Record<string, string> = {
+  idea: "publication.stageIdea",
+  script: "publication.stageScript",
+  shoot: "publication.stageShoot",
+  edit: "publication.stageEdit",
+  published: "publication.stagePublished",
 };
 
 interface VideoRow {
@@ -32,7 +34,9 @@ interface VideoRow {
 }
 
 export default function VideosRoute() {
-  useSetPageTitle("Vidéos");
+  const t = useT();
+  const { formatDate } = useFormatters();
+  useSetPageTitle(t("videos.pageTitle"));
   const { data, isLoading } = useActionQuery("list-videos", {});
   const videos = (data as { videos: VideoRow[] } | undefined)?.videos ?? [];
   const create = useActionMutation("create-video");
@@ -42,9 +46,9 @@ export default function VideosRoute() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Vos vidéos</h1>
+          <h1 className="text-xl font-semibold">{t("videos.heading")}</h1>
           <p className="text-muted-foreground text-sm">
-            Chaque carte montre où en est le récit, pas seulement où en est la fabrication.
+            {t("videos.description")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -56,7 +60,7 @@ export default function VideosRoute() {
                 create.mutate({ title }, { onSuccess: () => setTitle("") });
               }
             }}
-            placeholder="Titre de la nouvelle vidéo"
+            placeholder={t("videos.newTitlePlaceholder")}
             className="w-56"
           />
           <Button
@@ -64,17 +68,17 @@ export default function VideosRoute() {
             disabled={!title.trim() || create.isPending}
             onClick={() => create.mutate({ title }, { onSuccess: () => setTitle("") })}
           >
-            <IconPlus size={14} /> Créer
+            <IconPlus size={14} /> {t("videos.create")}
           </Button>
         </div>
       </header>
 
       {isLoading ? (
-        <p className="text-muted-foreground text-sm">Chargement…</p>
+        <p className="text-muted-foreground text-sm">{t("videos.loading")}</p>
       ) : videos.length === 0 ? (
         <EmptyState
-          title="Aucune vidéo pour l'instant"
-          hint="Créez un projet, puis ouvrez sa carte narrative : les 12 étapes du voyage du héros vous attendent, vides."
+          title={t("videos.emptyTitle")}
+          hint={t("videos.emptyHint")}
         />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -90,21 +94,23 @@ export default function VideosRoute() {
                     <IconAlertTriangle
                       size={16}
                       className="shrink-0 text-amber-600 dark:text-amber-400"
-                      aria-label={`Bloquée depuis ${video.daysSinceStageChange} jours`}
+                      aria-label={t("videos.blocked", { count: video.daysSinceStageChange })}
                     />
                   ) : null}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <Badge tone="accent">{STAGE_LABELS[video.stage] ?? video.stage}</Badge>
-                  {video.kind === "short" ? <Badge>Format court</Badge> : null}
+                  <Badge tone="accent">
+                    {STAGE_KEYS[video.stage] ? t(STAGE_KEYS[video.stage]!) : video.stage}
+                  </Badge>
+                  {video.kind === "short" ? <Badge>{t("videos.shortFormat")}</Badge> : null}
                   {video.dueAt ? (
-                    <Badge>{new Date(video.dueAt).toLocaleDateString("fr-FR")}</Badge>
+                    <Badge>{formatDate(new Date(video.dueAt))}</Badge>
                   ) : null}
                 </div>
 
                 <div className="mt-auto">
-                  <p className="text-muted-foreground mb-1 text-xs">Couverture narrative</p>
+                  <p className="text-muted-foreground mb-1 text-xs">{t("videos.coverage")}</p>
                   <CoverageBar covered={video.coverage.covered} total={video.coverage.total} />
                   <div className="text-muted-foreground mt-1.5 flex gap-3 text-[11px]">
                     <span>I · {video.coverage.byAct.depart ?? 0}/4</span>

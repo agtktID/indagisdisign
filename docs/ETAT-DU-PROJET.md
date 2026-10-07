@@ -81,42 +81,62 @@ spending limit`.
 brief. Compter vingt minutes une fois le crédit en place. C'est le seul point bloquant
 qui ne dépend pas du code.
 
-### 2. La page de chat plein écran est cassée
+### 2. La page de chat plein écran — corrigée le 7 octobre 2026
 
-**Problème** : cliquer « Nouveau chat » mène à `/chat/:threadId`, qui lève
-**« AgentKit hooks require an AgentKitProvider. »** et n'affiche rien d'autre qu'un écran
-d'erreur. Le panneau agent de la barre latérale, lui, fonctionne — c'est le seul chemin
-qui reste vers l'agent.
+**Le symptôme** : cliquer « Nouveau chat » menait à `/chat/:threadId`, qui levait
+**« AgentKit hooks require an AgentKitProvider. »** et n'affichait qu'un écran d'erreur.
+Le panneau agent de la barre latérale, lui, fonctionnait — et cet écart était l'indice.
 
-**Reproduit le 7 octobre 2026**, framework 0.202.0, navigateur au profil neuf :
+**La cause, et comment elle a été établie.** La pile d'appel, capturée au protocole
+DevTools, donne le fil :
 
 ```
-ROUGE — « AgentKit hooks require an AgentKitProvider »
-page : Something went wrong | AgentKit hooks require an AgentKitProvider.
+at useAgentKit    (…/toolkit/dist/app/agentkit/react/context.js?v=96daa319:228)
+at useAgentThread (…/toolkit/dist/app/agentkit/react/context.js?v=96daa319:382)
+at ChatLifecycleTracking (app/components/chat/ChatRouteContent.tsx:291)
 ```
 
-**Ce qui est établi** :
+Une sonde temporaire posée en **premier enfant** de `CoreAgentKitRoot` ne voyait déjà
+aucun contexte — alors que les deux garde-fous de `AgentKitRoot` *lèvent* une erreur
+plutôt que de rendre les enfants sans fournisseur. Le fournisseur n'était donc pas
+au-dessus, bien que le JSX dise le contraire.
 
-- **La régression vient de `8beeae7`**, le codemod de la montée 0.195.0 → 0.200.0,
-  trouvé par `git bisect run` sur une boucle de 20 s.
-- **Le mécanisme** : le codemod a déplacé les hooks et le composant racine vers *deux
-  spécificateurs de sous-chemin différents* du même paquet
-  (`@agent-native/toolkit/app/agentkit` et `…/app/chat/agentkit-chat/index`). Vite en
-  fait deux instances de module, donc deux `createContext(null)` : le composant cherche
-  son contexte dans celui que le fournisseur n'a pas rempli.
-- **Prouvé par bissection fine** : une sonde `<div>` seule rend au vert — le fournisseur
-  monte bien ; `ChatCanvas` seul, puis `ChatLifecycleTracking` seul, rendent au rouge.
-- **L'asymétrie qui désigne le coupable** : le contexte de *locale* du framework se
-  protège par `globalThis.__AGENT_NATIVE_LOCALE_CONTEXT__`. `AgentKitContext`, non.
-- **Cinq correctifs applicatifs réfutés** : `resolve.dedupe`, `pnpm prune`,
-  `optimizeDeps.exclude` (racine du paquet puis sous-chemin profond), et la montée en
-  0.202.0. L'ancien chemin `@agent-native/agentkit/react/context` n'existe plus.
+La même sonde a imprimé le composant tel qu'il existe à l'exécution :
 
-**Fait quand** : le framework protège `AgentKitContext` comme il protège déjà celui de
-locale. Le seul correctif applicatif serait de réimplémenter `CoreAgentKitRoot`, ce que
-l'outil de montée interdit explicitement (« fix app-level code — do not patch
-`@agent-native/*` »). **Une issue en amont reste à ouvrir** : toutes les preuves
-ci-dessus sont réunies.
+```
+function CoreAgentKitRoot(props) { return (0, import_jsx_runtime.jsx)(AgentKitRoot, …
+```
+
+`(0, import_jsx_runtime.jsx)` est de l'**esbuild** : ce composant venait d'un paquet
+**pré-bundlé** par Vite. Le consommateur, lui, était servi **brut** depuis
+`node_modules`. Les deux moitiés d'AgentKit vivaient de part et d'autre de la frontière
+de pré-bundling, donc dans **deux instances du même module** — et `AgentKitContext` est
+un simple `createContext(null)`, sans le garde `globalThis` dont le contexte de *locale*
+du framework se protège, lui. Deux instances, deux contextes : le fournisseur en
+remplissait un, les hooks lisaient l'autre.
+
+**Le correctif** : déclarer les deux spécificateurs dans `optimizeDeps.include`
+(`vite.config.ts`), ce qui les fait passer par la même passe et leur fait partager un
+unique module de contexte. Aucun fichier de `@agent-native/*` n'est touché.
+
+**Vérifié** — même boucle, profil neuf, cache Vite vidé :
+
+```
+VERT — l'erreur a disparu
+page : Indagis Studio | Vidéos | Échéances | Bibliothèque | Nouveau chat | Comment puis-je aider ?
+```
+
+**Ce qui reste à faire en amont** : `AgentKitContext` mériterait le même garde
+`globalThis` que `__AGENT_NATIVE_LOCALE_CONTEXT__`. Sans lui, toute application qui coupe
+autrement la frontière de pré-bundling retombera dans le même piège. **Une issue reste à
+ouvrir** — les preuves ci-dessus suffisent à la rédiger.
+
+**Une leçon de méthode, puisqu'elle a coûté cher.** La régression avait été localisée au
+commit `8beeae7` (codemod 0.195.0 → 0.200.0) par `git bisect run`, et le mécanisme
+*deviné* à partir de là : « deux sous-chemins différents, donc deux modules ». C'était
+faux dans le détail — les deux sous-chemins mènent au **même fichier**, et Vite leur sert
+la **même URL**. Cinq correctifs ont été essayés contre cette fausse cause, et aucun n'a
+tenu. Ce qui a débloqué, c'est d'arrêter de raisonner sur les fichiers et de lire la pile.
 
 ### 3. Huit alertes de dépendances, dont quatre hautes
 

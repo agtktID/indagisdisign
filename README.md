@@ -36,16 +36,8 @@ du récit et les timecodes réels des rushes.*
 - **Un brief de composition** — un bouton par acte, en haut de la carte, qui transforme
   vos notes, vos intensités et vos timecodes en consigne pour l'agent. C'est ce qui rend
   possible « fais-moi un teaser de l'acte III depuis ma carte ».
-- **Un agent** qui travaille sur les mêmes données que vous, par le panneau de la barre
-  latérale.
-
-> **Un défaut connu, et dit franchement.** La page de chat **plein écran**
-> (`/chat/:id`, le bouton « Nouveau chat ») lève
-> « AgentKit hooks require an AgentKitProvider. » et n'affiche rien. Le panneau agent de
-> la barre latérale fonctionne, et c'est le chemin à prendre en attendant. La cause est
-> identifiée jusqu'au commit du framework qui l'a introduite — le détail et les cinq
-> correctifs réfutés sont dans
-> [`docs/ETAT-DU-PROJET.md`](docs/ETAT-DU-PROJET.md#2-la-page-de-chat-plein-écran-est-cassée).
+- **Un agent** qui travaille sur les mêmes données que vous, par le chat plein écran ou
+  par le panneau de la barre latérale.
 
 Tout est en local. Aucun compte à créer, aucune donnée qui part ailleurs.
 

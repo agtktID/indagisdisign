@@ -52,6 +52,7 @@ Tout ce qui ne sert pas ce parcours est secondaire.
 | **Le diagnostic se lance depuis la carte**, remarques cliquables | en-tête de l'onglet Carte |
 | Typecheck, build et doctor verts | `pnpm typecheck && pnpm build && pnpm agent-native:doctor` |
 | **24 critères du vérificateur au vert** | `bash scripts/verifier.sh` |
+| **Le premier démarrage fonctionne** — clone neuf, base vierge | joué le 7 octobre : install 6,5 s, 1034 migrations, réponse en 8 s |
 
 ### Les cinq règles d'architecture, contrôlées
 
@@ -111,6 +112,43 @@ Resolve ou Premiere depuis ce dépôt.** Un EDL subtilement faux s'importe sans 
 
 **Fait quand** : un fichier exporté s'ouvre dans Resolve et montre les bons passages.
 Vérifiable par vous seul, puisqu'il faut le logiciel.
+
+## Le premier démarrage, joué pour de vrai
+
+Le 7 octobre, depuis un clone neuf du dépôt public, sur une base vierge — le parcours
+qu'un visiteur rencontre en premier, et que la CI ne joue jamais puisqu'elle ne lance pas
+l'interface.
+
+| | |
+| --- | --- |
+| `git clone` → `pnpm install` | **6,5 s**, exit 0 |
+| premier `pnpm dev` | base créée, **1034 migrations** appliquées, répond en **8 s** |
+| liste vide | « Aucune vidéo pour l'instant — Créez un projet, puis ouvrez sa carte narrative » |
+| brief sur carte vide | « Rien n'est encore écrit dans ce périmètre. Posez d'abord une note sur une étape. » |
+| diagnostic sur carte vide | « Commencez par le monde ordinaire (étape 1) et le climax (étape 8) » — les deux étapes cliquables |
+| bibliothèque | les 550 prompts présents dès l'installation, classés sur leurs trois axes |
+
+Le diagnostic sur carte vide se révèle être un bon guide de démarrage. Ce n'était pas
+prévu pour ça.
+
+**Un seul défaut trouvé, et corrigé** : la page de connexion vendait le modèle « chat » du
+framework, en anglais, avec un lien vers une autre application.
+
+### Le motif qui a servi trois fois
+
+| Fichier | Commits | Ce qu'il figeait |
+| --- | --- | --- |
+| `pnpm-workspace.yaml` | 1 | 41 pins tiptap, neutralisant chaque montée du framework |
+| `app/i18n/index.ts` | 1 | le catalogue du cœur au lieu de celui du toolkit — des noms de clés à l'écran |
+| `server/plugins/auth.ts` | 1 | l'argumentaire d'une autre application |
+
+Le signe commun n'était pas le nombre de commits — presque tout le projet est né dans
+`e1577cc` — mais **du contenu appartenant à un autre produit**. Un balayage du dépôt sur
+ce critère ne trouve plus rien : seuls les skills du framework mentionnent encore
+`agent-native.com`, ce qui est normal.
+
+Reste une broutille : `app/lib/app-config.ts` garde la logique de substitution du
+générateur de gabarit, dont les deux branches rendent aujourd'hui la même valeur.
 
 ## Les trois recommandations, faites
 

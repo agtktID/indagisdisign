@@ -36,7 +36,16 @@ du récit et les timecodes réels des rushes.*
 - **Un brief de composition** — un bouton par acte, en haut de la carte, qui transforme
   vos notes, vos intensités et vos timecodes en consigne pour l'agent. C'est ce qui rend
   possible « fais-moi un teaser de l'acte III depuis ma carte ».
-- **Un agent** qui travaille sur les mêmes données que vous, par le chat.
+- **Un agent** qui travaille sur les mêmes données que vous, par le panneau de la barre
+  latérale.
+
+> **Un défaut connu, et dit franchement.** La page de chat **plein écran**
+> (`/chat/:id`, le bouton « Nouveau chat ») lève
+> « AgentKit hooks require an AgentKitProvider. » et n'affiche rien. Le panneau agent de
+> la barre latérale fonctionne, et c'est le chemin à prendre en attendant. La cause est
+> identifiée jusqu'au commit du framework qui l'a introduite — le détail et les cinq
+> correctifs réfutés sont dans
+> [`docs/ETAT-DU-PROJET.md`](docs/ETAT-DU-PROJET.md#2-la-page-de-chat-plein-écran-est-cassée).
 
 Tout est en local. Aucun compte à créer, aucune donnée qui part ailleurs.
 
@@ -111,18 +120,29 @@ Si vous n'en voulez pas, supprimez `mcp.config.json` : l'application fonctionne 
 ![La carte narrative : les 12 étapes en 3 actes, et la courbe émotionnelle du montage](docs/captures/carte-narrative.png)
 
 Les images se régénèrent toutes seules, et c'est volontaire — une capture qui ment sur
-l'état du produit est pire que pas de capture. Lancer `pnpm dev` dans un autre terminal,
-puis :
+l'état du produit est pire que pas de capture. **Le contenu qu'elles montrent est du
+code**, pas une base locale : `seed-demo.mjs` pose un récit de démonstration complet, et
+n'importe qui peut refaire les mêmes images à l'identique. Lancer `pnpm dev` dans un
+autre terminal, puis, sur une base vierge :
 
 ```bash
+node tools/captures/seed-demo.mjs <chromium> http://localhost:8080
 node tools/captures/shoot.mjs <chromium> http://localhost:8080 docs/captures <id-video>
 node tools/captures/demo.mjs <chromium> <ffmpeg> http://localhost:8080 docs/captures/demo.gif <id-video>
 ```
+
+`seed-demo.mjs` imprime l'identifiant à passer aux deux autres. Il **refuse de tourner
+sur une base qui contient déjà des vidéos** : écraser un vrai travail pour fabriquer une
+capture serait un mauvais échange, et `--force` rend ce geste délibéré.
 
 L'identifiant doit désigner une vidéo à la carte complète, sinon les images montrent un
 écran vide. `shoot.mjs` visite des URL ; `demo.mjs` **joue le parcours** — c'est la seule
 façon de montrer qu'un bouton agit. Les deux binaires sont ceux que Playwright installe
 (`~/.cache/ms-playwright/`), aucune dépendance ajoutée au projet.
+
+Le jeu de démonstration écrit **par les actions, en HTTP**, comme l'interface : il passe
+donc par les mêmes règles métier que n'importe quelle saisie, et une capture ne peut pas
+montrer un état que l'application refuserait.
 
 ## Comment c'est construit
 

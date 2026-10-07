@@ -1,3 +1,20 @@
+# Indagis Studio est une application **autonome**, pas un espace de travail : un seul
+# package.json applicatif, aucune app voisine. Ce champ était absent, et pnpm comblait le
+# vide en absorbant tout sous-dossier portant un package.json — à commencer par `video/`,
+# où les ponts HyperFrames et Remotion installent les projets de composition de
+# l'utilisateur.
+#
+# Conséquence, vérifiée : `pnpm install` ajoutait `video/essai-pont` et
+# `video/essai-remotion` au lockfile, avec leurs 12 dépendances. Or `video/` est ignoré
+# par git (.gitignore:49). Le lockfile suivi décrivait donc des paquets que personne
+# d'autre ne possède, `pnpm install --frozen-lockfile` échouait en local sans échouer en
+# CI, et deux alertes de sécurité — `braces`, `@eslint/plugin-kit` — ne venaient que de
+# là.
+#
+# Liste vide : la racine seule. Les projets vidéo gardent leurs propres node_modules,
+# installés à la demande par les ponts, et n'entrent plus dans le lockfile du dépôt.
+packages: []
+
 allowBuilds:
   tesseract.js: true
   node-pty: true

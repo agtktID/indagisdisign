@@ -1,5 +1,6 @@
 import { sendToAgentChat } from "@agent-native/core/client/agent-chat";
 import { useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconSparkles } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -38,6 +39,7 @@ interface BrandKit {
  * dispose des outils HyperFrames et Remotion.
  */
 export function CreateView() {
+  const t = useT();
   const templatesQuery = useActionQuery("list-asset-templates", {});
   const templates =
     (templatesQuery.data as { templates: Template[] } | undefined)?.templates ?? [];
@@ -59,21 +61,20 @@ export function CreateView() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 p-6">
       <header>
-        <h2 className="text-lg font-semibold">Créer</h2>
+        <h2 className="text-lg font-semibold">{t("create.title")}</h2>
         <p className="text-muted-foreground text-sm">
-          Choisissez un modèle, décrivez ce que vous voulez. Studio assemble la consigne
-          complète et la passe à l&apos;agent, qui dispose des outils de rendu.
+          {t("create.description")}
         </p>
       </header>
 
       <label className="flex flex-col gap-1 text-xs">
-        <span className="font-medium">Modèle</span>
+        <span className="font-medium">{t("create.template")}</span>
         <select
           value={templateId}
           onChange={(event) => setTemplateId(event.target.value)}
           className="border-input bg-background rounded-md border px-3 py-2 text-sm"
         >
-          <option value="">— aucun modèle, consigne libre</option>
+          <option value="">{t("create.noTemplate")}</option>
           {templates.map((entry) => (
             <option key={entry.id} value={entry.id}>
               {entry.name} · {entry.categoryLabel} · {entry.formatLabel}
@@ -88,24 +89,24 @@ export function CreateView() {
           <Badge>{template.formatLabel}</Badge>
           <Badge tone="muted">{template.imageSize}</Badge>
           {format ? <Badge tone="muted">{format.usage}</Badge> : null}
-          {brandKit ? <Badge tone="ok">{brandKit.name}</Badge> : <Badge tone="muted">Global</Badge>}
+          {brandKit ? <Badge tone="ok">{brandKit.name}</Badge> : <Badge tone="muted">{t("create.global")}</Badge>}
         </div>
       ) : null}
 
       <label className="flex flex-col gap-1 text-xs">
-        <span className="font-medium">Votre demande</span>
+        <span className="font-medium">{t("create.yourRequest")}</span>
         <Textarea
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
-          placeholder="Un teaser de 30 secondes sur l'acte III, ambiance nocturne…"
+          placeholder={t("create.requestPlaceholder")}
           rows={4}
         />
       </label>
 
       <section className="border-border rounded-lg border p-4">
-        <h3 className="mb-2 text-sm font-semibold">Consigne assemblée</h3>
+        <h3 className="mb-2 text-sm font-semibold">{t("create.assembled")}</h3>
         <pre className="text-muted-foreground max-h-64 overflow-auto text-xs whitespace-pre-wrap">
-          {brief || "Décrivez votre demande pour voir la consigne."}
+          {brief || t("create.assembledEmpty")}
         </pre>
       </section>
 
@@ -122,11 +123,10 @@ export function CreateView() {
             })
           }
         >
-          <IconSparkles size={14} /> Envoyer à l&apos;agent
+          <IconSparkles size={14} /> {t("create.send")}
         </Button>
         <span className="text-muted-foreground text-xs">
-          L&apos;agent rendra la vidéo si les ponts HyperFrames ou Remotion tournent ; sinon
-          il vous le dira.
+          {t("create.sendHint")}
         </span>
       </div>
     </div>
@@ -134,6 +134,13 @@ export function CreateView() {
 }
 
 /** Assemble modèle + kit + demande en une consigne unique, lisible par l'agent. */
+/**
+ * La consigne assemblée s'adresse à **l'agent**, pas à l'écran.
+ *
+ * Elle reste donc en français en toutes langues, comme le brief narratif de
+ * `shared/narrative-brief.ts`, les skills et le prompt système. Traduire celle-ci seule
+ * rendrait le contexte de l'agent incohérent d'un écran à l'autre.
+ */
 function buildBrief({
   template,
   brandKit,

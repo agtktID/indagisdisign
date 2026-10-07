@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconArrowLeft, IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
@@ -37,6 +38,7 @@ export function TemplateEditor({
   templateId: string;
   onBack: () => void;
 }) {
+  const t = useT();
   const { data } = useActionQuery("list-asset-templates", {});
   const template = (data as { templates: Template[] } | undefined)?.templates.find(
     (entry) => entry.id === templateId,
@@ -56,7 +58,7 @@ export function TemplateEditor({
   }, [template]);
 
   if (!draft) {
-    return <p className="text-muted-foreground p-6 text-sm">Chargement du modèle…</p>;
+    return <p className="text-muted-foreground p-6 text-sm">{t("editor.loading")}</p>;
   }
 
   const set = <K extends keyof Template>(key: K, value: Template[K]) =>
@@ -70,7 +72,7 @@ export function TemplateEditor({
           onClick={onBack}
           className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs"
         >
-          <IconArrowLeft size={14} /> Retour aux modèles
+          <IconArrowLeft size={14} /> {t("editor.backToTemplates")}
         </button>
 
         <div className="flex items-center gap-2">
@@ -81,7 +83,7 @@ export function TemplateEditor({
               remove.mutate({ templateId }, { onSuccess: onBack })
             }
           >
-            <IconTrash size={14} /> Supprimer
+            <IconTrash size={14} /> {t("brandKits.delete")}
           </Button>
           <Button
             size="sm"
@@ -110,7 +112,7 @@ export function TemplateEditor({
             }
           >
             <IconDeviceFloppy size={14} />
-            {save.isPending ? "Enregistrement…" : "Enregistrer les modifications"}
+            {save.isPending ? t("studio.saving") : t("editor.saveChanges")}
           </Button>
         </div>
       </div>
@@ -120,19 +122,19 @@ export function TemplateEditor({
         <Badge tone="muted">
           {draft.brandKitId
             ? (brandKits.find((kit) => kit.id === draft.brandKitId)?.name ?? "Kit")
-            : "Global"}
+            : t("create.global")}
         </Badge>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Nom</span>
+            <span className="font-medium">{t("brandKits.name")}</span>
             <Input value={draft.name} onChange={(event) => set("name", event.target.value)} />
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Description</span>
+            <span className="font-medium">{t("brandKits.descriptionLabel")}</span>
             <Textarea
               value={draft.description ?? ""}
               onChange={(event) => set("description", event.target.value)}
@@ -142,7 +144,7 @@ export function TemplateEditor({
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Catégorie</span>
+              <span className="font-medium">{t("templates.category")}</span>
               <select
                 value={draft.category}
                 onChange={(event) => set("category", event.target.value)}
@@ -157,7 +159,7 @@ export function TemplateEditor({
             </label>
 
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Rapport hauteur/largeur</span>
+              <span className="font-medium">{t("editor.aspectRatio")}</span>
               <select
                 value={draft.format}
                 onChange={(event) => set("format", event.target.value)}
@@ -175,9 +177,9 @@ export function TemplateEditor({
           <div className="border-border rounded-lg border p-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-medium">Politique de référence</p>
+                <p className="text-sm font-medium">{t("editor.referencePolicy")}</p>
                 <p className="text-muted-foreground text-xs">
-                  Quand l&apos;agent doit s&apos;appuyer sur les ressources marquées « référence ».
+                  {t("editor.referencePolicyHint")}
                 </p>
               </div>
               <select
@@ -193,20 +195,20 @@ export function TemplateEditor({
           </div>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Modèle d&apos;invite</span>
+            <span className="font-medium">{t("templates.promptTemplate")}</span>
             <Textarea
               value={draft.promptTemplate ?? ""}
               onChange={(event) => set("promptTemplate", event.target.value)}
               rows={5}
-              placeholder="Créer un visuel carré à propos de {{prompt}}…"
+              placeholder={t("editor.promptPlaceholder")}
             />
             <span className="text-muted-foreground">
-              {"{{prompt}}"} est remplacé par la demande de l&apos;utilisateur.
+              {t("editor.promptHint")}
             </span>
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Politique de texte</span>
+            <span className="font-medium">{t("templates.textPolicy")}</span>
             <Textarea
               value={draft.textPolicy ?? ""}
               onChange={(event) => set("textPolicy", event.target.value)}
@@ -222,10 +224,9 @@ export function TemplateEditor({
               className="mt-0.5"
             />
             <span>
-              <span className="font-medium">Logo canonique composite</span>
+              <span className="font-medium">{t("editor.composeLogo")}</span>
               <span className="text-muted-foreground block">
-                Ajoute le logo du kit à chaque image produite avec ce modèle. Demande un logo
-                canonique sur le kit.
+                {t("editor.composeLogoHint")}
               </span>
             </span>
           </label>
@@ -238,16 +239,16 @@ export function TemplateEditor({
               className="mt-0.5"
             />
             <span>
-              <span className="font-medium">Squelette du préréglage</span>
+              <span className="font-medium">{t("editor.skeleton")}</span>
               <span className="text-muted-foreground block">
-                Compose les générations sur une image de fond téléversée pour ce modèle.
+                {t("editor.skeletonHint")}
               </span>
             </span>
           </label>
 
           {draft.useSkeleton ? (
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Lien du squelette</span>
+              <span className="font-medium">{t("editor.skeletonUrl")}</span>
               <Input
                 value={draft.skeletonUrl ?? ""}
                 onChange={(event) => set("skeletonUrl", event.target.value)}
@@ -262,19 +263,19 @@ export function TemplateEditor({
             aria-expanded={advanced}
             className="text-muted-foreground hover:text-foreground self-start text-xs"
           >
-            {advanced ? "▲ Masquer les options avancées" : "▼ Options avancées"}
+            {advanced ? t("editor.hideAdvanced") : t("editor.showAdvanced")}
           </button>
 
           {advanced ? (
             <div className="border-border grid grid-cols-2 gap-3 rounded-lg border p-3">
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Kit de marque</span>
+                <span className="font-medium">{t("templates.brandKit")}</span>
                 <select
                   value={draft.brandKitId ?? ""}
                   onChange={(event) => set("brandKitId", event.target.value || null)}
                   className="border-input bg-background rounded-md border px-2 py-1.5 text-xs"
                 >
-                  <option value="">Global (sans kit de marque)</option>
+                  <option value="">{t("templates.globalNoKit")}</option>
                   {brandKits.map((kit) => (
                     <option key={kit.id} value={kit.id}>
                       {kit.name}
@@ -284,16 +285,16 @@ export function TemplateEditor({
               </label>
 
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Modèle de génération</span>
+                <span className="font-medium">{t("editor.model")}</span>
                 <Input
                   value={draft.model ?? ""}
                   onChange={(event) => set("model", event.target.value)}
-                  placeholder="texte libre"
+                  placeholder={t("editor.freeText")}
                 />
               </label>
 
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Taille de l&apos;image</span>
+                <span className="font-medium">{t("editor.imageSize")}</span>
                 <select
                   value={draft.imageSize}
                   onChange={(event) => set("imageSize", event.target.value)}
@@ -306,7 +307,7 @@ export function TemplateEditor({
               </label>
 
               <label className="flex flex-col gap-1 text-xs">
-                <span className="font-medium">Ordre de tri</span>
+                <span className="font-medium">{t("editor.sortOrder")}</span>
                 <Input
                   inputMode="numeric"
                   value={String(draft.sortOrder)}
@@ -320,17 +321,20 @@ export function TemplateEditor({
         </div>
 
         <aside className="border-border h-fit rounded-lg border p-4 text-xs">
-          <h3 className="mb-3 text-sm font-semibold">Résumé du préréglage</h3>
+          <h3 className="mb-3 text-sm font-semibold">{t("editor.summary")}</h3>
           <dl className="flex flex-col gap-2">
-            <Row label="Catégorie" value={draft.category} />
-            <Row label="Rapport hauteur/largeur" value={draft.format} />
-            <Row label="Taille de l'image" value={draft.imageSize} />
-            <Row label="Politique de référence" value={draft.referencePolicy} />
-            <Row label="Modèle" value={draft.model || "—"} />
-            <Row label="Squelette" value={draft.useSkeleton ? "Activé" : "Désactivé"} />
+            <Row label={t("templates.category")} value={draft.category} />
+            <Row label={t("editor.aspectRatio")} value={draft.format} />
+            <Row label={t("editor.imageSize")} value={draft.imageSize} />
+            <Row label={t("editor.referencePolicy")} value={draft.referencePolicy} />
+            <Row label={t("editor.model")} value={draft.model || "—"} />
             <Row
-              label="Logo canonique"
-              value={draft.composeCanonicalLogo ? "Composé" : "Non composé"}
+              label={t("editor.skeleton")}
+              value={draft.useSkeleton ? t("editor.on") : t("editor.off")}
+            />
+            <Row
+              label={t("brandKits.logoLabel")}
+              value={draft.composeCanonicalLogo ? t("editor.composed") : t("editor.notComposed")}
             />
           </dl>
         </aside>

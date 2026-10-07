@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { sendToAgentChat } from "@agent-native/core/client/agent-chat";
 import {
   IconCopy,
@@ -58,6 +59,7 @@ const PAGE = 24;
  * chemin vers la modification, et c'est ce qui protège l'original.
  */
 export function PromptsView() {
+  const t = useT();
   const [kind, setKind] = useState<Kind>("image");
   const [source, setSource] = useState<Source>("catalog");
   const [category, setCategory] = useState<string | null>(null);
@@ -88,11 +90,11 @@ export function PromptsView() {
     <div className="flex flex-col gap-5 p-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Prompts</h2>
+          <h2 className="text-lg font-semibold">{t("prompts.title")}</h2>
           <p className="text-muted-foreground text-sm">
             {result
-              ? `${result.counts.catalog} prompts livrés avec l'application, plus ceux du voyage du héros et les vôtres.`
-              : "Des consignes réutilisables, à remplir puis à envoyer à l'agent."}
+              ? t("prompts.description", { count: result.counts.catalog })
+              : t("prompts.descriptionShort")}
           </p>
         </div>
 
@@ -100,8 +102,8 @@ export function PromptsView() {
           <div className="bg-muted flex items-center gap-0.5 rounded-md p-0.5">
             {(
               [
-                { id: "image" as const, label: "Image", Icon: IconPhoto },
-                { id: "video" as const, label: "Vidéo", Icon: IconVideo },
+                { id: "image" as const, label: t("prompts.image"), Icon: IconPhoto },
+                { id: "video" as const, label: t("prompts.video"), Icon: IconVideo },
               ]
             ).map(({ id, label, Icon }) => (
               <button
@@ -129,7 +131,7 @@ export function PromptsView() {
           <Input
             value={search}
             onChange={(event) => reset(setSearch)(event.target.value)}
-            placeholder="Rechercher un prompt"
+            placeholder={t("prompts.search")}
             className="w-56"
           />
         </div>
@@ -138,9 +140,9 @@ export function PromptsView() {
       <nav className="flex flex-wrap items-center gap-1 border-b pb-2">
         {(
           [
-            { id: "catalog" as const, label: "Catalogue", n: result?.catalogTotal },
-            { id: "hero" as const, label: "Voyage du héros", n: result?.builtIn.length },
-            { id: "mine" as const, label: "Mes prompts", n: result?.mine.length },
+            { id: "catalog" as const, label: t("prompts.catalog"), n: result?.catalogTotal },
+            { id: "hero" as const, label: t("prompts.heroJourney"), n: result?.builtIn.length },
+            { id: "mine" as const, label: t("prompts.mine"), n: result?.mine.length },
           ]
         ).map(({ id, label, n }) => (
           <button
@@ -167,21 +169,21 @@ export function PromptsView() {
         <>
           <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
             <FacetRow
-              title="Catégorie"
+              title={t("templates.category")}
               facets={result?.facets.categories ?? []}
               total={result?.facetTotals.categories ?? 0}
               selected={category}
               onSelect={reset(setCategory)}
             />
             <FacetRow
-              title="Style"
+              title={t("prompts.style")}
               facets={result?.facets.styles ?? []}
               total={result?.facetTotals.styles ?? 0}
               selected={style}
               onSelect={reset(setStyle)}
             />
             <FacetRow
-              title="Scène"
+              title={t("prompts.scene")}
               facets={result?.facets.scenes ?? []}
               total={result?.facetTotals.scenes ?? 0}
               selected={scene}
@@ -211,8 +213,8 @@ export function PromptsView() {
 
           {result && result.catalog.length === 0 ? (
             <EmptyState
-              title="Aucun prompt ne correspond."
-              hint="Retirez un filtre, ou cherchez un autre mot."
+              title={t("prompts.noMatch")}
+              hint={t("prompts.noMatchHint")}
             />
           ) : (
             <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -237,11 +239,10 @@ export function PromptsView() {
       {source === "hero" ? (
         <section>
           <p className="text-muted-foreground mb-3 text-sm">
-            Écrits pour cette application : chacun s&apos;appuie sur la carte narrative — les
-            marqueurs d&apos;un acte, l&apos;étape 8, l&apos;ordre narratif.
+            {t("prompts.heroHint")}
           </p>
           {(result?.builtIn.length ?? 0) === 0 ? (
-            <p className="text-muted-foreground text-sm">Aucun prompt ne correspond.</p>
+            <p className="text-muted-foreground text-sm">{t("prompts.noMatch")}</p>
           ) : (
             <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {(result?.builtIn ?? []).map((prompt) => (
@@ -258,8 +259,8 @@ export function PromptsView() {
         <section>
           {(result?.mine.length ?? 0) === 0 ? (
             <EmptyState
-              title="Aucun prompt à vous pour l'instant."
-              hint="Copiez un prompt du catalogue pour en faire une version modifiable, ou partez de zéro."
+              title={t("prompts.emptyMine")}
+              hint={t("prompts.emptyMineHint")}
             />
           ) : (
             <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -350,6 +351,7 @@ function Count({ value }: { value: number }) {
 }
 
 function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
+  const t = useT();
   const copy = useActionMutation("upsert-prompt");
   const [expanded, setExpanded] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -379,7 +381,7 @@ function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
         {prompt.variables.length > 0 ? (
           <Badge tone="accent">{prompt.variables.length} variable(s)</Badge>
         ) : null}
-        {methodOnly ? <Badge tone="warn">méthode seule</Badge> : null}
+        {methodOnly ? <Badge tone="warn">{t("prompts.methodOnly")}</Badge> : null}
       </div>
 
       <button
@@ -388,7 +390,11 @@ function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
         aria-expanded={expanded}
         className="text-muted-foreground hover:text-foreground self-start text-xs"
       >
-        {expanded ? "▲ Replier" : methodOnly ? "▼ Voir la méthode" : "▼ Voir et remplir"}
+        {expanded
+          ? t("prompts.collapse")
+          : methodOnly
+            ? t("prompts.seeMethod")
+            : t("prompts.seeAndFill")}
       </button>
 
       {expanded ? (
@@ -401,7 +407,7 @@ function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
                 onChange={(event) =>
                   setValues({ ...values, [variable.key]: event.target.value })
                 }
-                placeholder={variable.default || "à remplir"}
+                placeholder={variable.default || t("prompts.toFill")}
               />
             </label>
           ))}
@@ -421,7 +427,7 @@ function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
         {methodOnly ? (
           <p className="text-muted-foreground text-xs">
-            Ce cas décrit une manière de faire, pas un texte à envoyer.
+            {t("prompts.methodOnlyHint")}
           </p>
         ) : (
           <>
@@ -431,14 +437,14 @@ function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
               disabled={copy.isPending}
               onClick={() => copy.mutate({ fromCatalog: prompt.key })}
             >
-              <IconCopy size={13} /> Copier chez moi
+              <IconCopy size={13} /> {t("prompts.copyToMine")}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => sendToAgentChat({ message: filled, submit: true, openSidebar: true })}
             >
-              <IconSparkles size={13} /> Envoyer à l&apos;agent
+              <IconSparkles size={13} /> {t("create.send")}
             </Button>
           </>
         )}
@@ -447,7 +453,7 @@ function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
             href={prompt.source}
             target="_blank"
             rel="noreferrer noopener"
-            aria-label="Voir la source d'origine"
+            aria-label={t("prompts.viewSource")}
             className="text-muted-foreground hover:text-foreground ml-auto"
           >
             <IconExternalLink size={14} />
@@ -459,6 +465,7 @@ function CatalogCard({ prompt }: { prompt: CatalogPrompt }) {
 }
 
 function HeroCard({ prompt }: { prompt: PromptTemplate }) {
+  const t = useT();
   const copy = useActionMutation("upsert-prompt");
   const [expanded, setExpanded] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -511,8 +518,7 @@ function HeroCard({ prompt }: { prompt: PromptTemplate }) {
 
           {missing.length > 0 ? (
             <p className="text-muted-foreground text-[11px]">
-              {missing.length} variable(s) encore à remplir — elles restent visibles entre
-              accolades.
+              {t("prompts.stillMissing", { count: missing.length })}
             </p>
           ) : null}
         </div>
@@ -524,14 +530,14 @@ function HeroCard({ prompt }: { prompt: PromptTemplate }) {
           variant="outline"
           onClick={() => copy.mutate({ fromBuiltIn: prompt.key })}
         >
-          <IconCopy size={13} /> Copier chez moi
+          <IconCopy size={13} /> {t("prompts.copyToMine")}
         </Button>
         <Button
           size="sm"
           variant="ghost"
           onClick={() => sendToAgentChat({ message: filled, submit: true, openSidebar: true })}
         >
-          <IconSparkles size={13} /> Envoyer à l&apos;agent
+          <IconSparkles size={13} /> {t("create.send")}
         </Button>
       </div>
     </article>
@@ -539,6 +545,7 @@ function HeroCard({ prompt }: { prompt: PromptTemplate }) {
 }
 
 function MyPromptCard({ prompt }: { prompt: MyPrompt }) {
+  const t = useT();
   const remove = useActionMutation("delete-prompt");
   const save = useActionMutation("upsert-prompt");
   const [body, setBody] = useState(prompt.body);
@@ -552,7 +559,7 @@ function MyPromptCard({ prompt }: { prompt: MyPrompt }) {
         {prompt.format ? <Badge tone="accent">{prompt.format}</Badge> : null}
       </div>
 
-      {prompt.sourceKey ? <Badge>copié de « {prompt.sourceKey} »</Badge> : null}
+      {prompt.sourceKey ? <Badge>{t("prompts.copiedFrom", { key: prompt.sourceKey })}</Badge> : null}
 
       <Textarea
         value={body}
@@ -574,11 +581,11 @@ function MyPromptCard({ prompt }: { prompt: MyPrompt }) {
           variant="ghost"
           onClick={() => sendToAgentChat({ message: body, submit: true, openSidebar: true })}
         >
-          <IconSparkles size={13} /> Envoyer
+          <IconSparkles size={13} /> {t("prompts.send")}
         </Button>
         <button
           type="button"
-          aria-label="Supprimer"
+          aria-label={t("brandKits.delete")}
           onClick={() => remove.mutate({ promptId: prompt.id })}
           className="text-muted-foreground hover:text-destructive ml-auto"
         >

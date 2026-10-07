@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconDownload } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -21,6 +22,7 @@ interface BrandKit {
  * modifiable sans que l'original bouge.
  */
 export function StarterView({ onInstalled }: { onInstalled: () => void }) {
+  const t = useT();
   const kitsQuery = useActionQuery("list-brand-kits", {});
   const brandKits = (kitsQuery.data as { brandKits: BrandKit[] } | undefined)?.brandKits ?? [];
 
@@ -46,22 +48,21 @@ export function StarterView({ onInstalled }: { onInstalled: () => void }) {
     <div className="flex flex-col gap-5 p-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Ressources de départ</h2>
+          <h2 className="text-lg font-semibold">{t("starter.title")}</h2>
           <p className="text-muted-foreground text-sm">
-            Dix modèles livrés avec l&apos;application. Installez ceux qui vous servent :
-            vous en obtenez une copie modifiable, l&apos;originale reste intacte.
+            {t("starter.description")}
           </p>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
           <label className="text-muted-foreground flex items-center gap-1.5 text-xs">
-            <span>Installer dans</span>
+            <span>{t("starter.installInto")}</span>
             <select
               value={targetKit}
               onChange={(event) => setTargetKit(event.target.value)}
               className="border-input bg-background text-foreground rounded-md border px-2 py-1 text-xs"
             >
-              <option value="">Global</option>
+              <option value="">{t("create.global")}</option>
               {brandKits.map((kit) => (
                 <option key={kit.id} value={kit.id}>
                   {kit.name}
@@ -73,7 +74,7 @@ export function StarterView({ onInstalled }: { onInstalled: () => void }) {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Rechercher"
+            placeholder={t("starter.search")}
             className="w-48"
           />
         </div>
@@ -96,7 +97,7 @@ export function StarterView({ onInstalled }: { onInstalled: () => void }) {
                 <div className="flex flex-wrap gap-1">
                   <Badge tone="accent">{category?.label ?? starter.category}</Badge>
                   <Badge tone="muted">{starter.imageSize}</Badge>
-                  {already ? <Badge tone="ok">Déjà installé</Badge> : null}
+                  {already ? <Badge tone="ok">{t("starter.installed")}</Badge> : null}
                 </div>
 
                 <p className="text-muted-foreground text-xs">{starter.description}</p>
@@ -126,7 +127,7 @@ export function StarterView({ onInstalled }: { onInstalled: () => void }) {
                   }
                 >
                   <IconDownload size={13} />
-                  {already ? "Installer à nouveau" : "Installer"}
+                  {already ? t("starter.installAgain") : t("starter.install")}
                 </Button>
               </article>
             </li>

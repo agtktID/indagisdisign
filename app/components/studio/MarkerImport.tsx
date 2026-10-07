@@ -16,7 +16,7 @@
  */
 import { useT } from "@agent-native/core/client/i18n";
 import { callAction } from "@agent-native/core/client/use-action";
-import { IconFileImport, IconUpload } from "@tabler/icons-react";
+import { IconUpload } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -38,12 +38,13 @@ const DEFAULT_FPS = 25;
 export function MarkerImport({
   videoId,
   onImported,
+  onClose,
 }: {
   videoId: string;
   onImported: () => void;
+  onClose: () => void;
 }) {
   const t = useT();
-  const [open, setOpen] = useState(false);
   const [content, setContent] = useState("");
   const [fps, setFps] = useState<number>(DEFAULT_FPS);
   const [result, setResult] = useState<ImportResult | null>(null);
@@ -89,22 +90,14 @@ export function MarkerImport({
     reader.readAsText(file);
   }
 
-  if (!open) {
-    return (
-      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-        <IconFileImport size={14} /> {t("import.open")}
-      </Button>
-    );
-  }
-
   return (
-    <section className="border-border mt-4 flex flex-col gap-3 rounded-lg border p-4">
+    <section className="border-border flex flex-col gap-3 rounded-lg border p-4">
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="text-sm font-semibold">{t("import.title")}</h3>
         <button
           type="button"
           className="text-muted-foreground hover:text-foreground text-xs underline"
-          onClick={() => setOpen(false)}
+          onClick={onClose}
         >
           {t("import.close")}
         </button>

@@ -53,6 +53,14 @@ critere "Aucune route /api/ ne double une action" \
 # désaccord invisible en local, où pnpm install s'en accommode.
 critere "Le lockfile est en accord avec package.json" \
   pnpm install --frozen-lockfile --lockfile-only
+# `get-narrative-brief` a vécu une PR entière sans qu'aucun bouton ne la déclenche. Elle
+# marchait en ligne de commande, elle échouait en 405 dans un navigateur — et rien ne le
+# voyait, puisqu'il n'y avait rien à cliquer. Les quatre exceptions sont les actions que
+# seul l'agent appelle : ses yeux, ses mains, et les deux standard du framework.
+critere "Aucune action métier sans point d'entrée dans l'interface" \
+  bash -c 'for a in actions/*.ts; do n=$(basename "$a" .ts);
+    case "$n" in navigate|view-screen|run|provider-api-request) continue;; esac
+    grep -rqE "\"$n\"|'"'"'$n'"'"'" app/ || exit 1; done'
 critere "Aucun secret dans les fichiers suivis" \
   bash -c '! git ls-files -z | xargs -0 grep -lIE "(sk-[A-Za-z0-9_-]{16,})|(gh[pousr]_[A-Za-z0-9]{20,})|(AKIA[0-9A-Z]{16})|(-----BEGIN [A-Z ]*PRIVATE KEY)" 2>/dev/null | grep -q .'
 

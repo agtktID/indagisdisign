@@ -9,7 +9,11 @@ voyage du héros. Vous posez vos rushes, l'application vous aide à en faire un 
 Ce n'est pas un logiciel de montage, et ce n'est pas un Trello de plus. C'est l'outil qui
 manque entre les deux : celui qui vous dit **ce qui manque à votre histoire**.
 
-![La carte narrative : les 12 étapes en 3 actes, et la courbe émotionnelle du montage](docs/captures/carte-narrative.png)
+![De la liste des vidéos au brief de l'acte III envoyé à l'agent](docs/captures/demo.gif)
+
+*De la liste des vidéos à un brief de composition pour l'acte III, en onze secondes.
+Aucun autre outil ne peut exécuter cette phrase : il faut posséder à la fois les étapes
+du récit et les timecodes réels des rushes.*
 
 ## Ce que ça fait
 
@@ -18,15 +22,24 @@ manque entre les deux : celui qui vous dit **ce qui manque à votre histoire**.
   et l'exercice de la méthode.
 - **Un carnet de marqueurs** — vos passages repérés, avec leurs timecodes réels, que vous
   pouvez réordonner selon la logique du récit et non celle de la chronologie. Exportable
-  en CSV.
+  en CSV, en **EDL d'assemblage** à importer dans Resolve ou Premiere, et en chapitres
+  YouTube.
 - **Une fiche de préparation** — les cinq questions à se poser avant de monter.
 - **Un diagnostic de structure** — douze règles appliquées mécaniquement à votre carte :
   acte sous-couvert, climax sans enjeu lisible, fin déconnectée, courbe plate…
 - **Une boucle d'essais** — observation → hypothèse → tentative → verdict, avec le rappel
   de la règle qui compte : une seule chose à la fois.
+- **Un brief de composition** — un bouton par acte, en haut de la carte, qui transforme
+  vos notes, vos intensités et vos timecodes en consigne pour l'agent. C'est ce qui rend
+  possible « fais-moi un teaser de l'acte III depuis ma carte ».
 - **Un agent** qui travaille sur les mêmes données que vous, par le chat.
 
 Tout est en local. Aucun compte à créer, aucune donnée qui part ailleurs.
+
+L'interface est **en français**, et suit la langue du navigateur parmi les onze que le
+framework propose. Le contenu de la méthode — les 12 étapes, les 3 actes, les 5 questions
+— reste français en toutes langues : c'est du référentiel transcrit de sa source, pas de
+la donnée traduisible. Même règle que pour les corps de prompts du catalogue.
 
 ## Démarrer
 
@@ -91,14 +104,28 @@ Si vous n'en voulez pas, supprimez `mcp.config.json` : l'application fonctionne 
 | **La bibliothèque de ressources** — vos visuels rangés par type, catégorie et format. | ![La bibliothèque](docs/captures/bibliotheque.png) |
 | **Vos vidéos** — chaque carte montre où en est le récit, pas seulement où en est la fabrication. | ![La liste des vidéos](docs/captures/liste-videos.png) |
 
-Les captures se régénèrent avec `tools/captures/shoot.mjs`.
+![La carte narrative : les 12 étapes en 3 actes, et la courbe émotionnelle du montage](docs/captures/carte-narrative.png)
+
+Les images se régénèrent toutes seules, et c'est volontaire — une capture qui ment sur
+l'état du produit est pire que pas de capture. Lancer `pnpm dev` dans un autre terminal,
+puis :
+
+```bash
+node tools/captures/shoot.mjs <chromium> http://localhost:8080 docs/captures <id-video>
+node tools/captures/demo.mjs <chromium> <ffmpeg> http://localhost:8080 docs/captures/demo.gif <id-video>
+```
+
+L'identifiant doit désigner une vidéo à la carte complète, sinon les images montrent un
+écran vide. `shoot.mjs` visite des URL ; `demo.mjs` **joue le parcours** — c'est la seule
+façon de montrer qu'un bouton agit. Les deux binaires sont ceux que Playwright installe
+(`~/.cache/ms-playwright/`), aucune dépendance ajoutée au projet.
 
 ## Comment c'est construit
 
 Sur [Agent-Native](https://www.agent-native.com) (MIT), en application autonome.
 
 ```
-actions/              41 actions métier — chacune est à la fois outil d'agent,
+actions/              42 actions métier — chacune est à la fois outil d'agent,
                       hook React, route HTTP et commande en ligne
 server/db/            13 tables PostgreSQL (PGlite en local)
 shared/               la méthode : 12 étapes, 3 actes, 5 questions, 5 symptômes
@@ -131,10 +158,15 @@ le catalogue depuis une autre source.
 bash scripts/verifier.sh
 ```
 
-Vingt-deux critères, chacun avec la commande qui le démontre : les quatre portes, les
+Vingt-quatre critères, chacun avec la commande qui le démontre : les quatre portes, les
 frontières d'architecture, le parcours complet d'un monteur contre une vraie base, et la
 bibliothèque. Le script finit par ce qui reste **non prouvé** — il ne prétend pas que
 tout est vérifié quand ça ne l'est pas.
+
+L'un de ces critères vérifie qu'**aucune action métier n'est dépourvue de bouton**. Il a
+été ajouté après coup : `get-narrative-brief` a vécu une PR entière sans point d'entrée,
+marchait en ligne de commande, et échouait en 405 dans un navigateur. Rien ne le voyait,
+puisqu'il n'y avait rien à cliquer.
 
 Les portes seules, si c'est tout ce que vous voulez :
 

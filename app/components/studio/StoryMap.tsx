@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconBulb, IconCheck, IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FINAL_REVIEW } from "@shared/hero-journey";
 
+import { BriefComposer } from "./BriefComposer";
 import { EmotionCurve } from "./EmotionCurve";
 import { actColor, Badge, CoverageBar, Textarea } from "./primitives";
 
@@ -54,11 +56,14 @@ export function StoryMap({
   openStep: number | null;
   onOpenStep: (step: number | null) => void;
 }) {
+  const t = useT();
   const { data, isLoading } = useActionQuery("get-story-map", { videoId });
   const map = data as StoryMapData | undefined;
 
   if (isLoading || !map) {
-    return <p className="text-muted-foreground p-6 text-sm">Chargement de la carte…</p>;
+    return (
+      <p className="text-muted-foreground p-6 text-sm">{t("storyMap.loading")}</p>
+    );
   }
 
   const selected =
@@ -68,17 +73,22 @@ export function StoryMap({
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Carte narrative</h2>
+          <h2 className="text-lg font-semibold">{t("storyMap.title")}</h2>
           <p className="text-muted-foreground text-sm">
-            {map.coverage.covered} étape{map.coverage.covered > 1 ? "s" : ""} sur{" "}
-            {map.coverage.total} porte une note.
+            {t("storyMap.coverageSummary", {
+              covered: map.coverage.covered,
+              total: map.coverage.total,
+            })}
           </p>
         </div>
-        {map.unassignedMarkers > 0 ? (
-          <Badge tone="muted">
-            {map.unassignedMarkers} marqueur{map.unassignedMarkers > 1 ? "s" : ""} sans étape
-          </Badge>
-        ) : null}
+        <div className="flex flex-col items-end gap-2">
+          {map.unassignedMarkers > 0 ? (
+            <Badge tone="muted">
+              {t("studio.unassignedMarkers", { count: map.unassignedMarkers })}
+            </Badge>
+          ) : null}
+          <BriefComposer videoId={videoId} openStep={openStep} />
+        </div>
       </header>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -88,7 +98,10 @@ export function StoryMap({
             <section
               key={act.id}
               className={cn("rounded-lg border p-3", colors.bar)}
-              aria-label={`Acte ${act.numeral} — ${act.label}`}
+              aria-label={t("storyMap.actAriaLabel", {
+                numeral: act.numeral,
+                label: act.label,
+              })}
             >
               <div className="mb-3 flex items-baseline justify-between gap-2">
                 <h3 className="text-sm font-semibold">
@@ -159,16 +172,15 @@ export function StoryMap({
       ) : null}
 
       <section className="border-border rounded-lg border p-4">
-        <h3 className="mb-1 text-sm font-semibold">Courbe émotionnelle</h3>
-        <p className="text-muted-foreground mb-2 text-xs">
-          Trait plein : vos intensités. Pointillé : la référence de la méthode — pic à
-          l&apos;étape 8, respiration à la 9, relance à la 11.
-        </p>
+        <h3 className="mb-1 text-sm font-semibold">{t("storyMap.curveTitle")}</h3>
+        <p className="text-muted-foreground mb-2 text-xs">{t("storyMap.curveHint")}</p>
         <EmotionCurve curve={map.curve} />
       </section>
 
       <section className="border-border rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-semibold">Avant de fermer le projet</h3>
+        <h3 className="mb-3 text-sm font-semibold">
+          {t("storyMap.finalReviewTitle")}
+        </h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {FINAL_REVIEW.map((block) => (
             <div key={block.key} className="bg-muted/40 rounded-md p-3">
@@ -195,6 +207,7 @@ function StepPanel({
   step: StoryStep;
   onClose: () => void;
 }) {
+  const t = useT();
   const [note, setNote] = useState(step.note ?? "");
   const [intensity, setIntensity] = useState<number | null>(step.intensity);
   const setBeat = useActionMutation("set-beat");
@@ -218,7 +231,11 @@ function StepPanel({
           </h3>
           <p className="text-muted-foreground text-sm italic">{step.tagline}</p>
         </div>
-        {step.isCovered ? <Badge tone="ok">Couverte</Badge> : <Badge>Non couverte</Badge>}
+        {step.isCovered ? (
+          <Badge tone="ok">{t("storyMap.covered")}</Badge>
+        ) : (
+          <Badge>{t("storyMap.notCovered")}</Badge>
+        )}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -226,24 +243,27 @@ function StepPanel({
           <p>{step.definition}</p>
           <div className="bg-muted/50 rounded-md p-3">
             <p className="mb-1 text-xs font-semibold tracking-wide uppercase opacity-70">
-              Dans le montage
+              {t("storyMap.inTheEdit")}
             </p>
             <p className="text-sm">{step.editing}</p>
           </div>
           <p className="text-muted-foreground flex gap-2 text-xs">
             <IconBulb size={16} className="mt-px shrink-0" />
             <span>
-              <strong className="font-semibold">À essayer :</strong> {step.exercise}
+              <strong className="font-semibold">{t("storyMap.tryThis")}</strong>{" "}
+              {step.exercise}
             </span>
           </p>
           {step.pitfall ? (
             <p className="rounded-md bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
-              <strong className="font-semibold">Erreur classique — </strong>
+              <strong className="font-semibold">{t("storyMap.commonMistake")}</strong>{" "}
               {step.pitfall}
             </p>
           ) : null}
           <details className="text-muted-foreground text-xs">
-            <summary className="cursor-pointer select-none">Exemples</summary>
+            <summary className="cursor-pointer select-none">
+              {t("storyMap.examples")}
+            </summary>
             <ul className="mt-1 list-disc pl-5">
               {step.examples.map((example) => (
                 <li key={example}>{example}</li>
@@ -254,22 +274,21 @@ function StepPanel({
 
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium">Votre note pour cette étape</span>
+            <span className="font-medium">{t("storyMap.noteLabel")}</span>
             <Textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="Ce que vous avez, ou ce qui manque, dans vos rushes pour cette étape…"
+              placeholder={t("storyMap.notePlaceholder")}
               rows={6}
             />
             <span className="text-muted-foreground text-xs">
-              Seule une note non vide rend l&apos;étape couverte. L&apos;intensité seule ne
-              suffit pas.
+              {t("storyMap.noteHint")}
             </span>
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium">
-              Intensité émotionnelle{" "}
+              {t("storyMap.intensityLabel")}{" "}
               <span className="text-muted-foreground font-normal tabular-nums">
                 {intensity ?? "—"}
               </span>
@@ -283,13 +302,13 @@ function StepPanel({
               className="accent-primary"
             />
             <span className="text-muted-foreground text-xs">
-              Référence de la méthode pour cette étape : {step.referenceIntensity}.
+              {t("storyMap.intensityReference", { value: step.referenceIntensity })}
             </span>
           </label>
 
           {step.markers.length > 0 ? (
             <div className="text-sm">
-              <p className="mb-1 font-medium">Marqueurs rattachés</p>
+              <p className="mb-1 font-medium">{t("storyMap.attachedMarkers")}</p>
               <ul className="text-muted-foreground flex flex-col gap-0.5 text-xs">
                 {step.markers.map((marker) => (
                   <li key={marker.id} className="flex gap-2">
@@ -314,14 +333,14 @@ function StepPanel({
                 })
               }
             >
-              {setBeat.isPending ? "Enregistrement…" : "Enregistrer"}
+              {setBeat.isPending ? t("studio.saving") : t("studio.save")}
             </Button>
             <Button size="sm" variant="ghost" onClick={onClose}>
-              Fermer
+              {t("studio.close")}
             </Button>
             {setBeat.isError ? (
               <span className="text-destructive text-xs">
-                {(setBeat.error as Error)?.message ?? "Échec de l'enregistrement."}
+                {(setBeat.error as Error)?.message ?? t("studio.saveFailed")}
               </span>
             ) : null}
           </div>

@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -14,10 +15,10 @@ import {
 
 type Status = "draft" | "generated" | "reference";
 
-const TABS: { id: Status; label: string }[] = [
-  { id: "draft", label: "Brouillons" },
-  { id: "generated", label: "Générées" },
-  { id: "reference", label: "Références" },
+const TABS: { id: Status; labelKey: string }[] = [
+  { id: "draft", labelKey: "assets.tabDraft" },
+  { id: "generated", labelKey: "assets.tabGenerated" },
+  { id: "reference", labelKey: "assets.tabReference" },
 ];
 
 interface Asset {
@@ -45,6 +46,7 @@ interface Counts {
 }
 
 export function AssetsView() {
+  const t = useT();
   const [status, setStatus] = useState<Status>("draft");
   const [kind, setKind] = useState("");
   const [category, setCategory] = useState("");
@@ -79,7 +81,7 @@ export function AssetsView() {
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {tab.label}
+              {t(tab.labelKey)}
               {counts ? (
                 <span className="text-muted-foreground ml-1.5 text-xs tabular-nums">
                   {counts[tab.id]}
@@ -89,7 +91,7 @@ export function AssetsView() {
           ))}
         </div>
 
-        <Badge tone="muted">{result?.shown ?? 0} affichée(s)</Badge>
+        <Badge tone="muted">{t("assets.shown", { count: result?.shown ?? 0 })}</Badge>
 
         <div className="ml-auto flex items-center gap-2">
           <div className="relative">
@@ -100,30 +102,30 @@ export function AssetsView() {
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Rechercher des ressources"
+              placeholder={t("assets.search")}
               className="w-64 pl-8"
             />
           </div>
           <Button size="sm" onClick={() => setAdding(true)}>
-            <IconPlus size={14} /> Ajouter
+            <IconPlus size={14} /> {t("studio.add")}
           </Button>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <FilterSelect
-          label="Type"
+          label={t("assets.type")}
           value={kind}
           onChange={setKind}
           options={ASSET_KINDS.map((entry) => ({ key: entry.key, label: entry.label }))}
-          allLabel="Tous les types"
+          allLabel={t("assets.allTypes")}
         />
         <FilterSelect
-          label="Catégorie"
+          label={t("templates.category")}
           value={category}
           onChange={setCategory}
           options={ASSET_CATEGORIES.map((entry) => ({ key: entry.key, label: entry.label }))}
-          allLabel="Toutes les catégories"
+          allLabel={t("assets.allCategories")}
         />
       </div>
 
@@ -131,13 +133,13 @@ export function AssetsView() {
         <EmptyState
           title={
             status === "draft"
-              ? "Aucun brouillon pour l'instant."
-              : "Aucune ressource réutilisable pour l'instant."
+              ? t("assets.emptyDraft")
+              : t("assets.emptyReusable")
           }
-          hint="Rangez ici vos rushes, visuels, musiques et modèles. Chaque ressource porte un type, une catégorie et un format — c'est ce qui vous évite de chercher."
+          hint={t("assets.emptyHint")}
           action={
             <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
-              Ajouter une ressource
+              {t("assets.addAsset")}
             </Button>
           }
         />
@@ -189,6 +191,7 @@ function FilterSelect({
 }
 
 function AssetCard({ asset }: { asset: Asset }) {
+  const t = useT();
   const remove = useActionMutation("delete-asset");
 
   return (
@@ -231,11 +234,11 @@ function AssetCard({ asset }: { asset: Asset }) {
               Ouvrir
             </a>
           ) : (
-            <span className="text-muted-foreground text-xs">Sans lien</span>
+            <span className="text-muted-foreground text-xs">{t("assets.noLink")}</span>
           )}
           <button
             type="button"
-            aria-label="Retirer de la bibliothèque"
+            aria-label={t("assets.remove")}
             onClick={() => remove.mutate({ assetId: asset.id })}
             className="text-muted-foreground hover:text-destructive"
           >
@@ -248,6 +251,7 @@ function AssetCard({ asset }: { asset: Asset }) {
 }
 
 function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => void }) {
+  const t = useT();
   const create = useActionMutation("upsert-asset");
   const [draft, setDraft] = useState({
     name: "",
@@ -266,7 +270,7 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Ajouter une ressource"
+      aria-label={t("assets.addAsset")}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -274,11 +278,11 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
     >
       <div className="border-border bg-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold">Ajouter une ressource</h2>
+          <h2 className="text-base font-semibold">{t("assets.addAsset")}</h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label={t("studio.close")}
             className="text-muted-foreground hover:text-foreground"
           >
             ×
@@ -287,7 +291,7 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
 
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Nom</span>
+            <span className="font-medium">{t("brandKits.name")}</span>
             <Input
               value={draft.name}
               onChange={(event) => setDraft({ ...draft, name: event.target.value })}
@@ -296,7 +300,7 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Type</span>
+              <span className="font-medium">{t("assets.type")}</span>
               <select
                 value={draft.kind}
                 onChange={(event) => setDraft({ ...draft, kind: event.target.value })}
@@ -311,7 +315,7 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
             </label>
 
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Catégorie</span>
+              <span className="font-medium">{t("templates.category")}</span>
               <select
                 value={draft.category}
                 onChange={(event) => setDraft({ ...draft, category: event.target.value })}
@@ -328,7 +332,7 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
 
           {needsFormat ? (
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Format</span>
+              <span className="font-medium">{t("templates.format")}</span>
               <select
                 value={draft.format}
                 onChange={(event) => setDraft({ ...draft, format: event.target.value })}
@@ -344,28 +348,28 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
           ) : null}
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Lien</span>
+            <span className="font-medium">{t("assets.link")}</span>
             <Input
               value={draft.url}
               onChange={(event) => setDraft({ ...draft, url: event.target.value })}
-              placeholder="https://… ou video/mon-projet/sortie.mp4"
+              placeholder={t("assets.linkPlaceholder")}
             />
             <span className="text-muted-foreground">
-              Seul le lien est enregistré. Le fichier reste là où il est.
+              {t("assets.linkHint")}
             </span>
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Mots-clés</span>
+            <span className="font-medium">{t("assets.keywords")}</span>
             <Input
               value={draft.tags}
               onChange={(event) => setDraft({ ...draft, tags: event.target.value })}
-              placeholder="interview, extérieur, matin"
+              placeholder={t("assets.keywordsPlaceholder")}
             />
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Description</span>
+            <span className="font-medium">{t("brandKits.descriptionLabel")}</span>
             <Textarea
               className="min-h-16"
               value={draft.description}
@@ -378,7 +382,7 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
 
         <div className="mt-4 flex justify-end gap-2">
           <Button size="sm" variant="ghost" onClick={onClose}>
-            Annuler
+            {t("templates.cancel")}
           </Button>
           <Button
             size="sm"
@@ -397,7 +401,7 @@ function AddAssetDialog({ status, onClose }: { status: Status; onClose: () => vo
               )
             }
           >
-            Ajouter
+            {t("studio.add")}
           </Button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
 import { IconArchive, IconArrowLeft } from "@tabler/icons-react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
@@ -25,24 +26,26 @@ export function meta() {
  * l'utilisateur regarde.
  */
 const TABS = [
-  { id: "map", label: "Carte" },
-  { id: "markers", label: "Marqueurs" },
-  { id: "prep", label: "Préparation" },
-  { id: "experiments", label: "Essais" },
-  { id: "publication", label: "Publication" },
+  { id: "map", labelKey: "video.tabMap" },
+  { id: "markers", labelKey: "video.tabMarkers" },
+  { id: "prep", labelKey: "video.tabPrep" },
+  { id: "experiments", labelKey: "video.tabExperiments" },
+  { id: "publication", labelKey: "video.tabPublication" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
-const STAGE_LABELS: Record<string, string> = {
-  idea: "Idée",
-  script: "Écriture",
-  shoot: "Tournage",
-  edit: "Montage",
-  published: "Publiée",
+/** Les libellés vivent déjà dans le catalogue : on pointe dessus, on ne les recopie pas. */
+const STAGE_KEYS: Record<string, string> = {
+  idea: "publication.stageIdea",
+  script: "publication.stageScript",
+  shoot: "publication.stageShoot",
+  edit: "publication.stageEdit",
+  published: "publication.stagePublished",
 };
 
 export default function VideoRoute() {
+  const t = useT();
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const videoId = id ?? "";
@@ -63,7 +66,7 @@ export default function VideoRoute() {
       }
     | undefined;
 
-  useSetPageTitle(detail?.video.title ?? "Fiche vidéo");
+  useSetPageTitle(detail?.video.title ?? t("video.pageTitle"));
 
   function setTab(next: TabId) {
     const params = new URLSearchParams(searchParams);
@@ -84,7 +87,7 @@ export default function VideoRoute() {
       <div className="mx-auto w-full max-w-3xl p-6">
         <p className="text-destructive text-sm">{(error as Error).message}</p>
         <Link to="/videos" className="text-muted-foreground mt-3 inline-block text-sm underline">
-          Retour à la liste
+          {t("video.backToList")}
         </Link>
       </div>
     );
@@ -97,13 +100,13 @@ export default function VideoRoute() {
           to="/videos"
           className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs"
         >
-          <IconArrowLeft size={14} /> Toutes les vidéos
+          <IconArrowLeft size={14} /> {t("video.allVideos")}
         </Link>
       </div>
 
       <header className="flex flex-wrap items-center justify-between gap-3">
         {isLoading || !detail ? (
-          <h1 className="text-xl font-semibold">Chargement…</h1>
+          <h1 className="text-xl font-semibold">{t("video.loading")}</h1>
         ) : (
           <TitleField videoId={videoId} title={detail.video.title} />
         )}
@@ -111,13 +114,18 @@ export default function VideoRoute() {
           {detail ? (
             <>
               <Badge tone="accent">
-                {STAGE_LABELS[detail.video.stage] ?? detail.video.stage}
+                {STAGE_KEYS[detail.video.stage]
+                  ? t(STAGE_KEYS[detail.video.stage]!)
+                  : detail.video.stage}
               </Badge>
               <Badge tone={detail.coverage.covered === 12 ? "ok" : "muted"}>
-                {detail.coverage.covered}/{detail.coverage.total} étapes
+                {t("video.stepsCovered", {
+                  covered: detail.coverage.covered,
+                  total: detail.coverage.total,
+                })}
               </Badge>
               {detail.isBlocked ? (
-                <Badge tone="warn">Bloquée depuis {detail.daysSinceStageChange} j</Badge>
+                <Badge tone="warn">{t("video.blocked", { count: detail.daysSinceStageChange })}</Badge>
               ) : null}
               <DueDateField videoId={videoId} dueAt={detail.video.dueAt} />
               <ArchiveButton videoId={videoId} title={detail.video.title} />
@@ -126,7 +134,7 @@ export default function VideoRoute() {
         </div>
       </header>
 
-      <nav className="border-border flex gap-1 overflow-x-auto border-b" aria-label="Sections">
+      <nav className="border-border flex gap-1 overflow-x-auto border-b" aria-label={t("video.sections")}>
         {TABS.map((entry) => (
           <button
             key={entry.id}
@@ -140,7 +148,7 @@ export default function VideoRoute() {
                 : "text-muted-foreground hover:text-foreground border-transparent",
             )}
           >
-            {entry.label}
+            {t(entry.labelKey)}
           </button>
         ))}
       </nav>
@@ -172,6 +180,7 @@ export default function VideoRoute() {
  */
 function TitleField({ videoId, title }: { videoId: string; title: string }) {
   const update = useActionMutation("update-video");
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(title);
 
@@ -195,7 +204,7 @@ function TitleField({ videoId, title }: { videoId: string; title: string }) {
       <button
         type="button"
         onClick={() => setEditing(true)}
-        title="Renommer"
+        title={t("video.rename")}
         className="hover:bg-muted/60 -mx-2 rounded-md px-2 py-0.5 text-left text-xl font-semibold transition"
       >
         {title}
@@ -216,7 +225,7 @@ function TitleField({ videoId, title }: { videoId: string; title: string }) {
           setEditing(false);
         }
       }}
-      aria-label="Titre de la vidéo"
+      aria-label={t("video.titleLabel")}
       className="border-input bg-background -mx-2 rounded-md border px-2 py-0.5 text-xl font-semibold"
     />
   );
@@ -230,6 +239,7 @@ function TitleField({ videoId, title }: { videoId: string; title: string }) {
  * suppression, et le dire est plus utile que de faire peur.
  */
 function ArchiveButton({ videoId, title }: { videoId: string; title: string }) {
+  const t = useT();
   const archive = useActionMutation("archive-video");
   const navigate = useNavigate();
 
@@ -239,14 +249,13 @@ function ArchiveButton({ videoId, title }: { videoId: string; title: string }) {
       disabled={archive.isPending}
       onClick={() => {
         const confirmed = window.confirm(
-          `Archiver « ${title} » ?\n\nElle disparaît de la liste mais n'est pas supprimée : ` +
-            `l'agent peut la ressortir avec archive-video --archived false.`,
+          `${t("video.archiveConfirm", { title })}\n\n${t("video.archiveExplain")}`,
         );
         if (!confirmed) return;
         archive.mutate({ videoId }, { onSuccess: () => navigate("/videos") });
       }}
-      title="Archiver cette vidéo"
-      aria-label="Archiver cette vidéo"
+      title={t("video.archive")}
+      aria-label={t("video.archive")}
       className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition disabled:opacity-50"
     >
       <IconArchive size={15} />
@@ -262,12 +271,13 @@ function ArchiveButton({ videoId, title }: { videoId: string; title: string }) {
  * Placée ici plutôt que dans un écran de réglages — trois routes, pas quatre.
  */
 function DueDateField({ videoId, dueAt }: { videoId: string; dueAt: string | null }) {
+  const t = useT();
   const update = useActionMutation("update-video");
   const value = dueAt ? dueAt.slice(0, 10) : "";
 
   return (
     <label className="text-muted-foreground flex items-center gap-1.5 text-xs">
-      <span>Échéance</span>
+      <span>{t("video.dueDate")}</span>
       <input
         type="date"
         value={value}
@@ -280,14 +290,14 @@ function DueDateField({ videoId, dueAt }: { videoId: string; dueAt: string | nul
           })
         }
         className="border-input bg-background text-foreground rounded-md border px-2 py-1 text-xs"
-        aria-label="Échéance de la vidéo"
+        aria-label={t("video.dueDateLabel")}
       />
       {value ? (
         <button
           type="button"
           onClick={() => update.mutate({ videoId, dueAt: null })}
           className="hover:text-foreground px-1"
-          aria-label="Retirer l'échéance"
+          aria-label={t("video.clearDueDate")}
         >
           ×
         </button>

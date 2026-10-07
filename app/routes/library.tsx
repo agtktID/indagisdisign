@@ -1,4 +1,5 @@
 import { useActionQuery } from "@agent-native/core/client/hooks";
+import { useFormatters, useT } from "@agent-native/core/client/i18n";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
 import {
   IconClipboardList,
@@ -35,19 +36,20 @@ export function meta() {
  * séparés — la prolifération reste un échec de conception.
  */
 const SECTIONS = [
-  { id: "create", label: "Créer", Icon: IconSparkles },
-  { id: "library", label: "Bibliothèque", Icon: IconLayoutGrid },
-  { id: "prompts", label: "Prompts", Icon: IconMessage2Bolt },
-  { id: "templates", label: "Modèles", Icon: IconTemplate },
-  { id: "starter", label: "Ressources de départ", Icon: IconDownload },
-  { id: "kits", label: "Kits de marque", Icon: IconPalette },
-  { id: "journal", label: "Journal", Icon: IconClipboardList },
+  { id: "create", labelKey: "library.sectionCreate", Icon: IconSparkles },
+  { id: "library", labelKey: "library.sectionLibrary", Icon: IconLayoutGrid },
+  { id: "prompts", labelKey: "library.sectionPrompts", Icon: IconMessage2Bolt },
+  { id: "templates", labelKey: "library.sectionTemplates", Icon: IconTemplate },
+  { id: "starter", labelKey: "library.sectionStarter", Icon: IconDownload },
+  { id: "kits", labelKey: "library.sectionKits", Icon: IconPalette },
+  { id: "journal", labelKey: "library.sectionJournal", Icon: IconClipboardList },
 ] as const;
 
 type SectionId = (typeof SECTIONS)[number]["id"];
 
 export default function LibraryRoute() {
-  useSetPageTitle("Bibliothèque");
+  const t = useT();
+  useSetPageTitle(t("library.pageTitle"));
   const [searchParams, setSearchParams] = useSearchParams();
 
   const rawSection = searchParams.get("section");
@@ -75,10 +77,10 @@ export default function LibraryRoute() {
   return (
     <div className="flex h-full min-h-0">
       <nav
-        aria-label="Sections de la bibliothèque"
+        aria-label={t("library.sections")}
         className="border-border bg-sidebar-background/40 flex w-52 shrink-0 flex-col gap-0.5 border-r p-2"
       >
-        {SECTIONS.map(({ id, label, Icon }) => (
+        {SECTIONS.map(({ id, labelKey, Icon }) => (
           <button
             key={id}
             type="button"
@@ -92,7 +94,7 @@ export default function LibraryRoute() {
             )}
           >
             <Icon size={15} className="shrink-0" strokeWidth={1.8} />
-            <span className="truncate">{label}</span>
+            <span className="truncate">{t(labelKey)}</span>
           </button>
         ))}
       </nav>
@@ -121,6 +123,10 @@ export default function LibraryRoute() {
 
 /** Le journal : ce qui a bougé récemment dans la bibliothèque. */
 function JournalView() {
+  const t = useT();
+  // `useFormatters` n'expose pas de `formatDateTime` : la date et l'heure passent par
+  // `formatDate` avec les options d'heure, et suivent la locale active.
+  const { formatDate } = useFormatters();
   const { data } = useActionQuery("list-assets", {});
   const assets =
     (data as { assets: { id: string; name: string; kindLabel: string; status: string; updatedAt: string }[] } | undefined)
@@ -135,34 +141,34 @@ function JournalView() {
     ...assets.map((asset) => ({
       id: `a-${asset.id}`,
       when: asset.updatedAt,
-      what: `${asset.kindLabel} « ${asset.name} »`,
+      what: t("library.journalEntry", { kind: asset.kindLabel, name: asset.name }),
       tag: asset.status,
     })),
     ...templates.map((template) => ({
       id: `t-${template.id}`,
       when: template.updatedAt,
-      what: `Modèle « ${template.name} »`,
-      tag: "modèle",
+      what: t("library.journalTemplate", { name: template.name }),
+      tag: t("library.tagTemplate"),
     })),
   ].sort((a, b) => (a.when < b.when ? 1 : -1));
 
   return (
     <div className="flex flex-col gap-4 p-6">
       <header>
-        <h2 className="text-lg font-semibold">Journal</h2>
+        <h2 className="text-lg font-semibold">{t("library.journalTitle")}</h2>
         <p className="text-muted-foreground text-sm">
-          Ce qui a bougé récemment dans la bibliothèque, du plus récent au plus ancien.
+          {t("library.journalDescription")}
         </p>
       </header>
 
       {entries.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Rien à afficher pour l&apos;instant.</p>
+        <p className="text-muted-foreground text-sm">{t("library.journalEmpty")}</p>
       ) : (
         <ol className="flex flex-col gap-2">
           {entries.slice(0, 100).map((entry) => (
             <li key={entry.id} className="flex flex-wrap items-baseline gap-2 text-sm">
               <span className="text-muted-foreground w-36 shrink-0 text-xs tabular-nums">
-                {new Date(entry.when).toLocaleString("fr-FR", {
+                {formatDate(new Date(entry.when), {
                   day: "numeric",
                   month: "short",
                   hour: "2-digit",

@@ -1,4 +1,5 @@
 import { useActionQuery } from "@agent-native/core/client/hooks";
+import { useFormatters, useT } from "@agent-native/core/client/i18n";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { Link } from "react-router";
@@ -18,12 +19,13 @@ interface VideoRow {
   daysSinceStageChange: number;
 }
 
-const STAGE_LABELS: Record<string, string> = {
-  idea: "Idée",
-  script: "Écriture",
-  shoot: "Tournage",
-  edit: "Montage",
-  published: "Publiée",
+/** Les libellés vivent déjà dans le catalogue : on pointe dessus, on ne les recopie pas. */
+const STAGE_KEYS: Record<string, string> = {
+  idea: "publication.stageIdea",
+  script: "publication.stageScript",
+  shoot: "publication.stageShoot",
+  edit: "publication.stageEdit",
+  published: "publication.stagePublished",
 };
 
 function daysUntil(iso: string): number {
@@ -43,6 +45,7 @@ export default function CalendarRoute() {
   const overdue = withDue.filter((video) => daysUntil(video.dueAt) < 0);
   const upcoming = withDue.filter((video) => daysUntil(video.dueAt) >= 0);
 
+  const t = useT();
   const blockedList =
     (
       blocked.data as
@@ -53,20 +56,29 @@ export default function CalendarRoute() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 p-6">
       <header>
-        <h1 className="text-xl font-semibold">Échéances</h1>
+        <h1 className="text-xl font-semibold">{t("calendar.heading")}</h1>
         <p className="text-muted-foreground text-sm">
-          Ce qui arrive, ce qui est dépassé, et ce qui n&apos;a pas bougé depuis trop
-          longtemps.
+          {t("calendar.description")}
         </p>
       </header>
 
-      <Section title="Dépassées" rows={overdue} tone="warn" />
-      <Section title="À venir" rows={upcoming} tone="muted" />
+      <Section
+        title={t("calendar.overdue")}
+        emptyTitle={t("calendar.overdueEmpty")}
+        rows={overdue}
+        tone="warn"
+      />
+      <Section
+        title={t("calendar.upcoming")}
+        emptyTitle={t("calendar.upcomingEmpty")}
+        rows={upcoming}
+        tone="muted"
+      />
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold">Sans mouvement</h2>
+        <h2 className="mb-2 text-sm font-semibold">{t("calendar.stalled")}</h2>
         {blockedList.length === 0 ? (
-          <p className="text-muted-foreground text-sm">Aucune vidéo bloquée.</p>
+          <p className="text-muted-foreground text-sm">{t("calendar.stalledEmpty")}</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {blockedList.map((entry) => (
@@ -81,10 +93,12 @@ export default function CalendarRoute() {
                   />
                   <span className="flex-1 truncate font-medium">{entry.video.title}</span>
                   <Badge tone="accent">
-                    {STAGE_LABELS[entry.video.stage] ?? entry.video.stage}
+                    {STAGE_KEYS[entry.video.stage]
+                      ? t(STAGE_KEYS[entry.video.stage]!)
+                      : entry.video.stage}
                   </Badge>
                   <span className="text-muted-foreground text-xs tabular-nums">
-                    {entry.daysSinceStageChange} j
+                    {t("calendar.days", { count: entry.daysSinceStageChange })}
                   </span>
                 </Link>
               </li>
@@ -98,18 +112,22 @@ export default function CalendarRoute() {
 
 function Section({
   title,
+  emptyTitle,
   rows,
   tone,
 }: {
   title: string;
+  emptyTitle: string;
   rows: (VideoRow & { dueAt: string })[];
   tone: "warn" | "muted";
 }) {
+  const t = useT();
+  const { formatDate } = useFormatters();
   return (
     <section>
       <h2 className="mb-2 text-sm font-semibold">{title}</h2>
       {rows.length === 0 ? (
-        <EmptyState title={`Rien dans « ${title.toLowerCase()} »`} />
+        <EmptyState title={emptyTitle} />
       ) : (
         <ul className="flex flex-col gap-2">
           {rows.map((video) => (
@@ -119,12 +137,11 @@ function Section({
                 className="border-border hover:bg-muted/30 flex items-center gap-3 rounded-md border p-3 text-sm transition"
               >
                 <span className="flex-1 truncate font-medium">{video.title}</span>
-                <Badge tone="accent">{STAGE_LABELS[video.stage] ?? video.stage}</Badge>
+                <Badge tone="accent">
+                  {STAGE_KEYS[video.stage] ? t(STAGE_KEYS[video.stage]!) : video.stage}
+                </Badge>
                 <Badge tone={tone}>
-                  {new Date(video.dueAt).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "short",
-                  })}
+                  {formatDate(new Date(video.dueAt), { day: "numeric", month: "short" })}
                 </Badge>
               </Link>
             </li>

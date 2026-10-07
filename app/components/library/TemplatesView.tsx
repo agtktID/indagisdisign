@@ -1,4 +1,5 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
+import { useT } from "@agent-native/core/client/i18n";
 import { IconCopy, IconDots, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -42,6 +43,7 @@ export function TemplatesView({
 }: {
   onEdit: (templateId: string) => void;
 }) {
+  const t = useT();
   const [category, setCategory] = useState<string>("");
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
@@ -67,9 +69,9 @@ export function TemplatesView({
           value={category}
           onChange={(event) => setCategory(event.target.value)}
           className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-          aria-label="Filtrer par catégorie"
+          aria-label={t("templates.filterByCategory")}
         >
-          <option value="">Tous les modèles</option>
+          <option value="">{t("templates.allTemplates")}</option>
           {ASSET_CATEGORIES.map((entry) => (
             <option key={entry.key} value={entry.key}>
               {entry.label}
@@ -80,22 +82,22 @@ export function TemplatesView({
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Rechercher des modèles"
+          placeholder={t("templates.search")}
           className="max-w-md flex-1"
         />
 
         <Button size="sm" onClick={() => setCreating(true)}>
-          <IconPlus size={14} /> Nouveau modèle
+          <IconPlus size={14} /> {t("templates.newTemplate")}
         </Button>
       </div>
 
       {shown.length === 0 ? (
         <EmptyState
-          title="Aucun modèle pour le moment."
-          hint="Un modèle fige une forme de sortie : sa catégorie, son format, son gabarit d'invite. Créez-en un pour ne plus le redécrire à chaque fois."
+          title={t("templates.emptyTitle")}
+          hint={t("templates.emptyHint")}
           action={
             <Button size="sm" variant="outline" onClick={() => setCreating(true)}>
-              Nouveau modèle
+              {t("templates.newTemplate")}
             </Button>
           }
         />
@@ -125,13 +127,14 @@ function TemplateCard({
   brandKits: BrandKit[];
   onEdit: (templateId: string) => void;
 }) {
+  const t = useT();
   const [menuOpen, setMenuOpen] = useState(false);
   const remove = useActionMutation("delete-asset-template");
   const duplicate = useActionMutation("duplicate-asset-template");
 
   const kitName = template.brandKitId
-    ? (brandKits.find((kit) => kit.id === template.brandKitId)?.name ?? "Kit")
-    : "Global";
+    ? (brandKits.find((kit) => kit.id === template.brandKitId)?.name ?? t("templates.kit"))
+    : t("create.global");
 
   return (
     <article className="border-border bg-card flex h-full flex-col gap-2 rounded-lg border p-4">
@@ -158,7 +161,7 @@ function TemplateCard({
         <div className="relative">
           <button
             type="button"
-            aria-label="Plus d'options"
+            aria-label={t("templates.moreOptions")}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
             className="text-muted-foreground hover:text-foreground px-2"
@@ -179,7 +182,7 @@ function TemplateCard({
                 }}
                 className="hover:bg-muted flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs"
               >
-                <IconCopy size={13} /> Copie globale
+                <IconCopy size={13} /> {t("templates.globalCopy")}
               </button>
               {brandKits.map((kit) => (
                 <button
@@ -203,7 +206,7 @@ function TemplateCard({
                 }}
                 className="text-destructive hover:bg-muted flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs"
               >
-                <IconTrash size={13} /> Supprimer
+                <IconTrash size={13} /> {t("brandKits.delete")}
               </button>
             </div>
           ) : null}
@@ -220,6 +223,7 @@ function NewTemplateDialog({
   brandKits: BrandKit[];
   onClose: () => void;
 }) {
+  const t = useT();
   const create = useActionMutation("upsert-asset-template");
   const [draft, setDraft] = useState({
     name: "",
@@ -236,7 +240,7 @@ function NewTemplateDialog({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Nouveau modèle"
+      aria-label={t("templates.newTemplate")}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -244,11 +248,11 @@ function NewTemplateDialog({
     >
       <div className="border-border bg-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold">Nouveau modèle</h2>
+          <h2 className="text-base font-semibold">{t("templates.newTemplate")}</h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label={t("studio.close")}
             className="text-muted-foreground hover:text-foreground"
           >
             ×
@@ -257,7 +261,7 @@ function NewTemplateDialog({
 
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Nom</span>
+            <span className="font-medium">{t("brandKits.name")}</span>
             <Input
               value={draft.name}
               onChange={(event) => setDraft({ ...draft, name: event.target.value })}
@@ -265,13 +269,13 @@ function NewTemplateDialog({
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Kit de marque</span>
+            <span className="font-medium">{t("templates.brandKit")}</span>
             <select
               value={draft.brandKitId}
               onChange={(event) => setDraft({ ...draft, brandKitId: event.target.value })}
               className="border-input bg-background rounded-md border px-3 py-2 text-sm"
             >
-              <option value="">Global (sans kit de marque)</option>
+              <option value="">{t("templates.globalNoKit")}</option>
               {brandKits.map((kit) => (
                 <option key={kit.id} value={kit.id}>
                   {kit.name}
@@ -282,7 +286,7 @@ function NewTemplateDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Catégorie</span>
+              <span className="font-medium">{t("templates.category")}</span>
               <select
                 value={draft.category}
                 onChange={(event) => setDraft({ ...draft, category: event.target.value })}
@@ -297,7 +301,7 @@ function NewTemplateDialog({
             </label>
 
             <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium">Format</span>
+              <span className="font-medium">{t("templates.format")}</span>
               <select
                 value={draft.format}
                 onChange={(event) => setDraft({ ...draft, format: event.target.value })}
@@ -313,17 +317,17 @@ function NewTemplateDialog({
           </div>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Modèle de prompt</span>
+            <span className="font-medium">{t("templates.promptTemplate")}</span>
             <Textarea
               value={draft.promptTemplate}
               onChange={(event) => setDraft({ ...draft, promptTemplate: event.target.value })}
-              placeholder="Créer un visuel à propos de {{prompt}}…"
+              placeholder={t("templates.promptPlaceholder")}
               rows={4}
             />
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium">Politique de texte</span>
+            <span className="font-medium">{t("templates.textPolicy")}</span>
             <Textarea
               value={draft.textPolicy}
               onChange={(event) => setDraft({ ...draft, textPolicy: event.target.value })}
@@ -339,7 +343,7 @@ function NewTemplateDialog({
                 setDraft({ ...draft, composeCanonicalLogo: event.target.checked })
               }
             />
-            <span>Composer le logo canonique</span>
+            <span>{t("templates.composeLogo")}</span>
           </label>
         </div>
 
@@ -347,7 +351,7 @@ function NewTemplateDialog({
 
         <div className="mt-4 flex justify-end gap-2">
           <Button size="sm" variant="ghost" onClick={onClose}>
-            Cancel
+            {t("templates.cancel")}
           </Button>
           <Button
             size="sm"
@@ -370,7 +374,7 @@ function NewTemplateDialog({
               )
             }
           >
-            Create
+            {t("videos.create")}
           </Button>
         </div>
       </div>

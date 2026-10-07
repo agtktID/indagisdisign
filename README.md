@@ -22,7 +22,8 @@ du récit et les timecodes réels des rushes.*
   et l'exercice de la méthode.
 - **Un carnet de marqueurs** — vos passages repérés, avec leurs timecodes réels, que vous
   pouvez réordonner selon la logique du récit et non celle de la chronologie. Exportable
-  en CSV.
+  en CSV, en **EDL d'assemblage** à importer dans Resolve ou Premiere, et en chapitres
+  YouTube.
 - **Une fiche de préparation** — les cinq questions à se poser avant de monter.
 - **Un diagnostic de structure** — douze règles appliquées mécaniquement à votre carte :
   acte sous-couvert, climax sans enjeu lisible, fin déconnectée, courbe plate…

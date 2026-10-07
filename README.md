@@ -24,9 +24,13 @@ du récit et les timecodes réels des rushes.*
   pouvez réordonner selon la logique du récit et non celle de la chronologie. Exportable
   en CSV, en **EDL d'assemblage** à importer dans Resolve ou Premiere, et en chapitres
   YouTube.
+- **Un import qui vous évite de retaper** — collez un bloc depuis votre dérushage, ou
+  donnez le CSV ou l'EDL que vous avez déjà. Une lecture à blanc montre ce qui serait
+  créé et ce qui serait refusé, ligne par ligne, avant d'écrire quoi que ce soit.
 - **Une fiche de préparation** — les cinq questions à se poser avant de monter.
 - **Un diagnostic de structure** — douze règles appliquées mécaniquement à votre carte :
-  acte sous-couvert, climax sans enjeu lisible, fin déconnectée, courbe plate…
+  acte sous-couvert, climax sans enjeu lisible, fin déconnectée, courbe plate… Il se
+  lance **depuis la carte**, et chaque remarque déplie l'étape qu'elle concerne.
 - **Une boucle d'essais** — observation → hypothèse → tentative → verdict, avec le rappel
   de la règle qui compte : une seule chose à la fois.
 - **Un brief de composition** — un bouton par acte, en haut de la carte, qui transforme

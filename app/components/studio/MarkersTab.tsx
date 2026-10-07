@@ -1,13 +1,21 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
 import { callAction } from "@agent-native/core/client/use-action";
-import { IconArrowDown, IconArrowUp, IconDownload, IconPlus, IconTrash } from "@tabler/icons-react";
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconDownload,
+  IconFileImport,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+import { MarkerImport } from "./MarkerImport";
 import { Badge, EmptyState, Textarea } from "./primitives";
 
 /**
@@ -152,7 +160,7 @@ function EditableCell({
 export function MarkersTab({ videoId }: { videoId: string }) {
   const t = useT();
   const [order, setOrder] = useState<"narrative" | "timecode">("narrative");
-  const { data } = useActionQuery("list-markers", { videoId, order });
+  const { data, refetch } = useActionQuery("list-markers", { videoId, order });
   const result = data as { markers: Marker[]; unassignedCount: number } | undefined;
   const markers = result?.markers ?? [];
 
@@ -193,6 +201,7 @@ export function MarkersTab({ videoId }: { videoId: string }) {
 
   const [draft, setDraft] = useState({ label: "", rush: "", start: "", end: "", feeling: "", attempt: "" });
   const [error, setError] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   function move(index: number, delta: number) {
     const next = [...markers];
@@ -295,6 +304,13 @@ export function MarkersTab({ videoId }: { videoId: string }) {
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
+            <Button
+              size="sm"
+              variant={importOpen ? "default" : "outline"}
+              onClick={() => setImportOpen((previous) => !previous)}
+            >
+              <IconFileImport size={14} /> {t("import.open")}
+            </Button>
             {EXPORT_FORMATS.map(({ format, labelKey, titleKey }) => (
               <Button
                 key={format}
@@ -311,6 +327,14 @@ export function MarkersTab({ videoId }: { videoId: string }) {
           </div>
         </div>
       </header>
+
+      {importOpen ? (
+        <MarkerImport
+          videoId={videoId}
+          onImported={() => void refetch()}
+          onClose={() => setImportOpen(false)}
+        />
+      ) : null}
 
       {result && result.unassignedCount > 0 ? (
         <Badge tone="muted" className="self-start">

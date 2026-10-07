@@ -9,6 +9,7 @@ import { FINAL_REVIEW } from "@shared/hero-journey";
 
 import { BriefComposer } from "./BriefComposer";
 import { EmotionCurve } from "./EmotionCurve";
+import { MapDiagnostic } from "./MapDiagnostic";
 import { actColor, Badge, CoverageBar, Textarea } from "./primitives";
 
 interface StoryStep {
@@ -87,6 +88,7 @@ export function StoryMap({
               {t("studio.unassignedMarkers", { count: map.unassignedMarkers })}
             </Badge>
           ) : null}
+          <MapDiagnostic videoId={videoId} onOpenStep={onOpenStep} />
           <BriefComposer videoId={videoId} openStep={openStep} />
         </div>
       </header>

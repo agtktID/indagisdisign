@@ -114,6 +114,14 @@ const messages = {
     failed: "诊断无法运行。",
   },
   videos: {
+    filterActive: "进行中",
+    filterArchived: "已归档",
+    cardActions: "此视频的操作",
+    archive: "归档",
+    unarchive: "取消归档",
+    archivedBadge: "已归档",
+    archivedEmptyTitle: "没有已归档的视频",
+    archivedEmptyHint: "归档的视频会出现在这里。不会被删除，一键即可恢复。",
     pageTitle: "视频",
     heading: "你的视频",
     description: "每张卡片显示的是故事进展，而不只是制作进度。",
@@ -138,6 +146,8 @@ const messages = {
     days: "{{count}} 天",
   },
   video: {
+    unarchive: "取消归档此视频",
+    unarchiveConfirm: "将“{{title}}”放回列表？",
     pageTitle: "视频详情",
     backToList: "返回列表",
     allVideos: "全部视频",

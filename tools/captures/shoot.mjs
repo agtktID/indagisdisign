@@ -27,11 +27,22 @@ import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const [chrome, base = "http://localhost:8080", outDir = "docs/captures", demoVideo] =
-  process.argv.slice(2);
+  process.argv.slice(2).filter((argument) => !argument.startsWith("--"));
+
+/**
+ * Le thème. `--sombre` émule `prefers-color-scheme: dark` au lieu de bricoler le
+ * stockage du navigateur : le framework monte `next-themes` avec `defaultTheme: "system"`
+ * et `enableSystem: true`, donc la préférence du système **est** le réglage. On
+ * photographie ainsi le chemin qu'emprunte un vrai visiteur, pas un état forcé à la main.
+ *
+ * Les fichiers sombres prennent le suffixe `-sombre`, pour que les deux jeux cohabitent.
+ */
+const SOMBRE = process.argv.includes("--sombre");
+const SUFFIXE = SOMBRE ? "-sombre" : "";
 
 if (!chrome) {
   console.error(
-    "Usage : node tools/captures/shoot.mjs <binaire-chromium> [url] [dossier] [id-video-demo]",
+    "Usage : node tools/captures/shoot.mjs <binaire-chromium> [url] [dossier] [id-video] [--sombre]",
   );
   process.exit(1);
 }
@@ -55,6 +66,9 @@ const SHOTS = [
   ["catalogue-prompts", "/library?section=prompts"],
   ["bibliotheque", "/library?section=library"],
   ["liste-videos", "/videos"],
+  // Le chat plein écran. L'identifiant est fixe et arbitraire : la route crée le fil
+  // s'il n'existe pas, et une valeur figée rend la capture reproductible à l'identique.
+  ["chat", "/chat/8f3a1c92-4d17-4b6e-9a05-71c2e8f4d3b7"],
 ];
 
 if (!demoVideo) {
@@ -124,6 +138,14 @@ await send(
   { width: 1440, height: 900, deviceScaleFactor: 2, mobile: false },
   sessionId,
 );
+if (SOMBRE) {
+  await send(
+    "Emulation.setEmulatedMedia",
+    { features: [{ name: "prefers-color-scheme", value: "dark" }] },
+    sessionId,
+  );
+  console.log("  thème sombre émulé");
+}
 
 const evaluate = (expression) =>
   send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }, sessionId);
@@ -146,14 +168,40 @@ await sleep(8000);
 
 /* --- Capturer -------------------------------------------------------------- */
 
+/**
+ * Attend que l'écran porte vraiment son contenu, au lieu de parier sur un délai.
+ *
+ * Les sept secondes d'attente fixe suffisaient d'habitude, et rataient un écran sur six
+ * après un redémarrage du serveur : la capture du carnet de marqueurs est partie en
+ * **squelette de chargement**, et rien ne l'a signalé — un PNG de 23 Ko au milieu de
+ * fichiers de 300 Ko. On sonde donc jusqu'à voir du texte, et on le dit si on n'en voit
+ * jamais, plutôt que de publier un écran vide.
+ */
+async function waitForContent(timeoutMs = 20_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const { result } = await evaluate(
+      "(document.body.innerText || '').trim().length > 200 && !/Chargement|Loading/.test(document.body.innerText || '')",
+    );
+    if (result?.result?.value === true) return true;
+    await sleep(400);
+  }
+  return false;
+}
+
 for (const [name, path] of SHOTS) {
   await send("Page.navigate", { url: base + path }, sessionId);
-  await sleep(7000);
+  await sleep(1500);
+  if (!(await waitForContent())) {
+    console.warn(`  attention : ${path} n'a jamais fini de charger — capture suspecte`);
+  }
+  // Une respiration après le texte : les graphiques Recharts s'animent à l'entrée.
+  await sleep(1200);
   const {
     result: { data },
   } = await send("Page.captureScreenshot", { format: "png" }, sessionId);
-  writeFileSync(`${outDir}/${name}.png`, Buffer.from(data, "base64"));
-  console.log(`  ${outDir}/${name}.png`);
+  writeFileSync(`${outDir}/${name}${SUFFIXE}.png`, Buffer.from(data, "base64"));
+  console.log(`  ${outDir}/${name}${SUFFIXE}.png`);
 }
 
 socket.close();

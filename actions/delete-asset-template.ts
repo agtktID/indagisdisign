@@ -14,11 +14,25 @@ export default defineAction({
   run: async ({ templateId }) => {
     const db = getDb();
 
+    // **Autoriser d'abord.** Le détachement partait avant ce contrôle et sans filtre de
+    // propriétaire : appeler l'action sur le modèle d'un autre détachait ses ressources,
+    // puis échouait sur « introuvable ». Le refus arrivait après les dégâts.
+    const owned = (
+      await db
+        .select({ id: schema.assetTemplates.id })
+        .from(schema.assetTemplates)
+        .where(
+          and(eq(schema.assetTemplates.id, templateId), ownedByCurrentUser(schema.assetTemplates)),
+        )
+        .limit(1)
+    )[0];
+    if (!owned) throw new Error(`Modèle « ${templateId} » introuvable.`);
+
     // Les ressources produites gardent leur trace, mais ne pointent plus vers un absent.
     await db
       .update(schema.assets)
       .set({ templateId: null })
-      .where(eq(schema.assets.templateId, templateId));
+      .where(and(eq(schema.assets.templateId, templateId), ownedByCurrentUser(schema.assets)));
 
     const deleted = await db
       .delete(schema.assetTemplates)

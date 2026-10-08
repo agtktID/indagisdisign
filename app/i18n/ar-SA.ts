@@ -116,6 +116,14 @@ const messages = {
     failed: "تعذّر تشغيل التشخيص.",
   },
   videos: {
+    filterActive: "النشطة",
+    filterArchived: "المؤرشفة",
+    cardActions: "إجراءات هذا الفيديو",
+    archive: "أرشفة",
+    unarchive: "إلغاء الأرشفة",
+    archivedBadge: "مؤرشف",
+    archivedEmptyTitle: "لا توجد فيديوهات مؤرشفة",
+    archivedEmptyHint: "الفيديوهات التي تؤرشفها تظهر هنا. لا يُحذف شيء — يمكنك استعادتها بنقرة واحدة.",
     pageTitle: "الفيديوهات",
     heading: "فيديوهاتك",
     description: "تُظهر كل بطاقة موضع الحكاية، لا موضع الإنتاج وحده.",
@@ -140,6 +148,8 @@ const messages = {
     days: "{{count}} ي",
   },
   video: {
+    unarchive: "إلغاء أرشفة هذا الفيديو",
+    unarchiveConfirm: "إعادة «{{title}}» إلى القائمة؟",
     pageTitle: "بطاقة الفيديو",
     backToList: "العودة إلى القائمة",
     allVideos: "كل الفيديوهات",

@@ -120,6 +120,14 @@ const messages = {
     failed: "El diagnóstico no ha podido ejecutarse.",
   },
   videos: {
+    filterActive: "Activos",
+    filterArchived: "Archivados",
+    cardActions: "Acciones de este vídeo",
+    archive: "Archivar",
+    unarchive: "Desarchivar",
+    archivedBadge: "Archivado",
+    archivedEmptyTitle: "No hay vídeos archivados",
+    archivedEmptyHint: "Los vídeos que archivas aparecen aquí. No se borra nada: puedes recuperarlos con un clic.",
     pageTitle: "Vídeos",
     heading: "Tus vídeos",
     description: "Cada ficha muestra dónde está el relato, no solo dónde está la producción.",
@@ -144,6 +152,8 @@ const messages = {
     days: "{{count}} d",
   },
   video: {
+    unarchive: "Desarchivar este vídeo",
+    unarchiveConfirm: "¿Devolver «{{title}}» a la lista?",
     pageTitle: "Ficha de vídeo",
     backToList: "Volver a la lista",
     allVideos: "Todos los vídeos",

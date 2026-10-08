@@ -118,6 +118,14 @@ const messages = {
     failed: "निदान नहीं चल सका।",
   },
   videos: {
+    filterActive: "सक्रिय",
+    filterArchived: "संग्रहीत",
+    cardActions: "इस वीडियो की क्रियाएँ",
+    archive: "संग्रहित करें",
+    unarchive: "संग्रह से निकालें",
+    archivedBadge: "संग्रहीत",
+    archivedEmptyTitle: "कोई संग्रहीत वीडियो नहीं",
+    archivedEmptyHint: "आपके द्वारा संग्रहीत वीडियो यहाँ आते हैं। कुछ भी हटाया नहीं जाता — एक क्लिक में वापस ला सकते हैं।",
     pageTitle: "वीडियो",
     heading: "आपके वीडियो",
     description: "हर कार्ड दिखाता है कि कहानी कहाँ पहुँची है, सिर्फ़ निर्माण कहाँ पहुँचा है यह नहीं।",
@@ -142,6 +150,8 @@ const messages = {
     days: "{{count}} दि",
   },
   video: {
+    unarchive: "इस वीडियो को संग्रह से निकालें",
+    unarchiveConfirm: "«{{title}}» को सूची में वापस लाएँ?",
     pageTitle: "वीडियो कार्ड",
     backToList: "सूची पर लौटें",
     allVideos: "सभी वीडियो",

@@ -120,6 +120,14 @@ const messages = {
     failed: "Die Diagnose konnte nicht ausgeführt werden.",
   },
   videos: {
+    filterActive: "Aktiv",
+    filterArchived: "Archiviert",
+    cardActions: "Aktionen für dieses Video",
+    archive: "Archivieren",
+    unarchive: "Wiederherstellen",
+    archivedBadge: "Archiviert",
+    archivedEmptyTitle: "Keine archivierten Videos",
+    archivedEmptyHint: "Videos, die Sie archivieren, landen hier. Nichts wird gelöscht – Sie holen sie mit einem Klick zurück.",
     pageTitle: "Videos",
     heading: "Ihre Videos",
     description: "Jede Karte zeigt, wo die Geschichte steht — nicht nur, wo die Produktion steht.",
@@ -144,6 +152,8 @@ const messages = {
     days: "{{count}} T",
   },
   video: {
+    unarchive: "Dieses Video wiederherstellen",
+    unarchiveConfirm: "„{{title}}“ zurück in die Liste?",
     pageTitle: "Videoblatt",
     backToList: "Zurück zur Liste",
     allVideos: "Alle Videos",

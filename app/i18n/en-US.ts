@@ -119,6 +119,14 @@ const messages = {
     failed: "The diagnostic could not run.",
   },
   videos: {
+    filterActive: "Active",
+    filterArchived: "Archived",
+    cardActions: "Actions for this video",
+    archive: "Archive",
+    unarchive: "Unarchive",
+    archivedBadge: "Archived",
+    archivedEmptyTitle: "No archived videos",
+    archivedEmptyHint: "Videos you archive land here. Nothing is deleted — you can bring them back in one click.",
     pageTitle: "Videos",
     heading: "Your videos",
     description: "Each card shows where the story stands, not just where the production stands.",
@@ -143,6 +151,8 @@ const messages = {
     days: "{{count}} d",
   },
   video: {
+    unarchive: "Unarchive this video",
+    unarchiveConfirm: "Put “{{title}}” back in the list?",
     pageTitle: "Video",
     backToList: "Back to the list",
     allVideos: "All videos",

@@ -22,11 +22,17 @@ export default defineAction({
     assetId: z.string().optional().describe("Ressource à modifier ; absent = création"),
     name: z.string().min(1).describe("Nom de la ressource"),
     description: z.string().optional(),
-    kind: z.string().default("image").describe(`Type : ${ASSET_KIND_KEYS.join(", ")}`),
+    // Pas de `.default()` ici, et c'est délibéré. Un défaut zod est indiscernable d'une
+    // valeur fournie : sur le chemin de modification, `upsert-asset --assetId X --name
+    // "nouveau nom"` réécrivait aussi `kind: "image"` et `category: "other"`. Une
+    // ressource audio rangée en 9:16 devenait une image « autre » sans format, et sortait
+    // des filtres de la bibliothèque — sans un mot. Le défaut appartient à la création :
+    // il est appliqué dans `run`, à l'insertion seule.
+    kind: z.string().optional().describe(`Type : ${ASSET_KIND_KEYS.join(", ")} (défaut : image)`),
     category: z
       .string()
-      .default("other")
-      .describe(`Catégorie : ${ASSET_CATEGORY_KEYS.join(", ")}`),
+      .optional()
+      .describe(`Catégorie : ${ASSET_CATEGORY_KEYS.join(", ")} (défaut : other)`),
     format: nullableId(
       `Format : ${ASSET_FORMAT_KEYS.join(", ")} — nul pour l'audio et les documents`,
     ).optional(),
@@ -43,10 +49,10 @@ export default defineAction({
     prompt: z.string().optional().describe("Invite ayant servi à la génération"),
   }),
   run: async ({ assetId, kind, category, format, ...fields }) => {
-    if (!assetKindByKey(kind)) {
+    if (kind !== undefined && !assetKindByKey(kind)) {
       throw new Error(`Type « ${kind} » inconnu. Valides : ${ASSET_KIND_KEYS.join(", ")}.`);
     }
-    if (!assetCategoryByKey(category)) {
+    if (category !== undefined && !assetCategoryByKey(category)) {
       throw new Error(
         `Catégorie « ${category} » inconnue. Valides : ${ASSET_CATEGORY_KEYS.join(", ")}.`,
       );
@@ -59,9 +65,17 @@ export default defineAction({
     const timestamp = nowIso();
 
     if (assetId) {
+      // On n'écrit que ce que l'appelant a nommé. Drizzle ignore `undefined` mais écrit
+      // `null` : poser `format: format ?? null` effaçait le format à chaque modification
+      // qui ne le mentionnait pas.
+      const patch: Record<string, unknown> = { ...fields, updatedAt: timestamp };
+      if (kind !== undefined) patch.kind = kind;
+      if (category !== undefined) patch.category = category;
+      if (format !== undefined) patch.format = format;
+
       const [asset] = await db
         .update(schema.assets)
-        .set({ ...fields, kind, category, format: format ?? null, updatedAt: timestamp })
+        .set(patch)
         .where(and(eq(schema.assets.id, assetId), ownedByCurrentUser(schema.assets)))
         .returning();
       if (!asset) throw new Error(`Ressource « ${assetId} » introuvable.`);
@@ -73,8 +87,8 @@ export default defineAction({
       .values({
         id: newId(),
         ...fields,
-        kind,
-        category,
+        kind: kind ?? "image",
+        category: category ?? "other",
         format: format ?? null,
         createdAt: timestamp,
         updatedAt: timestamp,

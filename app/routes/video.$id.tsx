@@ -1,7 +1,7 @@
 import { useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
-import { IconArchive, IconArrowLeft } from "@tabler/icons-react";
+import { IconArchive, IconArchiveOff, IconArrowLeft } from "@tabler/icons-react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 
@@ -59,7 +59,13 @@ export default function VideoRoute() {
   const { data, isLoading, error } = useActionQuery("get-video", { videoId });
   const detail = data as
     | {
-        video: { id: string; title: string; stage: string; dueAt: string | null };
+        video: {
+          id: string;
+          title: string;
+          stage: string;
+          dueAt: string | null;
+          archivedAt: string | null;
+        };
         coverage: { covered: number; total: number };
         isBlocked: boolean;
         daysSinceStageChange: number;
@@ -128,7 +134,11 @@ export default function VideoRoute() {
                 <Badge tone="warn">{t("video.blocked", { count: detail.daysSinceStageChange })}</Badge>
               ) : null}
               <DueDateField videoId={videoId} dueAt={detail.video.dueAt} />
-              <ArchiveButton videoId={videoId} title={detail.video.title} />
+              <ArchiveButton
+                videoId={videoId}
+                title={detail.video.title}
+                archived={Boolean(detail.video.archivedAt)}
+              />
             </>
           ) : null}
         </div>
@@ -238,27 +248,46 @@ function TitleField({ videoId, title }: { videoId: string; title: string }) {
  * — d'où une confirmation simple plutôt qu'un dialogue lourd : ce n'est pas une
  * suppression, et le dire est plus utile que de faire peur.
  */
-function ArchiveButton({ videoId, title }: { videoId: string; title: string }) {
+function ArchiveButton({
+  videoId,
+  title,
+  archived,
+}: {
+  videoId: string;
+  title: string;
+  archived: boolean;
+}) {
   const t = useT();
   const archive = useActionMutation("archive-video");
   const navigate = useNavigate();
+  const label = archived ? t("video.unarchive") : t("video.archive");
 
   return (
     <button
       type="button"
       disabled={archive.isPending}
       onClick={() => {
-        const confirmed = window.confirm(
-          `${t("video.archiveConfirm", { title })}\n\n${t("video.archiveExplain")}`,
+        // On ne demande confirmation que dans le sens qui retire la vidéo de la liste.
+        // Désarchiver est sans conséquence, et une boîte de dialogue y serait du bruit.
+        if (!archived) {
+          const confirmed = window.confirm(
+            `${t("video.archiveConfirm", { title })}\n\n${t("video.archiveExplain")}`,
+          );
+          if (!confirmed) return;
+        }
+        // Le bouton ne savait qu'archiver : `archived` n'était jamais passé, donc toujours
+        // `true` par défaut. Une fois archivée, la fiche restait atteignable par son URL
+        // mais plus rien ne permettait de faire le chemin inverse.
+        archive.mutate(
+          { videoId, archived: !archived },
+          { onSuccess: () => (archived ? undefined : navigate("/videos")) },
         );
-        if (!confirmed) return;
-        archive.mutate({ videoId }, { onSuccess: () => navigate("/videos") });
       }}
-      title={t("video.archive")}
-      aria-label={t("video.archive")}
+      title={label}
+      aria-label={label}
       className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition disabled:opacity-50"
     >
-      <IconArchive size={15} />
+      {archived ? <IconArchiveOff size={15} /> : <IconArchive size={15} />}
     </button>
   );
 }

@@ -1,5 +1,6 @@
 import { defineAction } from "@agent-native/core/action";
 import { eq } from "@agent-native/core/db/schema";
+import { and } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb, newId, nowIso, schema } from "../server/db/index.ts";
@@ -36,14 +37,25 @@ export default defineAction({
       if (status !== undefined) patch.status = status;
       if (publishedAt !== undefined) patch.publishedAt = publishedAt;
 
+      // Le filtre sur `videoId` fait tenir l'autorisation. `loadVideoForWrite(videoId)`
+      // ci-dessus prouve le droit d'écrire sur **cette** vidéo ; sans ce second terme, un
+      // appelant ayant ce droit pouvait réécrire la fiche de publication de n'importe
+      // quelle autre vidéo — titre de référencement, URL, statut — en passant son
+      // identifiant. Même motif que `record-metrics`, qui autorise sur la vidéo de la
+      // ligne visée et non sur celle qu'on lui annonce.
       const [publication] = await db
         .update(schema.publications)
         .set(patch)
-        .where(eq(schema.publications.id, publicationId))
+        .where(
+          and(
+            eq(schema.publications.id, publicationId),
+            eq(schema.publications.videoId, videoId),
+          ),
+        )
         .returning();
 
       if (!publication) {
-        throw new Error(`Publication « ${publicationId} » introuvable.`);
+        throw new Error(`Publication « ${publicationId} » introuvable sur cette vidéo.`);
       }
       return { publication, created: false };
     }

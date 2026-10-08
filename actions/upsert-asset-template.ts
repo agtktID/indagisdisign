@@ -20,11 +20,17 @@ export default defineAction({
     templateId: z.string().optional().describe("Modèle à modifier ; absent = création"),
     name: z.string().min(1).describe("Nom du modèle"),
     description: z.string().optional(),
+    // Optionnels, pas `.default()` : un défaut zod est indiscernable d'une valeur fournie,
+    // et sur le chemin de modification il écrasait. Renommer un modèle en 9:16 le
+    // ramenait en « social · 1:1 » sans un mot. Le défaut vit dans `run`, à la création.
     category: z
       .string()
-      .default("social")
-      .describe(`Catégorie : ${ASSET_CATEGORY_KEYS.join(", ")}`),
-    format: z.string().default("1:1").describe(`Format : ${ASSET_FORMAT_KEYS.join(", ")}`),
+      .optional()
+      .describe(`Catégorie : ${ASSET_CATEGORY_KEYS.join(", ")} (défaut : social)`),
+    format: z
+      .string()
+      .optional()
+      .describe(`Format : ${ASSET_FORMAT_KEYS.join(", ")} (défaut : 1:1)`),
     promptTemplate: z
       .string()
       .optional()
@@ -40,12 +46,12 @@ export default defineAction({
     sortOrder: z.number().int().optional(),
   }),
   run: async ({ templateId, category, format, ...fields }) => {
-    if (!assetCategoryByKey(category)) {
+    if (category !== undefined && !assetCategoryByKey(category)) {
       throw new Error(
         `Catégorie « ${category} » inconnue. Valides : ${ASSET_CATEGORY_KEYS.join(", ")}.`,
       );
     }
-    if (!assetFormatByKey(format)) {
+    if (format !== undefined && !assetFormatByKey(format)) {
       throw new Error(`Format « ${format} » inconnu. Valides : ${ASSET_FORMAT_KEYS.join(", ")}.`);
     }
 
@@ -53,9 +59,14 @@ export default defineAction({
     const timestamp = nowIso();
 
     if (templateId) {
+      // On n'écrit que ce que l'appelant a nommé : drizzle ignore `undefined`.
+      const patch: Record<string, unknown> = { ...fields, updatedAt: timestamp };
+      if (category !== undefined) patch.category = category;
+      if (format !== undefined) patch.format = format;
+
       const [template] = await db
         .update(schema.assetTemplates)
-        .set({ ...fields, category, format, updatedAt: timestamp })
+        .set(patch)
         .where(
           and(
             eq(schema.assetTemplates.id, templateId),
@@ -72,8 +83,8 @@ export default defineAction({
       .values({
         id: newId(),
         ...fields,
-        category,
-        format,
+        category: category ?? "social",
+        format: format ?? "1:1",
         createdAt: timestamp,
         updatedAt: timestamp,
         ...ownerStamp(),

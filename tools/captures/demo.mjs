@@ -35,7 +35,14 @@ const [
   base = "http://localhost:8080",
   out = "docs/captures/demo.gif",
   demoVideo,
-] = process.argv.slice(2);
+] = process.argv.slice(2).filter((argument) => !argument.startsWith("--"));
+
+/**
+ * `--sombre` émule `prefers-color-scheme: dark` plutôt que de forcer le stockage du
+ * navigateur : le framework monte `next-themes` en `defaultTheme: "system"`, donc la
+ * préférence système **est** le réglage. Même convention que `shoot.mjs`.
+ */
+const SOMBRE = process.argv.includes("--sombre");
 
 if (!chrome || !ffmpeg || !demoVideo) {
   console.error(
@@ -111,6 +118,14 @@ await send(
   { width: WIDTH, height: HEIGHT, deviceScaleFactor: 1, mobile: false },
   session,
 );
+if (SOMBRE) {
+  await send(
+    "Emulation.setEmulatedMedia",
+    { features: [{ name: "prefers-color-scheme", value: "dark" }] },
+    session,
+  );
+  console.log("  thème sombre émulé");
+}
 
 const evaluate = async (expression) => {
   const { result } = await send(

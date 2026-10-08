@@ -1,6 +1,6 @@
 import { defineAction } from "@agent-native/core/action";
 import { eq } from "@agent-native/core/db/schema";
-import { desc } from "drizzle-orm";
+import { and, desc } from "drizzle-orm";
 import { z } from "zod";
 
 import { nullableInteger } from "../shared/cli-compat.ts";
@@ -70,10 +70,17 @@ export default defineAction({
       if (intendedFeeling !== undefined) patch.intendedFeeling = intendedFeeling;
       if (editAttempt !== undefined) patch.editAttempt = editAttempt;
 
+      // Le filtre sur `videoId` n'est pas décoratif. `loadVideoForWrite(videoId)` ci-dessus
+      // prouve le droit d'écrire sur **cette** vidéo ; sans ce second terme, un appelant
+      // ayant ce droit pouvait écraser le marqueur de **n'importe quelle** autre vidéo en
+      // passant son identifiant — y compris celle d'un autre propriétaire. Le message
+      // d'erreur promettait déjà « sur cette vidéo » : il dit maintenant vrai.
+      // Même motif que `delete-marker` et `assign-marker-step`, qui chargent la ligne
+      // d'abord et autorisent sur SA vidéo.
       const [marker] = await db
         .update(schema.markers)
         .set(patch)
-        .where(eq(schema.markers.id, markerId))
+        .where(and(eq(schema.markers.id, markerId), eq(schema.markers.videoId, videoId)))
         .returning();
 
       if (!marker) {

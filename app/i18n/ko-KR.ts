@@ -119,6 +119,14 @@ const messages = {
     failed: "진단을 실행하지 못했습니다.",
   },
   videos: {
+    filterActive: "진행 중",
+    filterArchived: "보관됨",
+    cardActions: "이 영상 작업",
+    archive: "보관",
+    unarchive: "보관 해제",
+    archivedBadge: "보관됨",
+    archivedEmptyTitle: "보관된 영상이 없습니다",
+    archivedEmptyHint: "보관한 영상이 여기에 모입니다. 삭제되지 않으며 한 번의 클릭으로 되돌릴 수 있습니다.",
     pageTitle: "영상",
     heading: "내 영상",
     description: "각 카드는 제작 진행이 아니라 이야기의 진행을 보여 줍니다.",
@@ -143,6 +151,8 @@ const messages = {
     days: "{{count}}일",
   },
   video: {
+    unarchive: "이 영상 보관 해제",
+    unarchiveConfirm: "「{{title}}」을(를) 목록으로 되돌릴까요?",
     pageTitle: "영상 카드",
     backToList: "목록으로 돌아가기",
     allVideos: "모든 영상",

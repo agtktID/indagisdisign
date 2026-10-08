@@ -114,6 +114,14 @@ const messages = {
     failed: "診斷無法執行。",
   },
   videos: {
+    filterActive: "進行中",
+    filterArchived: "已封存",
+    cardActions: "此影片的操作",
+    archive: "封存",
+    unarchive: "取消封存",
+    archivedBadge: "已封存",
+    archivedEmptyTitle: "沒有已封存的影片",
+    archivedEmptyHint: "封存的影片會出現在這裡。不會被刪除，一鍵即可復原。",
     pageTitle: "影片",
     heading: "你的影片",
     description: "每張卡片顯示的是故事進展，而不只是製作進度。",
@@ -138,6 +146,8 @@ const messages = {
     days: "{{count}} 天",
   },
   video: {
+    unarchive: "取消封存此影片",
+    unarchiveConfirm: "將「{{title}}」放回列表？",
     pageTitle: "影片詳情",
     backToList: "返回列表",
     allVideos: "全部影片",

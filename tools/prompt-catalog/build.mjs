@@ -97,7 +97,7 @@ function parseCase(block, category) {
     kind: "image",
     category,
     title: titleMatch[2].trim(),
-    styles: list(field("Styles")),
+    styles: normalizeStyles(list(field("Styles"))),
     scenes: list(field("Scenes")),
     source: field("Source"),
     language: detectLanguage(body),
@@ -198,12 +198,32 @@ const CATEGORY_LABELS = {
   "seedance-commercial": "Usages commerciaux",
 };
 
+/**
+ * Les dépôts amont écrivent le même style tantôt au singulier, tantôt au pluriel —
+ * `Character` 113 fois et `Characters` 2 fois, `Product` 56 fois et `Products` 5 fois.
+ * Recopiées telles quelles, ces variantes produisaient **deux facettes côte à côte pour
+ * le même rendu** dans l'écran Prompts : « Personnage 113 » puis « Personnages 2 ». Un
+ * lecteur ne peut pas deviner laquelle choisir, et la seconde a l'air d'un défaut.
+ *
+ * On fusionne donc vers la forme majoritaire. C'est la seule normalisation que le script
+ * s'autorise : les **corps** de prompt restent intouchés, conformément à la règle du
+ * dossier — c'est le texte éprouvé qui part au modèle.
+ */
+const STYLE_ALIASES = {
+  Characters: "Character",
+  Products: "Product",
+};
+
+/** Replie les variantes sur leur forme retenue, sans créer de doublon dans la liste. */
+function normalizeStyles(styles) {
+  return [...new Set(styles.map((style) => STYLE_ALIASES[style] ?? style))];
+}
+
 const STYLE_LABELS = {
   "3D": "3D",
   Architecture: "Architecture",
   Brand: "Marque",
   Character: "Personnage",
-  Characters: "Personnages",
   Charts: "Graphiques",
   Classical: "Classique",
   Documents: "Documents",
@@ -214,7 +234,6 @@ const STYLE_LABELS = {
   Photography: "Photographie",
   Poster: "Affiche",
   Product: "Produit",
-  Products: "Produits",
   Realistic: "Réaliste",
   Scenes: "Scènes",
   UI: "Interface",

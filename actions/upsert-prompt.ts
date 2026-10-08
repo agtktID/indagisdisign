@@ -53,21 +53,54 @@ export default defineAction({
           .join(" — ")
       : undefined;
 
+    const db = getDb();
+    const timestamp = nowIso();
+
+    /**
+     * La ligne existante, quand on modifie — et c'est tout le correctif.
+     *
+     * Les valeurs de repli étaient posées en dur : un appel de modification qui ne
+     * nommait pas un champ retombait sur « image », « other » ou `null`, jamais sur ce
+     * que le prompt portait déjà. Deux conséquences visibles : modifier le seul corps
+     * **échouait** sur « Un nom est requis » — ce que fait pourtant l'écran — et renommer
+     * effaçait format et mots-clés. La ligne existante devient le dernier recours de
+     * chaque champ, juste avant les défauts de création.
+     */
+    const existing = promptId
+      ? (
+          await db
+            .select()
+            .from(schema.prompts)
+            .where(and(eq(schema.prompts.id, promptId), ownedByCurrentUser(schema.prompts)))
+            .limit(1)
+        )[0]
+      : undefined;
+    if (promptId && !existing) throw new Error(`Prompt « ${promptId} » introuvable.`);
+
     const resolved = {
-      name: fields.name ?? source?.name ?? fromCat?.name,
-      description: fields.description ?? source?.description ?? catalogDescription ?? null,
-      kind: fields.kind ?? source?.kind ?? fromCat?.kind ?? "image",
+      name: fields.name ?? source?.name ?? fromCat?.name ?? existing?.name,
+      description:
+        fields.description ??
+        source?.description ??
+        catalogDescription ??
+        existing?.description ??
+        null,
+      kind: fields.kind ?? source?.kind ?? fromCat?.kind ?? existing?.kind ?? "image",
       category:
         fields.category ??
         source?.category ??
         (fromCat ? assetCategoryForCatalog(fromCat.category) : undefined) ??
+        existing?.category ??
         "other",
-      format: fields.format ?? source?.format ?? fromCat?.format ?? null,
-      body: fields.body ?? source?.body ?? fromCat?.body,
+      format: fields.format ?? source?.format ?? fromCat?.format ?? existing?.format ?? null,
+      body: fields.body ?? source?.body ?? fromCat?.body ?? existing?.body,
       tags:
         fields.tags ??
         source?.tags.join(", ") ??
-        (fromCat ? [...fromCat.styles, ...fromCat.scenes].join(", ") || null : null),
+        // `undefined` et non `null` : un `null` ici court-circuiterait la ligne existante.
+        (fromCat ? [...fromCat.styles, ...fromCat.scenes].join(", ") || null : undefined) ??
+        existing?.tags ??
+        null,
     };
 
     if (!resolved.name) throw new Error("Un nom est requis.");
@@ -77,9 +110,6 @@ export default defineAction({
         `Catégorie « ${resolved.category} » inconnue. Valides : ${ASSET_CATEGORY_KEYS.join(", ")}.`,
       );
     }
-
-    const db = getDb();
-    const timestamp = nowIso();
 
     if (promptId) {
       const [prompt] = await db

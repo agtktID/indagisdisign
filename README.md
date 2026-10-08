@@ -15,6 +15,51 @@ manque entre les deux : celui qui vous dit **ce qui manque à votre histoire**.
 Aucun autre outil ne peut exécuter cette phrase : il faut posséder à la fois les étapes
 du récit et les timecodes réels des rushes.*
 
+## Le problème
+
+Vous avez quarante minutes de rushes et une timeline vide. Le problème n'est pas
+technique — vous savez couper. Le problème est que **vous ne savez pas encore quelle
+histoire vous racontez**, et vous allez le découvrir au montage, trop tard, après six
+heures passées sur un acte II qui ne tient pas.
+
+Les outils que vous avez déjà ne vous aident pas là-dessus :
+
+| Outil | Ce qu'il sait faire | Ce qu'il ignore |
+| --- | --- | --- |
+| Resolve, Premiere | couper, étalonner, exporter | si votre récit tient debout |
+| Notion, Trello | suivre où en est la fabrication | ce qu'il y a **dans** vos rushes |
+| Un document de script | poser une intention | la confronter aux plans réellement tournés |
+
+Indagis Studio occupe l'espace entre les trois. Il ne monte pas à votre place et ne gère
+pas vos tâches : il tient **la carte de votre récit**, rattachée aux timecodes réels de
+vos fichiers, et vous dit ce qui manque avant que le montage ne vous le fasse payer.
+
+## Pour qui
+
+Pour qui monte ses propres vidéos et sent que le problème est en amont du logiciel de
+montage : vidéastes, documentaristes, monteurs indépendants, formateurs. Il faut accepter
+une méthode — **le voyage du héros, en 12 étapes et 3 actes** — et vouloir s'en servir
+comme d'une carte, pas comme d'une liste de cases à cocher.
+
+Ce n'est **pas** pour vous si vous cherchez un logiciel de montage, un gestionnaire de
+projet d'équipe, ou un outil qui écrirait le récit à votre place. Studio aide à nommer ce
+que vous avez déjà filmé ; il n'invente pas de scènes.
+
+## Comment on s'en sert
+
+1. **Créez un projet, posez vos marqueurs** — un passage repéré dans un rush, avec son
+   timecode. Collez-les depuis votre dérushage, ou importez le CSV ou l'EDL que vous avez
+   déjà.
+2. **Rattachez-les aux 12 étapes.** Une étape peut rester vide : c'est une information,
+   pas une faute.
+3. **Écrivez ce que chaque étape doit faire** — une phrase suffit. C'est la note, et non
+   le marqueur, qui rend une étape « couverte » : on peut avoir la matière sans avoir
+   l'intention.
+4. **Demandez un diagnostic.** Douze règles s'appliquent à votre carte et disent où ça
+   cède — acte sous-doté, climax sans matière, fin déconnectée, courbe plate.
+5. **Montez.** Exportez le carnet en EDL d'assemblage pour Resolve ou Premiere, en
+   chapitres YouTube, ou demandez à l'agent un brief de composition pour un acte entier.
+
 ## Ce que ça fait
 
 - **Une carte narrative** — les 12 étapes du voyage du héros, en 3 actes, avec la courbe
@@ -102,14 +147,28 @@ Si vous n'en voulez pas, supprimez `mcp.config.json` : l'application fonctionne 
 
 ## À quoi ça ressemble
 
+**La carte narrative**, le cœur du produit : les 12 étapes en 3 actes, et votre courbe
+d'intensité face à celle de la méthode — trait plein contre pointillé. L'écart entre les
+deux est le diagnostic.
+
+![La carte narrative : les 12 étapes en 3 actes, et la courbe émotionnelle du montage](docs/captures/carte-narrative.png)
+
 | | |
 | --- | --- |
 | **Le carnet de marqueurs** — chaque moment repéré dans les rushes, avec son timecode, rattaché à une étape du récit. Triable en ordre narratif, qui n'est pas l'ordre chronologique. | ![Le carnet de marqueurs](docs/captures/marqueurs.png) |
+| **Vos vidéos** — chaque carte montre où en est le récit, pas seulement où en est la fabrication. Trois projets, trois couvertures : 0/12, 4/12, 12/12. | ![La liste des vidéos](docs/captures/liste-videos.png) |
 | **Le catalogue de prompts** — 550 prompts livrés, triables par catégorie, style et scène. | ![Le catalogue de prompts](docs/captures/catalogue-prompts.png) |
 | **La bibliothèque de ressources** — vos visuels rangés par type, catégorie et format. | ![La bibliothèque](docs/captures/bibliotheque.png) |
-| **Vos vidéos** — chaque carte montre où en est le récit, pas seulement où en est la fabrication. | ![La liste des vidéos](docs/captures/liste-videos.png) |
 
-![La carte narrative : les 12 étapes en 3 actes, et la courbe émotionnelle du montage](docs/captures/carte-narrative.png)
+### Et en thème sombre
+
+Le thème suit celui de votre système. Rien n'est à régler, et les deux sont tenus : les
+couleurs des trois actes, la courbe et les barres de couverture sont redéfinies pour
+chacun, pas seulement assombries.
+
+| | |
+| --- | --- |
+| ![La carte narrative en thème sombre](docs/captures/carte-narrative-sombre.png) | ![Le chat de l'agent en thème sombre](docs/captures/chat-sombre.png) |
 
 Les images se régénèrent toutes seules, et c'est volontaire — une capture qui ment sur
 l'état du produit est pire que pas de capture. **Le contenu qu'elles montrent est du
@@ -120,6 +179,7 @@ autre terminal, puis, sur une base vierge :
 ```bash
 node tools/captures/seed-demo.mjs <chromium> http://localhost:8080
 node tools/captures/shoot.mjs <chromium> http://localhost:8080 docs/captures <id-video>
+node tools/captures/shoot.mjs <chromium> http://localhost:8080 docs/captures <id-video> --sombre
 node tools/captures/demo.mjs <chromium> <ffmpeg> http://localhost:8080 docs/captures/demo.gif <id-video>
 ```
 

@@ -120,6 +120,14 @@ const messages = {
     failed: "Le diagnostic n'a pas pu s'exécuter.",
   },
   videos: {
+    filterActive: "Actives",
+    filterArchived: "Archivées",
+    cardActions: "Actions sur cette vidéo",
+    archive: "Archiver",
+    unarchive: "Désarchiver",
+    archivedBadge: "Archivée",
+    archivedEmptyTitle: "Aucune vidéo archivée",
+    archivedEmptyHint: "Les vidéos que vous archivez atterrissent ici. Rien n'est supprimé : vous pouvez les ressortir d'un clic.",
     pageTitle: "Vidéos",
     heading: "Vos vidéos",
     description: "Chaque carte montre où en est le récit, pas seulement où en est la fabrication.",
@@ -144,6 +152,8 @@ const messages = {
     days: "{{count}} j",
   },
   video: {
+    unarchive: "Désarchiver cette vidéo",
+    unarchiveConfirm: "Remettre « {{title}} » dans la liste ?",
     pageTitle: "Fiche vidéo",
     backToList: "Retour à la liste",
     allVideos: "Toutes les vidéos",

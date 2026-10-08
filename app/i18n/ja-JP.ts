@@ -119,6 +119,14 @@ const messages = {
     failed: "診断を実行できませんでした。",
   },
   videos: {
+    filterActive: "進行中",
+    filterArchived: "アーカイブ済み",
+    cardActions: "この動画の操作",
+    archive: "アーカイブ",
+    unarchive: "アーカイブ解除",
+    archivedBadge: "アーカイブ済み",
+    archivedEmptyTitle: "アーカイブした動画はありません",
+    archivedEmptyHint: "アーカイブした動画はここに入ります。削除はされず、ワンクリックで戻せます。",
     pageTitle: "動画",
     heading: "あなたの動画",
     description: "各カードが示すのは制作の進み具合ではなく、物語の進み具合です。",
@@ -143,6 +151,8 @@ const messages = {
     days: "{{count}} 日",
   },
   video: {
+    unarchive: "この動画をアーカイブ解除",
+    unarchiveConfirm: "「{{title}}」を一覧に戻しますか？",
     pageTitle: "動画カード",
     backToList: "一覧に戻る",
     allVideos: "すべての動画",

@@ -204,7 +204,11 @@ export function PublicationTab({ videoId }: { videoId: string }) {
           />
         ) : (
           publications.map((publication) => (
-            <PublicationCard key={publication.id} publication={publication} />
+            <PublicationCard
+              key={publication.id}
+              publication={publication}
+              videoId={videoId}
+            />
           ))
         )}
       </section>
@@ -275,9 +279,52 @@ export function PublicationTab({ videoId }: { videoId: string }) {
 }
 
 /** Une cible de diffusion, ses relevés, et le formulaire pour en ajouter un. */
-function PublicationCard({ publication }: { publication: Publication }) {
+function PublicationCard({
+  publication,
+  videoId,
+}: {
+  publication: Publication;
+  videoId: string;
+}) {
   const t = useT();
   const record = useActionMutation("record-metrics");
+  /**
+   * Le cycle de vie d'une cible de diffusion.
+   *
+   * `upsert-publication` acceptait déjà `status`, `url` et `publishedAt` ; aucune
+   * surface ne les atteignait. Une cible naissait « Prévue » et le restait pour
+   * toujours, et le lien vers la vidéo en ligne n'avait nulle part où aller — alors que
+   * c'est précisément ce qu'on vient chercher trois semaines plus tard, au moment de
+   * saisir un relevé.
+   *
+   * `platform` est obligatoire côté action : on le renvoie à chaque appel, sinon
+   * basculer le statut effacerait la plateforme.
+   */
+  const upsert = useActionMutation("upsert-publication");
+  const [url, setUrl] = useState(publication.url ?? "");
+  const published = publication.status === "published";
+
+  const toggleStatus = () =>
+    upsert.mutate({
+      videoId,
+      publicationId: publication.id,
+      platform: publication.platform,
+      status: published ? "planned" : "published",
+      // La date de publication n'a de sens que publiée. On la pose au moment du
+      // basculement plutôt que de demander à l'utilisateur de la ressaisir.
+      ...(published ? {} : { publishedAt: new Date().toISOString() }),
+    });
+
+  const commitUrl = () => {
+    const next = url.trim();
+    if (next === (publication.url ?? "")) return;
+    upsert.mutate({
+      videoId,
+      publicationId: publication.id,
+      platform: publication.platform,
+      url: next,
+    });
+  };
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState({
     measuredOn: new Date().toISOString().slice(0, 10),
@@ -295,12 +342,47 @@ function PublicationCard({ publication }: { publication: Publication }) {
     <article className="border-border rounded-lg border p-4">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <h4 className="text-sm font-semibold">{publication.platform}</h4>
-        <Badge tone={publication.status === "published" ? "ok" : "muted"}>
-          {publication.status === "published"
+        <Badge tone={published ? "ok" : "muted"}>
+          {published
             ? t("publication.statusPublished")
             : t("publication.statusPlanned")}
         </Badge>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="ml-auto"
+          disabled={upsert.isPending}
+          onClick={toggleStatus}
+        >
+          {published ? t("publication.markPlanned") : t("publication.markPublished")}
+        </Button>
       </div>
+
+      <label className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+        <span className="text-muted-foreground">{t("publication.urlLabel")}</span>
+        <Input
+          type="url"
+          inputMode="url"
+          value={url}
+          placeholder="https://…"
+          onChange={(event) => setUrl(event.target.value)}
+          onBlur={commitUrl}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.currentTarget.blur();
+          }}
+          className="h-8 max-w-sm flex-1"
+        />
+        {publication.url ? (
+          <a
+            href={publication.url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-muted-foreground hover:text-foreground underline"
+          >
+            {t("publication.openLink")}
+          </a>
+        ) : null}
+      </label>
       {publication.seoTitle ? (
         <p className="text-sm">{publication.seoTitle}</p>
       ) : null}

@@ -194,7 +194,7 @@ export function PromptsView() {
 
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-sm">
-              {result ? `${result.catalogTotal} prompts` : "Chargement…"}
+              {result ? t("prompts.catalogCount", { total: result.catalogTotal }) : t("prompts.loading")}
             </p>
             {filtersActive ? (
               <button
@@ -207,7 +207,7 @@ export function PromptsView() {
                 }}
                 className="text-muted-foreground hover:text-foreground text-xs underline"
               >
-                Tout effacer
+                {t("prompts.clearAll")}
               </button>
             ) : null}
           </div>
@@ -575,7 +575,7 @@ function MyPromptCard({ prompt }: { prompt: MyPrompt }) {
           disabled={!dirty || save.isPending}
           onClick={() => save.mutate({ promptId: prompt.id, body })}
         >
-          Enregistrer
+          {t("studio.save")}
         </Button>
         <Button
           size="sm"

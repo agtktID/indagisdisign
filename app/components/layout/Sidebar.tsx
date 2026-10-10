@@ -447,16 +447,27 @@ function ChatThreadsSection({ collapsed }: { collapsed: boolean }) {
  * Placée au-dessus de l'historique de conversation : la carte narrative est le centre du
  * produit, la conversation est l'outil qui l'assiste (Principe I).
  */
+/**
+ * Les trois libellés étaient en français **en dur**, dans une constante de module.
+ * C'était le défaut d'i18n le plus visible du produit : la barre latérale est sur tous
+ * les écrans, donc en japonais on lisait « あなたの動画 » dans la page et « Vidéos »
+ * juste à côté.
+ *
+ * Les clés existaient déjà, traduites dans les onze langues — il manquait seulement de
+ * les appeler. Une constante de module ne peut pas appeler `useT()` : on y garde la
+ * clé, et la traduction se fait au rendu.
+ */
 const STUDIO_LINKS = [
-  { to: "/videos", label: "Vidéos", Icon: IconRoute },
-  { to: "/calendar", label: "Échéances", Icon: IconCalendarEvent },
-  { to: "/library", label: "Bibliothèque", Icon: IconLayoutGrid },
+  { to: "/videos", labelKey: "videos.pageTitle", Icon: IconRoute },
+  { to: "/calendar", labelKey: "calendar.heading", Icon: IconCalendarEvent },
+  { to: "/library", labelKey: "library.pageTitle", Icon: IconLayoutGrid },
 ] as const;
 
 function StudioNav({ collapsed }: { collapsed?: boolean }) {
+  const t = useT();
   return (
     <nav className="flex flex-col gap-0.5 px-2 pb-2" aria-label="Studio">
-      {STUDIO_LINKS.map(({ to, label, Icon }) => (
+      {STUDIO_LINKS.map(({ to, labelKey, Icon }) => (
         <NavLink
           key={to}
           to={to}
@@ -469,10 +480,10 @@ function StudioNav({ collapsed }: { collapsed?: boolean }) {
               collapsed && "justify-center",
             )
           }
-          title={collapsed ? label : undefined}
+          title={collapsed ? t(labelKey) : undefined}
         >
           <Icon className="size-4 shrink-0" strokeWidth={1.8} />
-          {collapsed ? null : <span className="truncate">{label}</span>}
+          {collapsed ? null : <span className="truncate">{t(labelKey)}</span>}
         </NavLink>
       ))}
     </nav>

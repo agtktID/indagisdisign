@@ -123,7 +123,7 @@ export function TemplateEditor({
         <h2 className="text-xl font-semibold">{draft.name}</h2>
         <Badge tone="muted">
           {draft.brandKitId
-            ? (brandKits.find((kit) => kit.id === draft.brandKitId)?.name ?? "Kit")
+            ? (brandKits.find((kit) => kit.id === draft.brandKitId)?.name ?? t("editor.unnamedKit"))
             : t("create.global")}
         </Badge>
       </div>
@@ -189,9 +189,9 @@ export function TemplateEditor({
                 onChange={(event) => set("referencePolicy", event.target.value)}
                 className="border-input bg-background rounded-md border px-2 py-1 text-xs"
               >
-                <option value="auto">auto</option>
-                <option value="always">toujours</option>
-                <option value="never">jamais</option>
+                <option value="auto">{t("editor.policyAuto")}</option>
+                <option value="always">{t("editor.policyAlways")}</option>
+                <option value="never">{t("editor.policyNever")}</option>
               </select>
             </div>
           </div>

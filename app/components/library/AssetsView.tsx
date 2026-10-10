@@ -191,9 +191,23 @@ function FilterSelect({
   );
 }
 
+/**
+ * Les trois états d'une ressource, qui sont aussi les trois onglets.
+ *
+ * Une ressource naissait dans son état et y restait : un brouillon ne pouvait pas
+ * devenir une référence une fois produit. `upsert-asset` acceptait pourtant `status`
+ * depuis toujours — il manquait seulement le geste.
+ */
+const STATUSES = [
+  { value: "draft", labelKey: "assets.tabDraft" },
+  { value: "generated", labelKey: "assets.tabGenerated" },
+  { value: "reference", labelKey: "assets.tabReference" },
+] as const;
+
 function AssetCard({ asset }: { asset: Asset }) {
   const t = useT();
   const remove = useActionMutation("delete-asset");
+  const upsert = useActionMutation("upsert-asset");
 
   return (
     <article className="border-border bg-card flex h-full flex-col overflow-hidden rounded-lg border">
@@ -224,6 +238,30 @@ function AssetCard({ asset }: { asset: Asset }) {
           <p className="text-muted-foreground line-clamp-1 text-[11px]">{asset.tags}</p>
         ) : null}
 
+        <label className="flex items-center gap-1.5 text-[11px]">
+          <span className="text-muted-foreground">{t("assets.statusLabel")}</span>
+          <select
+            value={asset.status}
+            disabled={upsert.isPending}
+            // `name` est obligatoire côté action : on le renvoie, sinon changer
+            // l'état effacerait le titre de la ressource.
+            onChange={(event) =>
+              upsert.mutate({
+                assetId: asset.id,
+                name: asset.name,
+                status: event.target.value as (typeof STATUSES)[number]["value"],
+              })
+            }
+            className="border-input bg-background rounded border px-1.5 py-0.5"
+          >
+            {STATUSES.map((status) => (
+              <option key={status.value} value={status.value}>
+                {t(status.labelKey)}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <div className="mt-auto flex items-center justify-between pt-1">
           {asset.url ? (
             <a
@@ -232,7 +270,7 @@ function AssetCard({ asset }: { asset: Asset }) {
               rel="noreferrer"
               className="text-muted-foreground hover:text-foreground text-xs underline"
             >
-              Ouvrir
+              {t("assets.open")}
             </a>
           ) : (
             <span className="text-muted-foreground text-xs">{t("assets.noLink")}</span>

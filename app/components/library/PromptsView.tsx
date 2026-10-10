@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 
 import { Badge, EmptyState, Textarea } from "@/components/studio/primitives";
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -193,7 +194,7 @@ export function PromptsView() {
 
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-sm">
-              {result ? `${result.catalogTotal} prompts` : "Chargement…"}
+              {result ? t("prompts.catalogCount", { total: result.catalogTotal }) : t("prompts.loading")}
             </p>
             {filtersActive ? (
               <button
@@ -206,7 +207,7 @@ export function PromptsView() {
                 }}
                 className="text-muted-foreground hover:text-foreground text-xs underline"
               >
-                Tout effacer
+                {t("prompts.clearAll")}
               </button>
             ) : null}
           </div>
@@ -574,7 +575,7 @@ function MyPromptCard({ prompt }: { prompt: MyPrompt }) {
           disabled={!dirty || save.isPending}
           onClick={() => save.mutate({ promptId: prompt.id, body })}
         >
-          Enregistrer
+          {t("studio.save")}
         </Button>
         <Button
           size="sm"
@@ -586,7 +587,10 @@ function MyPromptCard({ prompt }: { prompt: MyPrompt }) {
         <button
           type="button"
           aria-label={t("brandKits.delete")}
-          onClick={() => remove.mutate({ promptId: prompt.id })}
+          onClick={() => {
+            if (!confirmDelete(t, prompt.name)) return;
+            remove.mutate({ promptId: prompt.id });
+          }}
           className="text-muted-foreground hover:text-destructive ml-auto"
         >
           <IconTrash size={14} />

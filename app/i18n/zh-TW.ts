@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "刪除「{{name}}」？",
+    deleteIrreversible: "此刪除無法復原，沒有任何方式可以還原。",
+    unnamed: "此項目",
+  },
   settings: {
     title: "設定",
     description: "此應用的語言和工作區偏好設定。",
@@ -106,6 +111,8 @@ const messages = {
     fileUnreadable: "無法讀取該檔案。",
   },
   mapDiagnostic: {
+    severityWarn: "警告：",
+    severityInfo: "提示：",
     run: "診斷",
     running: "分析中…",
     count: "{{count}} 條提示",
@@ -200,6 +207,7 @@ const messages = {
     sendHint: "若 HyperFrames 或 Remotion 橋接正在執行，智能體會渲染影片；否則它會告訴你。",
   },
   starter: {
+    viewTemplate: "查看範本",
     title: "起步素材",
     description: "應用內建十個範本。安裝你需要的：你會得到一份可修改的副本，原件保持不變。",
     installInto: "安裝到",
@@ -241,6 +249,9 @@ const messages = {
     guide_templates_body: "儲存版式、類別和提示詞骨架，每次都能得到同樣形態的產出。",
   },
   templates: {
+    edit: "編輯",
+    duplicateInto: "複製到品牌套件",
+    noDescription: "尚無描述。",
     filterByCategory: "依類別篩選",
     allTemplates: "全部範本",
     search: "搜尋範本",
@@ -261,6 +272,10 @@ const messages = {
     cancel: "取消",
   },
   editor: {
+    policyAuto: "自動",
+    policyAlways: "一律",
+    policyNever: "永不",
+    unnamedKit: "套件",
     loading: "正在載入範本…",
     backToTemplates: "返回範本列表",
     saveChanges: "儲存修改",
@@ -287,6 +302,8 @@ const messages = {
     notComposed: "未合成",
   },
   assets: {
+    open: "開啟",
+    statusLabel: "狀態",
     tabDraft: "草稿",
     tabGenerated: "已生成",
     tabReference: "參考",
@@ -308,6 +325,9 @@ const messages = {
     keywordsPlaceholder: "訪談, 外景, 清晨",
   },
   prompts: {
+    clearAll: "全部清除",
+    loading: "載入中…",
+    catalogCount: "{{total}} 則提示詞",
     title: "提示詞",
     description: "應用內建 {{count}} 條提示詞，另有英雄之旅的提示詞和你自己的。",
     descriptionShort: "可重複使用的指令，填好後傳給智能體。",
@@ -337,6 +357,10 @@ const messages = {
     send: "傳送",
   },
   storyMap: {
+    curveStepColumn: "階段",
+    curveYoursColumn: "你的強度",
+    curveReferenceColumn: "方法參考值",
+    curveNoValue: "未填寫",
     loading: "正在載入敘事圖…",
     title: "敘事圖",
     coverageSummary: "已寫筆記的步驟：{{covered}} / {{total}}",
@@ -464,6 +488,11 @@ const messages = {
     keywordsLine: "關鍵字：{{keywords}}",
     statusPublished: "已發布",
     statusPlanned: "計畫中",
+    markPublished: "標記為已發布",
+    markPlanned: "改回計畫中",
+    urlLabel: "發布連結",
+    openLink: "開啟",
+    editTarget: "編輯投放目標",
     metricsTitle: "成效數據",
     recordMetric: "輸入一次數據",
     metricsEmpty: "尚無數據。數字由手動輸入：不需要任何平台連接器。",

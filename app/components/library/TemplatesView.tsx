@@ -4,6 +4,7 @@ import { IconCopy, IconDots, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 
 import { Badge, EmptyState, Textarea } from "@/components/studio/primitives";
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -150,12 +151,12 @@ function TemplateCard({
       </div>
 
       <p className="text-muted-foreground line-clamp-3 text-xs">
-        {template.description ?? "Sans description."}
+        {template.description ?? t("templates.noDescription")}
       </p>
 
       <div className="mt-auto flex items-center justify-between pt-2">
         <Button size="sm" variant="ghost" onClick={() => onEdit(template.id)}>
-          Modifier
+          {t("templates.edit")}
         </Button>
 
         <div className="relative">
@@ -172,7 +173,7 @@ function TemplateCard({
           {menuOpen ? (
             <div className="border-border bg-popover absolute right-0 bottom-full z-10 mb-1 w-56 rounded-md border p-1 shadow-md">
               <p className="text-muted-foreground px-2 py-1 text-[11px]">
-                Dupliquer dans un kit de marque
+                {t("templates.duplicateInto")}
               </p>
               <button
                 type="button"
@@ -201,6 +202,10 @@ function TemplateCard({
               <button
                 type="button"
                 onClick={() => {
+                  if (!confirmDelete(t, template.name)) {
+                    setMenuOpen(false);
+                    return;
+                  }
                   remove.mutate({ templateId: template.id });
                   setMenuOpen(false);
                 }}

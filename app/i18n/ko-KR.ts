@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "「{{name}}」을(를) 삭제할까요?",
+    deleteIrreversible: "이 삭제는 되돌릴 수 없으며, 복구할 방법이 없습니다.",
+    unnamed: "이 항목",
+  },
   settings: {
     title: "설정",
     description: "이 앱의 언어 및 워크스페이스 환경설정입니다.",
@@ -111,6 +116,8 @@ const messages = {
     fileUnreadable: "해당 파일을 읽을 수 없습니다.",
   },
   mapDiagnostic: {
+    severityWarn: "경고: ",
+    severityInfo: "참고: ",
     run: "진단하기",
     running: "분석 중…",
     count: "지적 {{count}}건",
@@ -205,6 +212,7 @@ const messages = {
     sendHint: "HyperFrames 또는 Remotion 브리지가 실행 중이면 에이전트가 영상을 렌더링합니다. 아니면 그렇다고 알려 줍니다.",
   },
   starter: {
+    viewTemplate: "서식 보기",
     title: "시작 리소스",
     description: "앱에 함께 제공되는 열 개의 템플릿. 필요한 것을 설치하세요. 수정 가능한 사본을 받고 원본은 그대로 남습니다.",
     installInto: "설치 위치",
@@ -246,6 +254,9 @@ const messages = {
     guide_templates_body: "형식·분류·프롬프트 뼈대를 저장하면 매번 같은 형태의 결과를 얻습니다.",
   },
   templates: {
+    edit: "편집",
+    duplicateInto: "브랜드 키트로 복제",
+    noDescription: "설명 없음.",
     filterByCategory: "분류로 거르기",
     allTemplates: "모든 템플릿",
     search: "템플릿 검색",
@@ -266,6 +277,10 @@ const messages = {
     cancel: "취소",
   },
   editor: {
+    policyAuto: "자동",
+    policyAlways: "항상",
+    policyNever: "안 함",
+    unnamedKit: "키트",
     loading: "템플릿 불러오는 중…",
     backToTemplates: "템플릿 목록으로",
     saveChanges: "변경 사항 저장",
@@ -292,6 +307,8 @@ const messages = {
     notComposed: "합성 안 함",
   },
   assets: {
+    open: "열기",
+    statusLabel: "상태",
     tabDraft: "초안",
     tabGenerated: "생성됨",
     tabReference: "참고",
@@ -313,6 +330,9 @@ const messages = {
     keywordsPlaceholder: "인터뷰, 야외, 아침",
   },
   prompts: {
+    clearAll: "모두 지우기",
+    loading: "불러오는 중…",
+    catalogCount: "프롬프트 {{total}}개",
     title: "프롬프트",
     description: "앱에 함께 제공되는 {{count}}개의 프롬프트, 그리고 영웅 여정의 것과 직접 만든 것.",
     descriptionShort: "다시 쓸 수 있는 지시문. 채워서 에이전트에 보냅니다.",
@@ -342,6 +362,10 @@ const messages = {
     send: "보내기",
   },
   storyMap: {
+    curveStepColumn: "단계",
+    curveYoursColumn: "내 강도",
+    curveReferenceColumn: "방법론 기준",
+    curveNoValue: "미설정",
     loading: "이야기 지도를 불러오는 중…",
     title: "이야기 지도",
     coverageSummary: "메모가 있는 단계: {{covered}} / {{total}}",
@@ -469,6 +493,11 @@ const messages = {
     keywordsLine: "키워드: {{keywords}}",
     statusPublished: "발행됨",
     statusPlanned: "예정",
+    markPublished: "게시됨으로 표시",
+    markPlanned: "예정으로 되돌리기",
+    urlLabel: "게시물 링크",
+    openLink: "열기",
+    editTarget: "대상 편집",
     metricsTitle: "성과 기록",
     recordMetric: "기록 입력",
     metricsEmpty: "기록이 없습니다. 숫자는 직접 입력합니다. 플랫폼 연동은 필요 없습니다.",

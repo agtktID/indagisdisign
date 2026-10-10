@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "¿Eliminar «{{name}}»?",
+    deleteIrreversible: "Esta eliminación es definitiva: nada la recuperará.",
+    unnamed: "este elemento",
+  },
   settings: {
     title: "Ajustes",
     description: "Preferencias de idioma y espacio de trabajo para esta app.",
@@ -112,6 +117,8 @@ const messages = {
     fileUnreadable: "No se ha podido leer ese archivo.",
   },
   mapDiagnostic: {
+    severityWarn: "Advertencia: ",
+    severityInfo: "Nota: ",
     run: "Diagnosticar",
     running: "Analizando…",
     count: "{{count}} observación(es)",
@@ -206,6 +213,7 @@ const messages = {
     sendHint: "El agente renderizará el vídeo si los puentes HyperFrames o Remotion están activos; si no, te lo dirá.",
   },
   starter: {
+    viewTemplate: "Ver la plantilla",
     title: "Recursos iniciales",
     description: "Diez plantillas incluidas con la aplicación. Instala las que te sirvan: obtienes una copia editable y la original queda intacta.",
     installInto: "Instalar en",
@@ -247,6 +255,9 @@ const messages = {
     guide_templates_body: "Guarda el formato, la categoría y el esqueleto de consigna para obtener la misma forma de salida cada vez.",
   },
   templates: {
+    edit: "Editar",
+    duplicateInto: "Duplicar en un kit de marca",
+    noDescription: "Sin descripción.",
     filterByCategory: "Filtrar por categoría",
     allTemplates: "Todas las plantillas",
     search: "Buscar plantillas",
@@ -267,6 +278,10 @@ const messages = {
     cancel: "Cancelar",
   },
   editor: {
+    policyAuto: "automático",
+    policyAlways: "siempre",
+    policyNever: "nunca",
+    unnamedKit: "Kit",
     loading: "Cargando la plantilla…",
     backToTemplates: "Volver a las plantillas",
     saveChanges: "Guardar los cambios",
@@ -293,6 +308,8 @@ const messages = {
     notComposed: "Sin componer",
   },
   assets: {
+    open: "Abrir",
+    statusLabel: "Estado",
     tabDraft: "Borradores",
     tabGenerated: "Generadas",
     tabReference: "Referencias",
@@ -314,6 +331,9 @@ const messages = {
     keywordsPlaceholder: "entrevista, exterior, mañana",
   },
   prompts: {
+    clearAll: "Borrar todo",
+    loading: "Cargando…",
+    catalogCount: "{{total}} prompts",
     title: "Prompts",
     description: "{{count}} prompts incluidos con la aplicación, más los del viaje del héroe y los tuyos.",
     descriptionShort: "Consignas reutilizables, para rellenar y enviar al agente.",
@@ -343,6 +363,10 @@ const messages = {
     send: "Enviar",
   },
   storyMap: {
+    curveStepColumn: "Etapa",
+    curveYoursColumn: "Tu intensidad",
+    curveReferenceColumn: "Referencia del método",
+    curveNoValue: "sin valor",
     loading: "Cargando el mapa…",
     title: "Mapa narrativo",
     coverageSummary: "Etapas con una nota: {{covered}} / {{total}}",
@@ -470,6 +494,11 @@ const messages = {
     keywordsLine: "Palabras clave: {{keywords}}",
     statusPublished: "Publicada",
     statusPlanned: "Prevista",
+    markPublished: "Marcar como publicada",
+    markPlanned: "Volver a prevista",
+    urlLabel: "Enlace de la publicación",
+    openLink: "Abrir",
+    editTarget: "Editar destino",
     metricsTitle: "Mediciones de rendimiento",
     recordMetric: "Introducir una medición",
     metricsEmpty: "Ninguna medición. Las cifras se introducen a mano: no hace falta ningún conector de plataforma.",

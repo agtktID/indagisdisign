@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "„{{name}}“ löschen?",
+    deleteIrreversible: "Diese Löschung ist endgültig – nichts holt es zurück.",
+    unnamed: "dieses Element",
+  },
   settings: {
     title: "Einstellungen",
     description: "Sprach- und Arbeitsbereichseinstellungen für diese App.",
@@ -112,6 +117,8 @@ const messages = {
     fileUnreadable: "Diese Datei konnte nicht gelesen werden.",
   },
   mapDiagnostic: {
+    severityWarn: "Warnung: ",
+    severityInfo: "Hinweis: ",
     run: "Diagnose",
     running: "Wird analysiert…",
     count: "{{count}} Hinweis(e)",
@@ -206,6 +213,7 @@ const messages = {
     sendHint: "Der Agent rendert das Video, wenn die HyperFrames- oder Remotion-Brücken laufen; sonst sagt er es Ihnen.",
   },
   starter: {
+    viewTemplate: "Vorlage ansehen",
     title: "Startmaterial",
     description: "Zehn mitgelieferte Vorlagen. Installieren Sie, was Sie brauchen: Sie erhalten eine bearbeitbare Kopie, das Original bleibt unberührt.",
     installInto: "Installieren in",
@@ -247,6 +255,9 @@ const messages = {
     guide_templates_body: "Speichern Sie Format, Kategorie und Prompt-Gerüst, um jedes Mal dieselbe Form des Ergebnisses zu erhalten.",
   },
   templates: {
+    edit: "Bearbeiten",
+    duplicateInto: "In ein Markenkit duplizieren",
+    noDescription: "Ohne Beschreibung.",
     filterByCategory: "Nach Kategorie filtern",
     allTemplates: "Alle Vorlagen",
     search: "Vorlagen suchen",
@@ -267,6 +278,10 @@ const messages = {
     cancel: "Abbrechen",
   },
   editor: {
+    policyAuto: "automatisch",
+    policyAlways: "immer",
+    policyNever: "nie",
+    unnamedKit: "Kit",
     loading: "Vorlage wird geladen…",
     backToTemplates: "Zurück zu den Vorlagen",
     saveChanges: "Änderungen speichern",
@@ -293,6 +308,8 @@ const messages = {
     notComposed: "Nicht eingesetzt",
   },
   assets: {
+    open: "Öffnen",
+    statusLabel: "Status",
     tabDraft: "Entwürfe",
     tabGenerated: "Erzeugt",
     tabReference: "Referenzen",
@@ -314,6 +331,9 @@ const messages = {
     keywordsPlaceholder: "Interview, draußen, Morgen",
   },
   prompts: {
+    clearAll: "Alles löschen",
+    loading: "Wird geladen…",
+    catalogCount: "{{total}} Prompts",
     title: "Prompts",
     description: "{{count}} mitgelieferte Prompts, dazu die der Heldenreise und Ihre eigenen.",
     descriptionShort: "Wiederverwendbare Vorgaben zum Ausfüllen und an den Agenten senden.",
@@ -343,6 +363,10 @@ const messages = {
     send: "Senden",
   },
   storyMap: {
+    curveStepColumn: "Schritt",
+    curveYoursColumn: "Ihre Intensität",
+    curveReferenceColumn: "Referenz der Methode",
+    curveNoValue: "nicht gesetzt",
     loading: "Karte wird geladen…",
     title: "Erzählkarte",
     coverageSummary: "Schritte mit Notiz: {{covered}} / {{total}}",
@@ -470,6 +494,11 @@ const messages = {
     keywordsLine: "Schlagwörter: {{keywords}}",
     statusPublished: "Veröffentlicht",
     statusPlanned: "Geplant",
+    markPublished: "Als veröffentlicht markieren",
+    markPlanned: "Zurück auf geplant",
+    urlLabel: "Link zur Veröffentlichung",
+    openLink: "Öffnen",
+    editTarget: "Ziel bearbeiten",
     metricsTitle: "Leistungswerte",
     recordMetric: "Wert eintragen",
     metricsEmpty: "Noch keine Werte. Die Zahlen werden von Hand eingetragen: kein Plattform-Konnektor nötig.",

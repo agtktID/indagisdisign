@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "Delete “{{name}}”?",
+    deleteIrreversible: "This deletion is permanent — nothing will bring it back.",
+    unnamed: "this item",
+  },
   settings: {
     title: "Settings",
     description: "Language and workspace preferences for this app.",
@@ -111,6 +116,8 @@ const messages = {
     fileUnreadable: "That file could not be read.",
   },
   mapDiagnostic: {
+    severityWarn: "Warning: ",
+    severityInfo: "Note: ",
     run: "Diagnose",
     running: "Analysing…",
     count: "{{count}} remark(s)",
@@ -205,6 +212,7 @@ const messages = {
     sendHint: "The agent will render the video if the HyperFrames or Remotion bridges are running; otherwise it will say so.",
   },
   starter: {
+    viewTemplate: "View the template",
     title: "Starter resources",
     description: "Ten templates shipped with the application. Install the ones you need: you get an editable copy, the original stays untouched.",
     installInto: "Install into",
@@ -246,6 +254,9 @@ const messages = {
     guide_templates_body: "Save the format, the category and the prompt skeleton to get the same shape of output every time.",
   },
   templates: {
+    edit: "Edit",
+    duplicateInto: "Duplicate into a brand kit",
+    noDescription: "No description.",
     filterByCategory: "Filter by category",
     allTemplates: "All templates",
     search: "Search templates",
@@ -266,6 +277,10 @@ const messages = {
     cancel: "Cancel",
   },
   editor: {
+    policyAuto: "auto",
+    policyAlways: "always",
+    policyNever: "never",
+    unnamedKit: "Kit",
     loading: "Loading the template…",
     backToTemplates: "Back to templates",
     saveChanges: "Save changes",
@@ -292,6 +307,8 @@ const messages = {
     notComposed: "Not composed",
   },
   assets: {
+    open: "Open",
+    statusLabel: "Status",
     tabDraft: "Drafts",
     tabGenerated: "Generated",
     tabReference: "References",
@@ -313,6 +330,9 @@ const messages = {
     keywordsPlaceholder: "interview, outdoor, morning",
   },
   prompts: {
+    clearAll: "Clear all",
+    loading: "Loading…",
+    catalogCount: "{{total}} prompts",
     title: "Prompts",
     description: "{{count}} prompts shipped with the application, plus the hero's journey ones and your own.",
     descriptionShort: "Reusable briefs, to fill in and send to the agent.",
@@ -342,6 +362,10 @@ const messages = {
     send: "Send",
   },
   storyMap: {
+    curveStepColumn: "Step",
+    curveYoursColumn: "Your intensity",
+    curveReferenceColumn: "Method reference",
+    curveNoValue: "not set",
     loading: "Loading the map…",
     title: "Story map",
     coverageSummary: "Steps carrying a note: {{covered}} / {{total}}",
@@ -469,6 +493,11 @@ const messages = {
     keywordsLine: "Keywords: {{keywords}}",
     statusPublished: "Published",
     statusPlanned: "Planned",
+    markPublished: "Mark as published",
+    markPlanned: "Back to planned",
+    urlLabel: "Publication link",
+    openLink: "Open",
+    editTarget: "Edit target",
     metricsTitle: "Performance readings",
     recordMetric: "Enter a reading",
     metricsEmpty: "No readings yet. The numbers are entered by hand: no platform connector is required.",

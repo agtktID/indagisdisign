@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "删除“{{name}}”？",
+    deleteIrreversible: "此删除不可撤销，没有任何方式可以恢复。",
+    unnamed: "该条目",
+  },
   settings: {
     title: "设置",
     description: "此应用的语言和工作区偏好设置。",
@@ -106,6 +111,8 @@ const messages = {
     fileUnreadable: "无法读取该文件。",
   },
   mapDiagnostic: {
+    severityWarn: "警告：",
+    severityInfo: "提示：",
     run: "诊断",
     running: "分析中…",
     count: "{{count}} 条提示",
@@ -200,6 +207,7 @@ const messages = {
     sendHint: "若 HyperFrames 或 Remotion 桥接正在运行，智能体会渲染视频；否则它会告诉你。",
   },
   starter: {
+    viewTemplate: "查看模板",
     title: "起步素材",
     description: "应用自带十个模板。安装你需要的：你会得到一份可修改的副本，原件保持不变。",
     installInto: "安装到",
@@ -241,6 +249,9 @@ const messages = {
     guide_templates_body: "保存版式、类别和提示词骨架，每次都能得到同样形态的产出。",
   },
   templates: {
+    edit: "编辑",
+    duplicateInto: "复制到品牌套件",
+    noDescription: "暂无描述。",
     filterByCategory: "按类别筛选",
     allTemplates: "全部模板",
     search: "搜索模板",
@@ -261,6 +272,10 @@ const messages = {
     cancel: "取消",
   },
   editor: {
+    policyAuto: "自动",
+    policyAlways: "始终",
+    policyNever: "从不",
+    unnamedKit: "套件",
     loading: "正在加载模板…",
     backToTemplates: "返回模板列表",
     saveChanges: "保存修改",
@@ -287,6 +302,8 @@ const messages = {
     notComposed: "未合成",
   },
   assets: {
+    open: "打开",
+    statusLabel: "状态",
     tabDraft: "草稿",
     tabGenerated: "已生成",
     tabReference: "参考",
@@ -308,6 +325,9 @@ const messages = {
     keywordsPlaceholder: "访谈, 外景, 清晨",
   },
   prompts: {
+    clearAll: "全部清除",
+    loading: "加载中…",
+    catalogCount: "{{total}} 条提示词",
     title: "提示词",
     description: "应用自带 {{count}} 条提示词，另有英雄之旅的提示词和你自己的。",
     descriptionShort: "可复用的指令，填好后发给智能体。",
@@ -337,6 +357,10 @@ const messages = {
     send: "发送",
   },
   storyMap: {
+    curveStepColumn: "阶段",
+    curveYoursColumn: "你的强度",
+    curveReferenceColumn: "方法参考值",
+    curveNoValue: "未填写",
     loading: "正在加载叙事图…",
     title: "叙事图",
     coverageSummary: "已写笔记的步骤：{{covered}} / {{total}}",
@@ -464,6 +488,11 @@ const messages = {
     keywordsLine: "关键词：{{keywords}}",
     statusPublished: "已发布",
     statusPlanned: "计划中",
+    markPublished: "标记为已发布",
+    markPlanned: "改回计划中",
+    urlLabel: "发布链接",
+    openLink: "打开",
+    editTarget: "编辑投放目标",
     metricsTitle: "表现数据",
     recordMetric: "录入一次数据",
     metricsEmpty: "尚无数据。数字由手动录入：不需要任何平台连接器。",

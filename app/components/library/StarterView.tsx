@@ -105,7 +105,7 @@ export function StarterView({ onInstalled }: { onInstalled: () => void }) {
                 <p className="text-xs italic">{starter.useCase}</p>
 
                 <details className="text-muted-foreground text-[11px]">
-                  <summary className="cursor-pointer select-none">Voir le gabarit</summary>
+                  <summary className="cursor-pointer select-none">{t("starter.viewTemplate")}</summary>
                   <pre className="bg-muted/50 mt-1 max-h-32 overflow-auto rounded p-2 whitespace-pre-wrap">
                     {starter.promptTemplate}
                   </pre>

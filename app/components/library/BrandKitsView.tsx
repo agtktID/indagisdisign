@@ -4,6 +4,7 @@ import { IconPalette, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
 import { Badge, EmptyState, Textarea } from "@/components/studio/primitives";
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -239,7 +240,10 @@ function BrandKitPanel({ brandKit }: { brandKit: BrandKit }) {
         <Button
           size="sm"
           variant="outline"
-          onClick={() => remove.mutate({ brandKitId: brandKit.id })}
+          onClick={() => {
+            if (!confirmDelete(t, brandKit.name)) return;
+            remove.mutate({ brandKitId: brandKit.id });
+          }}
         >
           <IconTrash size={14} /> {t("brandKits.delete")}
         </Button>

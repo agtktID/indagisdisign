@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "Supprimer « {{name}} » ?",
+    deleteIrreversible: "Cette suppression est définitive : rien ne la ressortira.",
+    unnamed: "cet élément",
+  },
   settings: {
     title: "Paramètres",
     description: "Préférences de langue et d’espace de travail pour cette app.",
@@ -112,6 +117,8 @@ const messages = {
     fileUnreadable: "Ce fichier n'a pas pu être lu.",
   },
   mapDiagnostic: {
+    severityWarn: "Avertissement : ",
+    severityInfo: "Remarque : ",
     run: "Diagnostiquer",
     running: "Analyse…",
     count: "{{count}} remarque(s)",
@@ -206,6 +213,7 @@ const messages = {
     sendHint: "L'agent rendra la vidéo si les ponts HyperFrames ou Remotion tournent ; sinon il vous le dira.",
   },
   starter: {
+    viewTemplate: "Voir le gabarit",
     title: "Ressources de départ",
     description: "Dix modèles livrés avec l'application. Installez ceux qui vous servent : vous en obtenez une copie modifiable, l'originale reste intacte.",
     installInto: "Installer dans",
@@ -247,6 +255,9 @@ const messages = {
     guide_templates_body: "Enregistrez le format, la catégorie et le gabarit d'invite pour retrouver la même forme de sortie à chaque fois.",
   },
   templates: {
+    edit: "Modifier",
+    duplicateInto: "Dupliquer dans un kit de marque",
+    noDescription: "Sans description.",
     filterByCategory: "Filtrer par catégorie",
     allTemplates: "Tous les modèles",
     search: "Rechercher des modèles",
@@ -267,6 +278,10 @@ const messages = {
     cancel: "Annuler",
   },
   editor: {
+    policyAuto: "auto",
+    policyAlways: "toujours",
+    policyNever: "jamais",
+    unnamedKit: "Kit",
     loading: "Chargement du modèle…",
     backToTemplates: "Retour aux modèles",
     saveChanges: "Enregistrer les modifications",
@@ -293,6 +308,8 @@ const messages = {
     notComposed: "Non composé",
   },
   assets: {
+    open: "Ouvrir",
+    statusLabel: "État",
     tabDraft: "Brouillons",
     tabGenerated: "Générées",
     tabReference: "Références",
@@ -314,6 +331,9 @@ const messages = {
     keywordsPlaceholder: "interview, extérieur, matin",
   },
   prompts: {
+    clearAll: "Tout effacer",
+    loading: "Chargement…",
+    catalogCount: "{{total}} prompts",
     title: "Prompts",
     description: "{{count}} prompts livrés avec l'application, plus ceux du voyage du héros et les vôtres.",
     descriptionShort: "Des consignes réutilisables, à remplir puis à envoyer à l'agent.",
@@ -343,6 +363,10 @@ const messages = {
     send: "Envoyer",
   },
   storyMap: {
+    curveStepColumn: "Étape",
+    curveYoursColumn: "Votre intensité",
+    curveReferenceColumn: "Référence de la méthode",
+    curveNoValue: "non renseignée",
     loading: "Chargement de la carte…",
     title: "Carte narrative",
     coverageSummary: "Étapes portant une note : {{covered}} / {{total}}",
@@ -470,6 +494,11 @@ const messages = {
     keywordsLine: "Mots-clés : {{keywords}}",
     statusPublished: "Publiée",
     statusPlanned: "Prévue",
+    markPublished: "Marquer comme publiée",
+    markPlanned: "Repasser en prévue",
+    urlLabel: "Lien de la publication",
+    openLink: "Ouvrir",
+    editTarget: "Modifier la cible",
     metricsTitle: "Relevés de performance",
     recordMetric: "Saisir un relevé",
     metricsEmpty: "Aucun relevé. Les chiffres se saisissent à la main : aucun connecteur de plateforme n’est requis.",

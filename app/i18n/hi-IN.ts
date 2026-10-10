@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "«{{name}}» हटाएँ?",
+    deleteIrreversible: "यह हटाना स्थायी है — कुछ भी इसे वापस नहीं लाएगा।",
+    unnamed: "यह आइटम",
+  },
   settings: {
     title: "सेटिंग्स",
     description: "इस ऐप के लिए भाषा और कार्यस्थान प्राथमिकताएं।",
@@ -110,6 +115,8 @@ const messages = {
     fileUnreadable: "वह फ़ाइल पढ़ी नहीं जा सकी।",
   },
   mapDiagnostic: {
+    severityWarn: "चेतावनी: ",
+    severityInfo: "टिप्पणी: ",
     run: "निदान करें",
     running: "विश्लेषण हो रहा है…",
     count: "{{count}} टिप्पणी",
@@ -204,6 +211,7 @@ const messages = {
     sendHint: "यदि HyperFrames या Remotion ब्रिज चल रहे हैं तो एजेंट वीडियो रेंडर करेगा; अन्यथा वह बता देगा।",
   },
   starter: {
+    viewTemplate: "खाका देखें",
     title: "शुरुआती संसाधन",
     description: "ऐप्लिकेशन के साथ आने वाले दस टेम्पलेट। जो काम के हों उन्हें स्थापित करें: आपको एक संपादन-योग्य प्रति मिलती है, मूल अछूता रहता है।",
     installInto: "यहाँ स्थापित करें",
@@ -245,6 +253,9 @@ const messages = {
     guide_templates_body: "प्रारूप, श्रेणी और प्रॉम्प्ट ढाँचा सहेजें ताकि हर बार वही आकार मिले।",
   },
   templates: {
+    edit: "संपादित करें",
+    duplicateInto: "ब्रांड किट में डुप्लिकेट करें",
+    noDescription: "कोई विवरण नहीं।",
     filterByCategory: "श्रेणी से छानें",
     allTemplates: "सभी टेम्पलेट",
     search: "टेम्पलेट खोजें",
@@ -265,6 +276,10 @@ const messages = {
     cancel: "रद्द करें",
   },
   editor: {
+    policyAuto: "स्वतः",
+    policyAlways: "हमेशा",
+    policyNever: "कभी नहीं",
+    unnamedKit: "किट",
     loading: "टेम्पलेट लोड हो रहा है…",
     backToTemplates: "टेम्पलेट सूची पर लौटें",
     saveChanges: "बदलाव सहेजें",
@@ -291,6 +306,8 @@ const messages = {
     notComposed: "नहीं जोड़ा",
   },
   assets: {
+    open: "खोलें",
+    statusLabel: "स्थिति",
     tabDraft: "मसौदे",
     tabGenerated: "निर्मित",
     tabReference: "संदर्भ",
@@ -312,6 +329,9 @@ const messages = {
     keywordsPlaceholder: "साक्षात्कार, बाहरी, सुबह",
   },
   prompts: {
+    clearAll: "सभी साफ़ करें",
+    loading: "लोड हो रहा है…",
+    catalogCount: "{{total}} प्रॉम्प्ट",
     title: "प्रॉम्प्ट",
     description: "ऐप्लिकेशन के साथ आने वाले {{count}} प्रॉम्प्ट, साथ ही नायक की यात्रा वाले और आपके अपने।",
     descriptionShort: "पुन: प्रयोज्य निर्देश — भरें और एजेंट को भेजें।",
@@ -341,6 +361,10 @@ const messages = {
     send: "भेजें",
   },
   storyMap: {
+    curveStepColumn: "चरण",
+    curveYoursColumn: "आपकी तीव्रता",
+    curveReferenceColumn: "विधि का संदर्भ",
+    curveNoValue: "निर्धारित नहीं",
     loading: "कथा-मानचित्र लोड हो रहा है…",
     title: "कथा-मानचित्र",
     coverageSummary: "टिप्पणी वाले चरण: {{covered}} / {{total}}",
@@ -468,6 +492,11 @@ const messages = {
     keywordsLine: "कीवर्ड: {{keywords}}",
     statusPublished: "प्रकाशित",
     statusPlanned: "नियोजित",
+    markPublished: "प्रकाशित के रूप में चिह्नित करें",
+    markPlanned: "फिर से नियोजित करें",
+    urlLabel: "प्रकाशन लिंक",
+    openLink: "खोलें",
+    editTarget: "लक्ष्य संपादित करें",
     metricsTitle: "प्रदर्शन के आँकड़े",
     recordMetric: "आँकड़ा दर्ज करें",
     metricsEmpty: "कोई आँकड़ा नहीं। संख्याएँ हाथ से भरी जाती हैं: किसी मंच-कनेक्टर की ज़रूरत नहीं।",

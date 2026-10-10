@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "حذف «{{name}}»؟",
+    deleteIrreversible: "هذا الحذف نهائي — لا شيء يستعيده.",
+    unnamed: "هذا العنصر",
+  },
   settings: {
     title: "الإعدادات",
     description: "تفضيلات اللغة ومساحة العمل لهذا التطبيق.",
@@ -108,6 +113,8 @@ const messages = {
     fileUnreadable: "تعذّرت قراءة هذا الملف.",
   },
   mapDiagnostic: {
+    severityWarn: "تحذير: ",
+    severityInfo: "ملاحظة: ",
     run: "تشخيص",
     running: "جارٍ التحليل…",
     count: "{{count}} ملاحظة",
@@ -202,6 +209,7 @@ const messages = {
     sendHint: "سيعرض الوكيل الفيديو إن كان جسر HyperFrames أو Remotion يعمل؛ وإلا فسيخبرك بذلك.",
   },
   starter: {
+    viewTemplate: "عرض القالب",
     title: "موارد البداية",
     description: "عشرة قوالب تأتي مع التطبيق. ثبّت ما يفيدك: تحصل على نسخة قابلة للتعديل، ويبقى الأصل كما هو.",
     installInto: "التثبيت في",
@@ -243,6 +251,9 @@ const messages = {
     guide_templates_body: "احفظ الصيغة والفئة وهيكل الموجّه لتحصل على الشكل نفسه في كل مرة.",
   },
   templates: {
+    edit: "تعديل",
+    duplicateInto: "نسخ إلى مجموعة علامة",
+    noDescription: "بلا وصف.",
     filterByCategory: "تصفية حسب الفئة",
     allTemplates: "كل القوالب",
     search: "بحث في القوالب",
@@ -263,6 +274,10 @@ const messages = {
     cancel: "إلغاء",
   },
   editor: {
+    policyAuto: "تلقائي",
+    policyAlways: "دائمًا",
+    policyNever: "أبدًا",
+    unnamedKit: "مجموعة",
     loading: "جارٍ تحميل القالب…",
     backToTemplates: "العودة إلى القوالب",
     saveChanges: "حفظ التعديلات",
@@ -289,6 +304,8 @@ const messages = {
     notComposed: "غير مركّب",
   },
   assets: {
+    open: "فتح",
+    statusLabel: "الحالة",
     tabDraft: "مسودّات",
     tabGenerated: "مُولّدة",
     tabReference: "مراجع",
@@ -310,6 +327,9 @@ const messages = {
     keywordsPlaceholder: "مقابلة، خارجي، صباح",
   },
   prompts: {
+    clearAll: "مسح الكل",
+    loading: "جارٍ التحميل…",
+    catalogCount: "{{total}} موجّه",
     title: "الموجّهات",
     description: "{{count}} موجّهًا يأتي مع التطبيق، إضافة إلى موجّهات رحلة البطل وموجّهاتك.",
     descriptionShort: "تعليمات قابلة لإعادة الاستعمال: املأها ثم أرسلها إلى الوكيل.",
@@ -339,6 +359,10 @@ const messages = {
     send: "إرسال",
   },
   storyMap: {
+    curveStepColumn: "المرحلة",
+    curveYoursColumn: "شدّتك",
+    curveReferenceColumn: "مرجع المنهج",
+    curveNoValue: "غير محدّدة",
     loading: "جارٍ تحميل خريطة السرد…",
     title: "خريطة السرد",
     coverageSummary: "الخطوات التي تحمل ملاحظة: {{covered}} / {{total}}",
@@ -466,6 +490,11 @@ const messages = {
     keywordsLine: "الكلمات المفتاحية: {{keywords}}",
     statusPublished: "منشورة",
     statusPlanned: "مقرّرة",
+    markPublished: "وضع علامة «منشورة»",
+    markPlanned: "إعادة إلى «مخطط لها»",
+    urlLabel: "رابط النشر",
+    openLink: "فتح",
+    editTarget: "تعديل الوجهة",
     metricsTitle: "قياسات الأداء",
     recordMetric: "إدخال قياس",
     metricsEmpty: "لا توجد قياسات. تُدخل الأرقام يدويًا: لا حاجة إلى أي موصّل منصّة.",

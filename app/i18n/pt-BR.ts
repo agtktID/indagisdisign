@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "Excluir “{{name}}”?",
+    deleteIrreversible: "Esta exclusão é definitiva — nada a trará de volta.",
+    unnamed: "este item",
+  },
   settings: {
     title: "Configurações",
     description: "Preferências de idioma e espaço de trabalho deste app.",
@@ -112,6 +117,8 @@ const messages = {
     fileUnreadable: "Não foi possível ler esse arquivo.",
   },
   mapDiagnostic: {
+    severityWarn: "Aviso: ",
+    severityInfo: "Observação: ",
     run: "Diagnosticar",
     running: "Analisando…",
     count: "{{count}} observação(ões)",
@@ -206,6 +213,7 @@ const messages = {
     sendHint: "O agente renderizará o vídeo se as pontes HyperFrames ou Remotion estiverem rodando; caso contrário, ele avisará.",
   },
   starter: {
+    viewTemplate: "Ver o modelo",
     title: "Recursos iniciais",
     description: "Dez modelos que vêm com a aplicação. Instale os que lhe servirem: você recebe uma cópia editável e o original fica intacto.",
     installInto: "Instalar em",
@@ -247,6 +255,9 @@ const messages = {
     guide_templates_body: "Salve o formato, a categoria e o esqueleto de prompt para obter a mesma forma de saída todas as vezes.",
   },
   templates: {
+    edit: "Editar",
+    duplicateInto: "Duplicar em um kit de marca",
+    noDescription: "Sem descrição.",
     filterByCategory: "Filtrar por categoria",
     allTemplates: "Todos os modelos",
     search: "Buscar modelos",
@@ -267,6 +278,10 @@ const messages = {
     cancel: "Cancelar",
   },
   editor: {
+    policyAuto: "automático",
+    policyAlways: "sempre",
+    policyNever: "nunca",
+    unnamedKit: "Kit",
     loading: "Carregando o modelo…",
     backToTemplates: "Voltar aos modelos",
     saveChanges: "Salvar as alterações",
@@ -293,6 +308,8 @@ const messages = {
     notComposed: "Não composto",
   },
   assets: {
+    open: "Abrir",
+    statusLabel: "Status",
     tabDraft: "Rascunhos",
     tabGenerated: "Geradas",
     tabReference: "Referências",
@@ -314,6 +331,9 @@ const messages = {
     keywordsPlaceholder: "entrevista, externa, manhã",
   },
   prompts: {
+    clearAll: "Limpar tudo",
+    loading: "Carregando…",
+    catalogCount: "{{total}} prompts",
     title: "Prompts",
     description: "{{count}} prompts entregues com a aplicação, mais os da jornada do herói e os seus.",
     descriptionShort: "Instruções reutilizáveis, para preencher e enviar ao agente.",
@@ -343,6 +363,10 @@ const messages = {
     send: "Enviar",
   },
   storyMap: {
+    curveStepColumn: "Etapa",
+    curveYoursColumn: "Sua intensidade",
+    curveReferenceColumn: "Referência do método",
+    curveNoValue: "sem valor",
     loading: "Carregando o mapa…",
     title: "Mapa narrativo",
     coverageSummary: "Etapas com uma nota: {{covered}} / {{total}}",
@@ -470,6 +494,11 @@ const messages = {
     keywordsLine: "Palavras-chave: {{keywords}}",
     statusPublished: "Publicada",
     statusPlanned: "Prevista",
+    markPublished: "Marcar como publicada",
+    markPlanned: "Voltar para planejada",
+    urlLabel: "Link da publicação",
+    openLink: "Abrir",
+    editTarget: "Editar destino",
     metricsTitle: "Medições de desempenho",
     recordMetric: "Inserir uma medição",
     metricsEmpty: "Nenhuma medição. Os números são inseridos à mão: nenhum conector de plataforma é necessário.",

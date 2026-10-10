@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "「{{name}}」を削除しますか？",
+    deleteIrreversible: "この削除は取り消せません。元に戻す手段はありません。",
+    unnamed: "この項目",
+  },
   settings: {
     title: "設定",
     description: "このアプリの言語とワークスペース設定。",
@@ -111,6 +116,8 @@ const messages = {
     fileUnreadable: "そのファイルを読み取れませんでした。",
   },
   mapDiagnostic: {
+    severityWarn: "警告： ",
+    severityInfo: "メモ： ",
     run: "診断する",
     running: "解析中…",
     count: "{{count}} 件の指摘",
@@ -205,6 +212,7 @@ const messages = {
     sendHint: "HyperFrames か Remotion のブリッジが動いていればエージェントが動画を描画します。動いていなければそう伝えます。",
   },
   starter: {
+    viewTemplate: "ひな形を見る",
     title: "スターター素材",
     description: "アプリに同梱された 10 個のテンプレート。必要なものを導入してください。編集できるコピーが手に入り、元のものはそのまま残ります。",
     installInto: "導入先",
@@ -246,6 +254,9 @@ const messages = {
     guide_templates_body: "形式・カテゴリ・プロンプトの骨組みを保存すれば、毎回同じ形の成果物が得られます。",
   },
   templates: {
+    edit: "編集",
+    duplicateInto: "ブランドキットに複製",
+    noDescription: "説明なし。",
     filterByCategory: "カテゴリで絞り込む",
     allTemplates: "すべてのテンプレート",
     search: "テンプレートを検索",
@@ -266,6 +277,10 @@ const messages = {
     cancel: "キャンセル",
   },
   editor: {
+    policyAuto: "自動",
+    policyAlways: "常に",
+    policyNever: "しない",
+    unnamedKit: "キット",
     loading: "テンプレートを読み込み中…",
     backToTemplates: "テンプレート一覧に戻る",
     saveChanges: "変更を保存",
@@ -292,6 +307,8 @@ const messages = {
     notComposed: "合成なし",
   },
   assets: {
+    open: "開く",
+    statusLabel: "状態",
     tabDraft: "下書き",
     tabGenerated: "生成済み",
     tabReference: "参照",
@@ -313,6 +330,9 @@ const messages = {
     keywordsPlaceholder: "インタビュー, 屋外, 朝",
   },
   prompts: {
+    clearAll: "すべてクリア",
+    loading: "読み込み中…",
+    catalogCount: "{{total}} 件のプロンプト",
     title: "プロンプト",
     description: "アプリに同梱された {{count}} 件のプロンプト、加えて英雄の旅のものとあなた自身のもの。",
     descriptionShort: "使い回せる指示。埋めてエージェントに送ります。",
@@ -342,6 +362,10 @@ const messages = {
     send: "送信",
   },
   storyMap: {
+    curveStepColumn: "ステップ",
+    curveYoursColumn: "あなたの強度",
+    curveReferenceColumn: "メソッドの基準",
+    curveNoValue: "未設定",
     loading: "物語マップを読み込み中…",
     title: "物語マップ",
     coverageSummary: "メモのあるステップ: {{covered}} / {{total}}",
@@ -469,6 +493,11 @@ const messages = {
     keywordsLine: "キーワード: {{keywords}}",
     statusPublished: "公開済み",
     statusPlanned: "予定",
+    markPublished: "公開済みにする",
+    markPlanned: "予定に戻す",
+    urlLabel: "公開先のリンク",
+    openLink: "開く",
+    editTarget: "配信先を編集",
     metricsTitle: "成果の記録",
     recordMetric: "記録を入力",
     metricsEmpty: "記録がありません。数値は手で入力します。プラットフォーム連携は不要です。",

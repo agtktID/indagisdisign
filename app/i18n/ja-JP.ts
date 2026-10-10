@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "「{{name}}」を削除しますか？",
+    deleteIrreversible: "この削除は取り消せません。元に戻す手段はありません。",
+    unnamed: "この項目",
+  },
   settings: {
     title: "設定",
     description: "このアプリの言語とワークスペース設定。",

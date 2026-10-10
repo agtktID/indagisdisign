@@ -4,6 +4,7 @@ import { IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 
 import { Badge, EmptyState, Textarea } from "@/components/studio/primitives";
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -239,7 +240,10 @@ function AssetCard({ asset }: { asset: Asset }) {
           <button
             type="button"
             aria-label={t("assets.remove")}
-            onClick={() => remove.mutate({ assetId: asset.id })}
+            onClick={() => {
+              if (!confirmDelete(t, asset.name)) return;
+              remove.mutate({ assetId: asset.id });
+            }}
             className="text-muted-foreground hover:text-destructive"
           >
             <IconTrash size={14} />

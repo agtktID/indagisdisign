@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "«{{name}}» हटाएँ?",
+    deleteIrreversible: "यह हटाना स्थायी है — कुछ भी इसे वापस नहीं लाएगा।",
+    unnamed: "यह आइटम",
+  },
   settings: {
     title: "सेटिंग्स",
     description: "इस ऐप के लिए भाषा और कार्यस्थान प्राथमिकताएं।",

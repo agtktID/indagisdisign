@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "刪除「{{name}}」？",
+    deleteIrreversible: "此刪除無法復原，沒有任何方式可以還原。",
+    unnamed: "此項目",
+  },
   settings: {
     title: "設定",
     description: "此應用的語言和工作區偏好設定。",

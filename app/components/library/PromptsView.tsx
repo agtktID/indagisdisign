@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 
 import { Badge, EmptyState, Textarea } from "@/components/studio/primitives";
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -586,7 +587,10 @@ function MyPromptCard({ prompt }: { prompt: MyPrompt }) {
         <button
           type="button"
           aria-label={t("brandKits.delete")}
-          onClick={() => remove.mutate({ promptId: prompt.id })}
+          onClick={() => {
+            if (!confirmDelete(t, prompt.name)) return;
+            remove.mutate({ promptId: prompt.id });
+          }}
           className="text-muted-foreground hover:text-destructive ml-auto"
         >
           <IconTrash size={14} />

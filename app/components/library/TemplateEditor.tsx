@@ -4,6 +4,7 @@ import { IconArrowLeft, IconDeviceFloppy, IconTrash } from "@tabler/icons-react"
 import { useEffect, useState } from "react";
 
 import { Badge, Textarea } from "@/components/studio/primitives";
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ASSET_CATEGORIES, ASSET_FORMATS } from "@shared/asset-taxonomy";
@@ -79,9 +80,10 @@ export function TemplateEditor({
           <Button
             size="sm"
             variant="outline"
-            onClick={() =>
-              remove.mutate({ templateId }, { onSuccess: onBack })
-            }
+            onClick={() => {
+              if (!confirmDelete(t, draft.name)) return;
+              remove.mutate({ templateId }, { onSuccess: onBack });
+            }}
           >
             <IconTrash size={14} /> {t("brandKits.delete")}
           </Button>

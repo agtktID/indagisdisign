@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "Excluir “{{name}}”?",
+    deleteIrreversible: "Esta exclusão é definitiva — nada a trará de volta.",
+    unnamed: "este item",
+  },
   settings: {
     title: "Configurações",
     description: "Preferências de idioma e espaço de trabalho deste app.",

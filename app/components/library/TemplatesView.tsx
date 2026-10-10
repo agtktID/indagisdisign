@@ -4,6 +4,7 @@ import { IconCopy, IconDots, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 
 import { Badge, EmptyState, Textarea } from "@/components/studio/primitives";
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -201,6 +202,10 @@ function TemplateCard({
               <button
                 type="button"
                 onClick={() => {
+                  if (!confirmDelete(t, template.name)) {
+                    setMenuOpen(false);
+                    return;
+                  }
                   remove.mutate({ templateId: template.id });
                   setMenuOpen(false);
                 }}

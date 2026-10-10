@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
+import { confirmDelete } from "@/lib/confirm-delete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -462,7 +463,10 @@ export function MarkersTab({ videoId }: { videoId: string }) {
                     <button
                       type="button"
                       aria-label={t("markers.delete")}
-                      onClick={() => remove.mutate({ markerId: marker.id })}
+                      onClick={() => {
+                        if (!confirmDelete(t, marker.label)) return;
+                        remove.mutate({ markerId: marker.id });
+                      }}
                       className="text-muted-foreground hover:text-destructive"
                     >
                       <IconTrash size={14} />

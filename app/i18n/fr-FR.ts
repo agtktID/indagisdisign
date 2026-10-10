@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "Supprimer « {{name}} » ?",
+    deleteIrreversible: "Cette suppression est définitive : rien ne la ressortira.",
+    unnamed: "cet élément",
+  },
   settings: {
     title: "Paramètres",
     description: "Préférences de langue et d’espace de travail pour cette app.",

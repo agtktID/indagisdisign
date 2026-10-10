@@ -1,4 +1,9 @@
 const messages = {
+  confirm: {
+    deleteTitle: "「{{name}}」을(를) 삭제할까요?",
+    deleteIrreversible: "이 삭제는 되돌릴 수 없으며, 복구할 방법이 없습니다.",
+    unnamed: "이 항목",
+  },
   settings: {
     title: "설정",
     description: "이 앱의 언어 및 워크스페이스 환경설정입니다.",

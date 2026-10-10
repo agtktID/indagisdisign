@@ -117,6 +117,8 @@ const messages = {
     fileUnreadable: "Diese Datei konnte nicht gelesen werden.",
   },
   mapDiagnostic: {
+    severityWarn: "Warnung: ",
+    severityInfo: "Hinweis: ",
     run: "Diagnose",
     running: "Wird analysiert…",
     count: "{{count}} Hinweis(e)",
@@ -361,6 +363,10 @@ const messages = {
     send: "Senden",
   },
   storyMap: {
+    curveStepColumn: "Schritt",
+    curveYoursColumn: "Ihre Intensität",
+    curveReferenceColumn: "Referenz der Methode",
+    curveNoValue: "nicht gesetzt",
     loading: "Karte wird geladen…",
     title: "Erzählkarte",
     coverageSummary: "Schritte mit Notiz: {{covered}} / {{total}}",

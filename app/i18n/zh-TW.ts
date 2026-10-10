@@ -111,6 +111,8 @@ const messages = {
     fileUnreadable: "無法讀取該檔案。",
   },
   mapDiagnostic: {
+    severityWarn: "警告：",
+    severityInfo: "提示：",
     run: "診斷",
     running: "分析中…",
     count: "{{count}} 條提示",
@@ -355,6 +357,10 @@ const messages = {
     send: "傳送",
   },
   storyMap: {
+    curveStepColumn: "階段",
+    curveYoursColumn: "你的強度",
+    curveReferenceColumn: "方法參考值",
+    curveNoValue: "未填寫",
     loading: "正在載入敘事圖…",
     title: "敘事圖",
     coverageSummary: "已寫筆記的步驟：{{covered}} / {{total}}",

@@ -42,7 +42,38 @@ export function EmotionCurve({
   const hasData = curve.some((point) => point.intensity !== null);
 
   return (
-    <div className="h-48 w-full">
+    <>
+      {/*
+        La courbe est un SVG : un lecteur d'écran n'y voit rien, et c'est pourtant la
+        seule représentation de douze intensités et de leur écart à la référence de la
+        méthode. Le même contenu est donc donné en tableau, caché visuellement mais lu
+        par les technologies d'assistance.
+
+        Un tableau plutôt qu'un `aria-label` : un intitulé unique ne peut pas porter
+        douze valeurs, et les résumer reviendrait à choisir à la place du lecteur ce qui
+        compte dans sa propre carte.
+      */}
+      <table className="sr-only">
+        <caption>{t("storyMap.curveTitle")}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{t("storyMap.curveStepColumn")}</th>
+            <th scope="col">{t("storyMap.curveYoursColumn")}</th>
+            {showReference ? <th scope="col">{t("storyMap.curveReferenceColumn")}</th> : null}
+          </tr>
+        </thead>
+        <tbody>
+          {curve.map((point) => (
+            <tr key={point.step}>
+              <th scope="row">{point.step}</th>
+              <td>{point.intensity ?? t("storyMap.curveNoValue")}</td>
+              {showReference ? <td>{point.referenceIntensity}</td> : null}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="h-48 w-full" aria-hidden="true">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={curve} margin={{ top: 8, right: 8, bottom: 0, left: -24 }}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
@@ -106,6 +137,7 @@ export function EmotionCurve({
           {t("storyMap.curveEmpty")}
         </p>
       ) : null}
-    </div>
+      </div>
+    </>
   );
 }

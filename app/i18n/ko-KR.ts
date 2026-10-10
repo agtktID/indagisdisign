@@ -116,6 +116,8 @@ const messages = {
     fileUnreadable: "해당 파일을 읽을 수 없습니다.",
   },
   mapDiagnostic: {
+    severityWarn: "경고: ",
+    severityInfo: "참고: ",
     run: "진단하기",
     running: "분석 중…",
     count: "지적 {{count}}건",
@@ -360,6 +362,10 @@ const messages = {
     send: "보내기",
   },
   storyMap: {
+    curveStepColumn: "단계",
+    curveYoursColumn: "내 강도",
+    curveReferenceColumn: "방법론 기준",
+    curveNoValue: "미설정",
     loading: "이야기 지도를 불러오는 중…",
     title: "이야기 지도",
     coverageSummary: "메모가 있는 단계: {{covered}} / {{total}}",

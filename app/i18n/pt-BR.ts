@@ -117,6 +117,8 @@ const messages = {
     fileUnreadable: "Não foi possível ler esse arquivo.",
   },
   mapDiagnostic: {
+    severityWarn: "Aviso: ",
+    severityInfo: "Observação: ",
     run: "Diagnosticar",
     running: "Analisando…",
     count: "{{count}} observação(ões)",
@@ -361,6 +363,10 @@ const messages = {
     send: "Enviar",
   },
   storyMap: {
+    curveStepColumn: "Etapa",
+    curveYoursColumn: "Sua intensidade",
+    curveReferenceColumn: "Referência do método",
+    curveNoValue: "sem valor",
     loading: "Carregando o mapa…",
     title: "Mapa narrativo",
     coverageSummary: "Etapas com uma nota: {{covered}} / {{total}}",

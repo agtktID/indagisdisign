@@ -116,6 +116,8 @@ const messages = {
     fileUnreadable: "そのファイルを読み取れませんでした。",
   },
   mapDiagnostic: {
+    severityWarn: "警告： ",
+    severityInfo: "メモ： ",
     run: "診断する",
     running: "解析中…",
     count: "{{count}} 件の指摘",
@@ -360,6 +362,10 @@ const messages = {
     send: "送信",
   },
   storyMap: {
+    curveStepColumn: "ステップ",
+    curveYoursColumn: "あなたの強度",
+    curveReferenceColumn: "メソッドの基準",
+    curveNoValue: "未設定",
     loading: "物語マップを読み込み中…",
     title: "物語マップ",
     coverageSummary: "メモのあるステップ: {{covered}} / {{total}}",

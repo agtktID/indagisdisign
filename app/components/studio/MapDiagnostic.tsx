@@ -15,7 +15,7 @@
  */
 import { useActionQuery } from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
-import { IconStethoscope } from "@tabler/icons-react";
+import { IconAlertTriangle, IconStethoscope } from "@tabler/icons-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,12 @@ export function MapDiagnostic({
           <ul className="flex max-w-md flex-col items-end gap-1">
             {findings.map((finding) => (
               <li key={finding.rule} className="text-right text-xs">
+                {/*
+                  La gravité ne passait que par la couleur — ambre contre gris. En
+                  niveaux de gris, pour un daltonien, ou pour un lecteur d'écran, un
+                  avertissement était indiscernable d'une simple remarque. L'icône et
+                  le libellé caché portent l'information ; la couleur la renforce.
+                */}
                 <span
                   className={
                     finding.severity === "warn"
@@ -96,6 +102,18 @@ export function MapDiagnostic({
                       : "text-muted-foreground"
                   }
                 >
+                  {finding.severity === "warn" ? (
+                    <IconAlertTriangle
+                      size={12}
+                      className="mr-1 inline-block align-[-1px]"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  <span className="sr-only">
+                    {finding.severity === "warn"
+                      ? t("mapDiagnostic.severityWarn")
+                      : t("mapDiagnostic.severityInfo")}
+                  </span>
                   {finding.message}
                 </span>
                 {finding.steps.length > 0 ? (

@@ -111,6 +111,8 @@ const messages = {
     fileUnreadable: "无法读取该文件。",
   },
   mapDiagnostic: {
+    severityWarn: "警告：",
+    severityInfo: "提示：",
     run: "诊断",
     running: "分析中…",
     count: "{{count}} 条提示",
@@ -355,6 +357,10 @@ const messages = {
     send: "发送",
   },
   storyMap: {
+    curveStepColumn: "阶段",
+    curveYoursColumn: "你的强度",
+    curveReferenceColumn: "方法参考值",
+    curveNoValue: "未填写",
     loading: "正在加载叙事图…",
     title: "叙事图",
     coverageSummary: "已写笔记的步骤：{{covered}} / {{total}}",

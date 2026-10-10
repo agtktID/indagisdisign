@@ -115,6 +115,8 @@ const messages = {
     fileUnreadable: "वह फ़ाइल पढ़ी नहीं जा सकी।",
   },
   mapDiagnostic: {
+    severityWarn: "चेतावनी: ",
+    severityInfo: "टिप्पणी: ",
     run: "निदान करें",
     running: "विश्लेषण हो रहा है…",
     count: "{{count}} टिप्पणी",
@@ -359,6 +361,10 @@ const messages = {
     send: "भेजें",
   },
   storyMap: {
+    curveStepColumn: "चरण",
+    curveYoursColumn: "आपकी तीव्रता",
+    curveReferenceColumn: "विधि का संदर्भ",
+    curveNoValue: "निर्धारित नहीं",
     loading: "कथा-मानचित्र लोड हो रहा है…",
     title: "कथा-मानचित्र",
     coverageSummary: "टिप्पणी वाले चरण: {{covered}} / {{total}}",

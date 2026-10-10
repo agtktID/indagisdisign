@@ -113,6 +113,8 @@ const messages = {
     fileUnreadable: "تعذّرت قراءة هذا الملف.",
   },
   mapDiagnostic: {
+    severityWarn: "تحذير: ",
+    severityInfo: "ملاحظة: ",
     run: "تشخيص",
     running: "جارٍ التحليل…",
     count: "{{count}} ملاحظة",
@@ -357,6 +359,10 @@ const messages = {
     send: "إرسال",
   },
   storyMap: {
+    curveStepColumn: "المرحلة",
+    curveYoursColumn: "شدّتك",
+    curveReferenceColumn: "مرجع المنهج",
+    curveNoValue: "غير محدّدة",
     loading: "جارٍ تحميل خريطة السرد…",
     title: "خريطة السرد",
     coverageSummary: "الخطوات التي تحمل ملاحظة: {{covered}} / {{total}}",
